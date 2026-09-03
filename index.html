@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PT Dua Kawan Sejahtera Indonesia | Integrated ICT & Smart Solutions</title>
+<meta name="description" content="DKSI menyediakan solusi ICT terintegrasi untuk pendidikan, pemerintahan, dan enterprise, mulai dari IT infrastructure, network security, smart education, AI, IoT, data, procurement hingga IT rental.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/tailwind.min.css">
+<link rel="stylesheet" href="css/style.css">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+<script>
+  (function() {
+    const t = localStorage.getItem('dksi_theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (t === 'dark' || (!t && prefersDark)) {
+      document.documentElement.classList.add('dark');
+    }
+  })();
+</script>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="font-sans antialiased bg-[var(--bg)] text-[var(--text)] transition-colors duration-300">
+
+<!-- ===========================================
+     SECTION 01: NAVBAR (Sticky Top)
+     =========================================== -->
+<header id="navbar" class="fixed top-0 inset-x-0 z-50 transition-all duration-300 bg-transparent border-b border-transparent">
+<div class="max-w-[1280px] mx-auto px-6 lg:px-8 h-[72px] flex items-center justify-between">
+<a id="siteLogoWrap" href="#home" class="flex items-center gap-3">
+<img id="siteLogo" src="assets/logo/secondary-light.png" alt="DKSI Logo" class="h-16 transition-all">
+</a>
+<nav class="hidden lg:flex items-center gap-1 text-[13px] font-semibold tracking-wide">
+<a href="#home" class="nav-link active px-3 py-2">HOME</a>
+<a href="#about" class="nav-link px-3 py-2">ABOUT</a>
+<div class="relative group">
+<button class="nav-link px-3 py-2 flex items-center gap-1">SOLUTIONS <i class="ri-arrow-down-s-line text-xs"></i></button>
+<div class="absolute left-0 top-full mt-2 w-72 bg-[var(--bg-card)] rounded-2xl shadow-xl border border-[var(--border)] p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition">
+<a href="#solutions-infra" class="block px-4 py-3 rounded-xl hover:bg-[var(--bg-soft)]"><span class="block text-sm font-bold text-royal dark:text-cyan">IT Infrastructure & Security</span><span class="text-xs text-slate-500">Network, Data Center, Firewall</span></a>
+<a href="#solutions-edu" class="block px-4 py-3 rounded-xl hover:bg-[var(--bg-soft)]"><span class="block text-sm font-bold text-royal dark:text-cyan">Smart Education</span><span class="text-xs text-slate-500">Smartclassroom, Microteaching, Lab Bahasa</span></a>
+<a href="#solutions-ai" class="block px-4 py-3 rounded-xl hover:bg-[var(--bg-soft)]"><span class="block text-sm font-bold text-royal dark:text-cyan">AI, IoT & Smart Innovation</span><span class="text-xs text-slate-500">Smart Campus, Smart Office, Command Center</span></a>
+</div>
+</div>
+<div class="relative group">
+<button class="nav-link px-3 py-2 flex items-center gap-1">PRODUCTS <i class="ri-arrow-down-s-line text-xs"></i></button>
+<div class="absolute left-0 top-full mt-2 w-64 bg-[var(--bg-card)] rounded-2xl shadow-xl border border-[var(--border)] p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition">
+<a href="#services" class="block px-4 py-2.5 rounded-xl hover:bg-[var(--bg-soft)] text-sm font-medium">DKSI Solutions</a>
+<a href="#services" class="block px-4 py-2.5 rounded-xl hover:bg-[var(--bg-soft)] text-sm font-medium">DKSI Data</a>
+<a href="#services" class="block px-4 py-2.5 rounded-xl hover:bg-[var(--bg-soft)] text-sm font-medium">DKSI Apps</a>
+<a href="#services" class="block px-4 py-2.5 rounded-xl hover:bg-[var(--bg-soft)] text-sm font-medium">DKSI Procurement</a>
+<a href="#services" class="block px-4 py-2.5 rounded-xl hover:bg-[var(--bg-soft)] text-sm font-medium">DKSI Rental</a>
+</div>
+</div>
+<a href="#portfolio" class="nav-link px-3 py-2">PORTFOLIO</a>
+<a href="#why" class="nav-link px-3 py-2">WHY DKSI</a>
+<a href="#contact" class="nav-link px-3 py-2">CONTACT</a>
+</nav>
+<div class="flex items-center gap-3">
+<button id="themeToggle" class="w-10 h-10 flex items-center justify-center rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] text-[var(--text)] hover:scale-105 transition-all shadow-sm">
+<i id="themeIcon" class="ri-moon-line text-lg"></i>
+</button>
+<a href="#contact" class="hidden sm:inline-flex bg-royal dark:bg-cyan dark:text-darkBg text-white px-6 py-2.5 rounded-full text-xs font-extrabold tracking-widest hover:brightness-110 transition shadow-md uppercase">Konsultasi</a>
+<button id="menuBtn" class="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-[var(--bg-soft)] border border-[var(--border)]"><i class="ri-menu-line"></i></button>
+</div>
+</div>
+<div id="mobileNav" class="hidden lg:hidden bg-[var(--bg-card)] border-t border-[var(--border)]">
+<div class="px-6 py-4 grid gap-1 text-sm font-semibold">
+<a href="#home" class="py-2">HOME</a><a href="#about" class="py-2">ABOUT</a><a href="#solutions-infra" class="py-2">SOLUTIONS</a><a href="#services" class="py-2">PRODUCTS</a><a href="#portfolio" class="py-2">PORTFOLIO</a><a href="#why" class="py-2">WHY DKSI</a><a href="#contact" class="py-2 text-royal dark:text-cyan">KONSULTASI <i class="ri-arrow-right-line"></i></a>
+</div>
+</div>
+</header>
+
+<!-- ===========================================
+     SECTION 02: HERO
+     =========================================== -->
+<section id="home" class="relative min-h-[92vh] flex items-center overflow-hidden bg-slate-50 dark:bg-slate-950">
+<div class="absolute inset-0">
+<img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80" class="w-full h-full object-cover opacity-[0.04] dark:opacity-[0.12]" alt="">
+<div class="absolute inset-0 bg-gradient-to-b from-white/30 via-transparent to-white dark:from-slate-950/30 dark:to-slate-950"></div>
+<div class="absolute inset-0 opacity-[0.05]" style="background-image:linear-gradient(rgba(10,45,122,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(10,45,122,.1) 1px,transparent 1px);background-size:56px 56px"></div>
+</div>
+<div class="relative max-w-[1280px] mx-auto px-6 lg:px-8 pt-28 pb-12 w-full">
+<div class="grid lg:grid-cols-2 gap-10 items-center">
+<div>
+<div class="inline-flex items-center gap-2 bg-[var(--bg-card)] border border-[var(--border)] rounded-full px-3 py-1 text-[10px] font-bold tracking-widest text-[var(--brand)] shadow-sm"><span class="w-2 h-2 rounded-full bg-cyan animate-pulse"></span> <span id="heroEyebrow">YOUR TRUSTED PARTNER FOR INTEGRATED ICT</span></div>
+<h1 class="mt-6 text-[42px] sm:text-[52px] lg:text-[68px] font-extrabold leading-[0.9] tracking-tight text-[var(--brand)]"><span id="heroHeadline">Support Your</span><br><span id="heroAccent" class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--brand)] to-cyan">Business</span> <span id="heroSuffix">With ICT</span></h1>
+<p id="heroDesc" class="mt-6 max-w-xl text-[18px] leading-relaxed text-[var(--text-soft)]">Menghadirkan solusi ICT terintegrasi untuk membantu pendidikan, pemerintahan, dan enterprise menjadi lebih <b class="text-[var(--text)]">terkoneksi, aman, dan efisien.</b></p>
+<div class="mt-8 flex flex-wrap gap-3">
+<a id="heroPrimaryCta" href="#contact" class="bg-royal dark:bg-cyan text-white dark:text-darkBg px-8 py-4 rounded-full text-xs font-extrabold tracking-widest hover:brightness-110 transition shadow-lg uppercase">Kebutuhan Anda <i class="ri-arrow-right-line"></i></a>
+<a id="heroSecondaryCta" href="#solutions-infra" class="bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text)] px-8 py-4 rounded-full text-xs font-extrabold tracking-widest hover:bg-[var(--bg-soft)] transition uppercase">Jelajahi Solusi</a>
+</div>
+</div>
+<div class="relative">
+<div class="relative rounded-[32px] overflow-hidden bg-[var(--bg-card)] border border-[var(--border)] shadow-2xl hero-img">
+<img id="heroImage" src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1100&q=80" class="w-full h-[440px] object-cover object-center" alt="Enterprise ICT">
+<div class="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent dark:from-black/60"></div>
+<div id="heroBadges" class="absolute bottom-5 left-5 right-5 grid grid-cols-3 gap-2 z-10">
+<span class="glass-btn">AI</span><span class="glass-btn">IoT</span><span class="glass-btn">SECURITY</span>
+<span class="glass-btn">NETWORK</span><span class="glass-btn">DATA</span><span class="glass-btn">SMART</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ==================== SECTION 02: STATS STRIP ==================== -->
+<section class="bg-[var(--bg-card)] border-y border-[var(--border)]">
+<div id="trustBar" class="max-w-[1280px] mx-auto px-6 lg:px-8 py-8 grid grid-cols-2 md:grid-cols-5 gap-8 text-center">
+<div><div class="text-[10px] font-mono tracking-widest text-[var(--text-muted)] uppercase">Established</div><div class="font-extrabold text-[var(--brand)] text-lg">2019</div></div>
+<div><div class="text-[10px] font-mono tracking-widest text-[var(--text-muted)] uppercase">Quality</div><div class="font-extrabold text-[var(--brand)] text-lg">ISO 9001:2015</div></div>
+<div><div class="text-[10px] font-mono tracking-widest text-[var(--text-muted)] uppercase">Approach</div><div class="font-extrabold text-[var(--brand)] text-lg">End-to-End</div></div>
+<div><div class="text-[10px] font-mono tracking-widest text-[var(--text-muted)] uppercase">Expertise</div><div class="font-extrabold text-[var(--brand)] text-lg">ICT Solutions</div></div>
+<div><div class="text-[10px] font-mono tracking-widest text-[var(--text-muted)] uppercase">Compliance</div><div class="font-extrabold text-[var(--brand)] text-lg">TKDN Support</div></div>
+</div>
+</section>
+
+<!-- ===========================================
+     SECTION 04: ABOUT + SECTOR SWITCHER
+     =========================================== -->
+<section id="about" class="py-20 lg:py-28 bg-[var(--bg)] relative overflow-hidden">
+<div class="max-w-[1280px] mx-auto px-6 lg:px-8">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+<div class="lg:col-span-7">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[var(--bg-soft)] border border-[var(--border)] text-[var(--brand)] text-[10px] font-extrabold uppercase tracking-wider mb-4">
+<span class="w-1.5 h-1.5 rounded-full bg-[var(--brand)]"></span> <span id="aboutLabel">DKSI Profile</span>
+</div>
+<h2 id="aboutHeadline" class="text-3xl sm:text-5xl font-extrabold text-[var(--text)] tracking-tight leading-[1.1] mb-6">Solusi ICT Terintegrasi Untuk Masa Depan Digital</h2>
+<p id="aboutDesc" class="text-lg text-[var(--text-soft)] leading-relaxed mb-6"><b>PT Dua Kawan Sejahtera Indonesia (DKSI)</b> adalah partner strategis dalam modernisasi infrastruktur teknologi informasi untuk sektor <b>pendidikan</b>, <b>pemerintahan</b>, dan <b>enterprise</b>.</p>
+<div class="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-6 mb-8">
+<div class="grid grid-cols-3 gap-2 p-1 bg-[var(--bg-soft)] rounded-2xl mb-6" id="sectorTabs">
+<button type="button" data-sector="education" class="sector-btn py-3 px-3 rounded-xl text-[11px] font-extrabold transition-all bg-[var(--bg-card)] text-[var(--brand)] shadow-sm">PENDIDIKAN</button>
+<button type="button" data-sector="government" class="sector-btn py-3 px-3 rounded-xl text-[11px] font-extrabold transition-all text-[var(--text-muted)]">PEMERINTAHAN</button>
+<button type="button" data-sector="enterprise" class="sector-btn py-3 px-3 rounded-xl text-[11px] font-extrabold transition-all text-[var(--text-muted)]">ENTERPRISE</button>
+</div>
+<div id="sectorDetail" class="min-h-[120px]"></div>
+</div>
+<div class="flex flex-wrap items-center gap-4">
+<a href="#contact" class="px-7 py-4 rounded-2xl bg-royal dark:bg-cyan text-white dark:text-darkBg text-[11px] font-black uppercase tracking-widest shadow-lg transition-all hover:scale-[1.02]">Konsultasi Sektor</a>
+<a href="#process" class="text-xs font-extrabold text-[var(--brand)] flex items-center gap-2">Lihat Alur Kerja <i class="ri-arrow-right-line"></i></a>
+</div>
+</div>
+<div class="lg:col-span-5">
+<div class="relative p-2 bg-gradient-to-tr from-royal/20 to-cyan/20 rounded-[40px]">
+<div class="relative bg-gradient-to-br from-[#0A2D7A] to-[#041635] dark:from-[#111827] dark:to-[#030712] rounded-[38px] p-8 text-white shadow-2xl border border-white/10 overflow-hidden">
+<div class="relative z-10">
+<img id="aboutLogo" src="assets/logo/secondary-dark.png" alt="DKSI" class="h-6 mb-8 opacity-90">
+<h3 id="aboutCardTagline" class="text-2xl font-black mb-4">"Support Your Business With ICT"</h3>
+<div class="space-y-4"><div class="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/10"><i class="ri-shield-check-line text-2xl text-cyan flex-shrink-0 mt-0.5"></i><div><p class="text-xs font-bold" id="aboutCert1">ISO 9001:2015</p><p class="text-[10px] opacity-70" id="aboutCert1Sub">Manajemen Mutu Internasional</p></div></div>
+<div class="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10"><i class="ri-government-line text-2xl text-cyan flex-shrink-0 mt-0.5"></i><div><p class="text-xs font-bold" id="aboutCert2">TKDN Support</p><p class="text-[10px] opacity-70" id="aboutCert2Sub">Kepatuhan Regulasi Nasional</p></div></div>
+</div>
+<div class="mt-8 pt-6 border-t border-white/10 text-[10px] flex justify-between opacity-60"><span id="aboutCity">Jakarta, Indonesia</span><span id="aboutEstablished">EST. 2019</span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- SECTION 05: PROCESS (6-Step) -->
+<section id="process" class="py-20 bg-[var(--bg-soft)] border-y border-[var(--border)]">
+<div class="max-w-[1280px] mx-auto px-6 lg:px-8">
+<div class="text-center max-w-3xl mx-auto mb-16">
+<div class="label center mb-3">WORK PROCESS</div>
+<h2 class="text-3xl sm:text-4xl font-extrabold text-[var(--text)]">End-to-End Solution Process</h2>
+</div>
+<div class="relative mb-12">
+<div class="hidden lg:block absolute top-1/2 left-8 right-8 h-1 bg-[var(--border)] -translate-y-6"><div id="processProgress" class="h-full bg-[var(--brand)] transition-all duration-500" style="width:0%"></div></div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 relative z-10" id="stepButtons"></div>
+</div>
+<div class="bg-[var(--bg-card)] rounded-[32px] border border-[var(--border)] p-8 sm:p-12 shadow-xl" id="stepDetail"></div>
+</div>
+</section>
+
+<!-- SECTION 06: SERVICES -->
+<section id="services" class="py-20 lg:py-28 bg-[var(--bg)]">
+<div class="max-w-[1280px] mx-auto px-6 lg:px-8">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
+<div><div class="label mb-2">SERVICES</div><h2 class="text-4xl font-extrabold text-[var(--text)]">Solusi Utama</h2></div>
+<a href="#contact" class="bg-slate-900 dark:bg-cyan text-white dark:text-darkBg px-6 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-sm">Konsultasi Layanan</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="servicesGrid"></div>
+</div>
+</section>
+
+<section class="bg-[var(--bg-card)] border-y border-[var(--border)] py-16 lg:py-20">
+<div class="max-w-[1280px] mx-auto px-6 lg:px-8 text-center">
+<div class="label mb-3">BUILD SMARTER</div>
+<h2 class="text-4xl sm:text-5xl font-extrabold text-[var(--text)] mb-6">Bangun Infrastruktur Digital yang Lebih <span class="text-[var(--brand)]">Cerdas</span></h2>
+<p class="text-lg text-[var(--text-soft)] max-w-2xl mx-auto mb-10">Dari jaringan enterprise hingga kampus pintar, kami mengintegrasikan teknologi terkini untuk efisiensi dan daya saing Anda.</p>
+<div class="grid md:grid-cols-3 gap-6">
+<div class="p-6 rounded-3xl bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--brand)] transition-all">
+<div class="w-14 h-14 rounded-2xl bg-royal dark:bg-cyan flex items-center justify-center text-white dark:text-darkBg text-2xl mb-4"><i class="ri-server-line"></i></div>
+<h3 class="font-extrabold text-lg mb-2 text-[var(--text)]">High-Performance</h3>
+<p class="text-sm text-[var(--text-soft)]">Infrastructure berperforma tinggi untuk kebutuhan skala enterprise dan government.</p>
+</div>
+<div class="p-6 rounded-3xl bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--brand)] transition-all">
+<div class="w-14 h-14 rounded-2xl bg-royal dark:bg-cyan flex items-center justify-center text-white dark:text-darkBg text-2xl mb-4"><i class="ri-brain-line"></i></div>
+<h3 class="font-extrabold text-lg mb-2 text-[var(--text)]">AI-Ready</h3>
+<p class="text-sm text-[var(--text-soft)]">Platform siap AI untuk analitik prediktif dan otomatisasi proses bisnis.</p>
+</div>
+<div class="p-6 rounded-3xl bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--brand)] transition-all">
+<div class="w-14 h-14 rounded-2xl bg-royal dark:bg-cyan flex items-center justify-center text-white dark:text-darkBg text-2xl mb-4"><i class="ri-shield-check-line"></i></div>
+<h3 class="font-extrabold text-lg mb-2 text-[var(--text)]">Secure by Design</h3>
+<p class="text-sm text-[var(--text-soft)]">Keamanan terintegrasi dari awal desain hingga implementasi dan monitoring.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- SECTION 07: SOLUTIONS INFRA -->
+<section id="solutions-dynamic" class="contents">
+  <!-- Sections are dynamically rendered by js/script.js from cms.solCategories -->
+</section>
+
+<!-- SECTION 10: WHY DKSI -->
+<section id="why" class="py-20 lg:py-28 bg-[var(--bg-soft)] border-y border-[var(--border)]">
+<div class="max-w-[1280px] mx-auto px-6 lg:px-8">
+<div class="text-center max-w-3xl mx-auto mb-16">
+<div class="label mb-2">WHY DKSI</div>
+<h2 class="text-4xl font-extrabold text-[var(--text)]">Mengapa Memilih DKSI</h2>
+</div>
+<div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6" id="whyGrid"></div>
+</div>
+</section>
+
+<!-- SECTION 11: QUALITY & COMMITMENT -->
+<section id="compliance" class="py-20 lg:py-28 bg-[var(--bg)]">
+<div class="max-w-[1280px] mx-auto px-6 lg:px-8">
+<div class="text-center max-w-3xl mx-auto mb-16">
+<div class="label mb-2">QUALITY & COMMITMENT</div>
+<h2 class="text-4xl font-extrabold text-[var(--text)]">Standar Internasional, Kepatuhan Nasional</h2>
+</div>
+<div class="grid md:grid-cols-2 gap-8" id="complianceGrid"></div>
+</div>
+</section>
+
+<!-- SECTION 12: TRUSTED BY -->
+<section id="trusted" class="py-16 bg-[var(--bg-card)] border-y border-[var(--border)]">
+<div class="max-w-[1280px] mx-auto px-6 lg:px-8">
+<div class="text-center mb-10">
+<div class="label mb-3">TRUSTED BY</div>
+<h2 class="text-2xl font-extrabold text-[var(--text)]">Dipercaya oleh Kementerian & Instansi</h2>
+</div>
+<div class="flex flex-wrap items-center justify-center gap-8 sm:gap-12" id="trustedLogos"></div>
+</div>
+</section>
+
+<!-- SECTION 13: PORTFOLIO -->
+<section id="portfolio" class="py-20 bg-[var(--bg-soft)] border-y border-[var(--border)]">
+<div class="max-w-[1280px] mx-auto px-6 lg:px-8">
+<div class="flex flex-wrap items-end justify-between gap-6 mb-12">
+<div><div class="label mb-2">PORTFOLIO</div><h2 class="text-4xl font-extrabold text-[var(--text)]">Project Terpilih</h2></div>
+<div class="flex gap-2 p-1 bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-auto" id="pfFilters">
+<button data-filter="all" class="filter-btn active">SEMUA</button>
+<button data-filter="edu" class="filter-btn">EDU</button>
+<button data-filter="infra" class="filter-btn">INFRA</button>
+<button data-filter="smart" class="filter-btn">SMART</button>
+</div>
+</div>
+<div id="portfolioGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+</div>
+</section>
+
+<section class="relative py-20 lg:py-28 overflow-hidden">
+  <div class="absolute inset-0 bg-gradient-to-br from-royal via-[#0f3a9a] to-[#082057]"></div>
+  <div class="absolute inset-0 opacity-20" style="background-image:linear-gradient(var(--text) 1px,transparent 1px),linear-gradient(90deg,var(--text) 1px,transparent 1px);background-size:48px 48px"></div>
+  <div class="absolute -top-32 right-0 w-[520px] h-[520px] rounded-full bg-cyan/30 blur-3xl"></div>
+  <div class="absolute -bottom-32 -left-20 w-[420px] h-[420px] rounded-full bg-royal/40 blur-3xl"></div>
+  <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
+  <div class="relative max-w-[1280px] mx-auto px-6 lg:px-8 text-center">
+    <p class="text-[10px] font-mono tracking-[0.18em] text-cyan uppercase mb-3">PT DUA KAWAN SEJAHTERA INDONESIA</p>
+    <h2 class="text-4xl sm:text-5xl font-extrabold text-white mb-6">Siap Membangun Infrastruktur Digital Anda?</h2>
+    <p class="text-lg text-white/80 max-w-2xl mx-auto mb-10">Konsultasikan kebutuhan ICT Anda dengan ahli kami. Dapatkan solusi terintegrasi yang tepat untuk instansi atau bisnis Anda.</p>
+    <div class="flex flex-wrap items-center justify-center gap-4">
+      <a href="#contact" class="bg-white text-royal px-10 py-4 rounded-full text-xs font-extrabold tracking-widest uppercase hover:scale-105 transition shadow-2xl">Konsultasi Sekarang</a>
+      <a href="tel:+622112345678" class="bg-white/10 backdrop-blur-sm border border-white/20 text-white px-8 py-4 rounded-full text-xs font-extrabold tracking-widest uppercase hover:bg-white/20 transition">+62 811-1234-5678</a>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 14: CONTACT -->
+<section id="contact" class="py-20 lg:py-28 bg-[var(--bg)]">
+<div class="max-w-[1280px] mx-auto px-6 lg:px-8">
+<div class="grid lg:grid-cols-12 gap-16">
+<div class="lg:col-span-5">
+<div class="label mb-4">CONTACT US</div>
+<h2 id="contactHeadline" class="text-4xl sm:text-5xl font-extrabold text-[var(--text)] leading-tight mb-8">Let's Build Your ICT Solution</h2>
+<div class="space-y-6">
+<div class="flex gap-5 p-6 rounded-3xl bg-[var(--bg-soft)] border border-[var(--border)]">
+<div class="w-12 h-12 rounded-2xl bg-royal dark:bg-cyan flex items-center justify-center text-white dark:text-darkBg flex-shrink-0"><i class="ri-map-pin-line text-xl"></i></div>
+<div><p class="text-[10px] font-black text-[var(--text-muted)] uppercase mb-1">Jakarta Office</p><p class="text-sm font-bold leading-relaxed">Rukan Crown Palace Blok D.3, Jl. Prof Dr. Soepomo No. 231, Tebet, Jakarta Selatan</p></div>
+</div>
+<div class="flex gap-5 p-6 rounded-3xl bg-[var(--bg-soft)] border border-[var(--border)]">
+<div class="w-12 h-12 rounded-2xl bg-royal dark:bg-cyan flex items-center justify-center text-white dark:text-darkBg flex-shrink-0"><i class="ri-mail-line text-xl"></i></div>
+<div><p class="text-[10px] font-black text-[var(--text-muted)] uppercase mb-1">Email Resmi</p><a href="mailto:sales@dksi.co.id" class="text-sm font-bold text-royal dark:text-cyan">sales@dksi.co.id</a></div>
+</div>
+<div class="flex gap-5 p-6 rounded-3xl bg-[var(--bg-soft)] border border-[var(--border)]">
+<div class="w-12 h-12 rounded-2xl bg-royal dark:bg-cyan flex items-center justify-center text-white dark:text-darkBg flex-shrink-0"><i class="ri-phone-line text-xl"></i></div>
+<div><p class="text-[10px] font-black text-[var(--text-muted)] uppercase mb-1">Telepon / WhatsApp</p><a href="tel:+6281112345678" class="text-sm font-bold text-royal dark:text-cyan">+62 811-1234-5678</a></div>
+</div>
+</div>
+</div>
+<div class="lg:col-span-7">
+<div class="bg-[var(--bg-card)] rounded-[40px] border border-[var(--border)] p-8 sm:p-12 shadow-2xl">
+<form id="contactForm" class="grid gap-6">
+<div class="grid sm:grid-cols-2 gap-6">
+<div><label class="form-label">Nama Lengkap</label><input required placeholder="Budi Santoso" class="form-input"></div>
+<div><label class="form-label">Instansi / Perusahaan</label><input placeholder="PT/Kementerian/Universitas" class="form-input"></div>
+</div>
+<div><label class="form-label">Email</label><input type="email" required placeholder="name@email.com" class="form-input"></div>
+<div><label class="form-label">Nomor Telepon / WhatsApp</label><input type="tel" placeholder="+62 811-xxxx-xxx" class="form-input"></div>
+<div><label class="form-label">Kategori Kebutuhan</label>
+<select class="form-input" style="background:var(--bg-soft);color:var(--text);">
+<option value="">Pilih kategori...</option>
+<option>IT Infrastructure</option>
+<option>Smart Education</option>
+<option>AI & IoT</option>
+<option>Procurement / Rental</option>
+<option>Lainnya</option>
+</select>
+</div>
+<div><label class="form-label">Pesan / Detail Kebutuhan</label><textarea rows="4" placeholder="Jelaskan kebutuhan ICT Anda secara detail..." class="form-input"></textarea></div>
+<button type="submit" class="w-full bg-royal dark:bg-cyan text-white dark:text-darkBg py-5 rounded-2xl text-xs font-black uppercase tracking-widest hover:brightness-110 transition">Kirim Konsultasi</button>
+<p id="formMsg" class="hidden text-center text-emerald-500 font-bold text-sm mt-4">✓ Terkirim! Tim kami akan menghubungi dalam 1×24 jam.</p>
+</form>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- SECTION 15: FOOTER -->
+<footer class="bg-[#030712] border-t border-white/5 text-slate-400">
+<div class="max-w-[1280px] mx-auto px-6 lg:px-8 py-16">
+<div class="grid md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+<div>
+<img id="footerLogo" src="assets/logo/main.png" alt="DKSI" class="h-8 mb-6">
+<p class="text-sm leading-relaxed mb-6">Integrated ICT & Smart Solutions provider for education, government, and enterprise sectors in Indonesia. Est. 2019.</p>
+<div class="flex gap-3">
+<a href="#" aria-label="LinkedIn" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-cyan hover:text-darkBg transition-all"><i class="ri-linkedin-fill"></i></a>
+<a href="#" aria-label="Instagram" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-cyan hover:text-darkBg transition-all"><i class="ri-instagram-line"></i></a>
+<a href="#" aria-label="YouTube" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-cyan hover:text-darkBg transition-all"><i class="ri-youtube-line"></i></a>
+<a href="#" aria-label="Facebook" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-cyan hover:text-darkBg transition-all"><i class="ri-facebook-circle-line"></i></a>
+<a href="#" aria-label="Email" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-cyan hover:text-darkBg transition-all"><i class="ri-mail-line"></i></a>
+</div>
+</div>
+<div>
+<h4 class="text-white font-black text-[11px] tracking-widest uppercase mb-6">Quick Links</h4>
+<nav class="grid gap-y-2.5 text-sm"><a href="#home" class="hover:text-cyan transition flex items-center gap-2"><i class="ri-home-line text-cyan flex-shrink-0"></i><span>Home</span></a><a href="#about" class="hover:text-cyan transition flex items-center gap-2"><i class="ri-building-4-line text-cyan flex-shrink-0"></i><span>About DKSI</span></a><a href="#services" class="hover:text-cyan transition flex items-center gap-2"><i class="ri-customer-service-2-line text-cyan flex-shrink-0"></i><span>Services</span></a><a href="#portfolio" class="hover:text-cyan transition flex items-center gap-2"><i class="ri-briefcase-4-line text-cyan flex-shrink-0"></i><span>Portfolio</span></a><a href="#contact" class="hover:text-cyan transition flex items-center gap-2"><i class="ri-mail-line text-cyan flex-shrink-0"></i><span>Contact</span></a></nav>
+</div>
+<div>
+<h4 class="text-white font-black text-[11px] tracking-widest uppercase mb-6">Solutions</h4>
+<nav class="grid gap-3 text-sm"><a href="#solutions-infra" class="hover:text-cyan transition">Infrastructure & Security</a><a href="#solutions-edu" class="hover:text-cyan transition">Smart Education</a><a href="#solutions-ai" class="hover:text-cyan transition">AI & IoT</a><a href="#services" class="hover:text-cyan transition">DKSI Procurement</a></nav>
+</div>
+<div>
+<h4 class="text-white font-black text-[11px] tracking-widest uppercase mb-6">Contact Info</h4>
+<div class="grid gap-y-3 text-sm">
+<p class="flex items-center gap-2.5"><i class="ri-map-pin-line text-cyan text-base flex-shrink-0"></i><span id="footerCity">Jakarta, Indonesia</span></p>
+<p class="flex items-center gap-2.5"><i class="ri-mail-line text-cyan text-base flex-shrink-0"></i><span id="footerEmail" class="break-all">sales@dksi.co.id</span></p>
+<p class="flex items-center gap-2.5"><i class="ri-phone-line text-cyan text-base flex-shrink-0"></i><span id="footerPhone">+62 811-1234-5678</span></p>
+</div>
+</div>
+</div>
+</div>
+<div class="max-w-[1280px] mx-auto px-6 lg:px-8 mt-16 pt-8 border-t border-white/5 flex flex-wrap justify-between gap-4 text-[10px] font-mono tracking-widest">
+<span>&copy; 2026 PT DUA KAWAN SEJAHTERA INDONESIA.</span>
+<span>JAKARTA, INDONESIA.</span>
+</div>
+</footer>
+
+<div id="consultModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-gray-950/80 backdrop-blur-md">
+<div class="relative bg-[var(--bg-card)] rounded-[32px] border border-[var(--border)] max-w-xl w-full max-h-[90vh] overflow-auto shadow-2xl p-8 sm:p-12">
+<button onclick="closeConsultModal()" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-[var(--bg-soft)] flex items-center justify-center border border-[var(--border)]"><i class="ri-close-line"></i></button>
+<div class="text-center">
+<div class="w-16 h-16 rounded-full bg-royal dark:bg-cyan flex items-center justify-center text-white mx-auto mb-4 text-2xl"><i class="ri-phone-line"></i></div>
+<h3 class="text-2xl font-extrabold text-[var(--text)] mb-2">Konsultasi Gratis</h3>
+<p class="text-sm text-[var(--text-soft)] mb-6">Isi formulir di bawah ini dan tim kami akan segera menghubungi Anda.</p>
+<form id="consultForm" class="grid gap-4 text-left">
+<div><label class="form-label">Nama Lengkap</label><input required placeholder="Budi Santoso" class="form-input"></div>
+<div><label class="form-label">Instansi / Perusahaan</label><input placeholder="PT/Kementerian/Universitas" class="form-input"></div>
+<div><label class="form-label">Email</label><input type="email" required placeholder="name@email.com" class="form-input"></div>
+<div><label class="form-label">Kategori Kebutuhan</label>
+<select class="form-input" style="background:var(--bg-soft);color:var(--text);">
+<option value="">Pilih...</option>
+<option>IT Infrastructure</option>
+<option>Smart Education</option>
+<option>AI & IoT</option>
+<option>Procurement / Rental</option>
+</select>
+</div>
+<button type="submit" class="w-full bg-royal dark:bg-cyan text-white dark:text-darkBg py-4 rounded-2xl text-xs font-black uppercase tracking-widest hover:brightness-110 transition">Ajukan Konsultasi</button>
+<p id="consultMsg" class="hidden text-center text-emerald-500 font-bold text-sm mt-4">✓ Terkirim! Tim kami akan menghubungi dalam 1×24 jam.</p>
+</form>
+</div>
+</div>
+</div>
+
+<!-- SECTION 16: MODALS -->
+<div id="solutionModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-gray-950/80 backdrop-blur-md">
+<div class="relative bg-[var(--bg-card)] rounded-[32px] border border-[var(--border)] max-w-2xl w-full max-h-[90vh] overflow-auto shadow-2xl p-8 sm:p-12">
+<button onclick="closeModal()" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-[var(--bg-soft)] flex items-center justify-center border border-[var(--border)]"><i class="ri-close-line"></i></button>
+<div id="mContent"></div>
+</div>
+</div>
+
+<script src="cms/cms-data.js"></script>
+<script src="js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DKSI CMS — Admin Dashboard</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+<script>
+  tailwind.config = {
+    darkMode: 'selector',
+    theme: { extend: { colors: { royal: '#0A2D7A', cyan: '#25D6FF', navy: '#061A4A' }, fontFamily: { sans: ['Plus Jakarta Sans','Inter','sans-serif'], mono: ['JetBrains Mono','monospace'] } } }
+  };
+</script>
+<link rel="stylesheet" href="admin.css">
+</head>
+<body class="cms-body">
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" class="login-wrap">
+  <div class="login-bg"></div>
+  <div class="login-card">
+    <div class="flex items-center justify-center gap-3 mb-6">
+      <img id="cmsLoginLogo" src="../assets/logo/main.png" alt="DKSI" class="h-10">
+    </div>
+    <div class="text-center mb-2">
+      <h1 class="text-xl font-extrabold text-white leading-tight">DKSI CMS</h1>
+      <p class="text-[10px] font-mono tracking-widest text-cyan uppercase">Content Management System</p>
+    </div>
+    <p class="text-center text-slate-400 text-sm mb-8">Manage and update your DKSI website content from one place.</p>
+    <form id="loginForm" class="space-y-4">
+      <div>
+        <label class="block text-[10px] font-bold uppercase tracking-widest text-cyan mb-2">Email Admin</label>
+        <input type="email" id="loginEmail" required value="admin@dksi.co.id" class="login-input" placeholder="admin@dksi.co.id">
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold uppercase tracking-widest text-cyan mb-2">Password</label>
+        <input type="password" id="loginPass" required value="dksi2026" class="login-input" placeholder="••••••••">
+      </div>
+      <label class="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
+        <input type="checkbox" checked class="rounded accent-cyan"> Remember me
+      </label>
+      <button type="submit" class="w-full bg-gradient-to-r from-cyan to-blue-500 text-white py-3.5 rounded-xl font-black uppercase tracking-widest text-xs hover:scale-[1.02] transition shadow-lg">Sign In <i class="ri-arrow-right-line"></i></button>
+    </form>
+    <p class="text-center text-slate-500 text-[10px] mt-6 font-mono">PT Dua Kawan Sejahtera Indonesia &middot; 2026</p>
+    <p class="text-center text-slate-600 text-[9px] mt-2">Default: <b>admin@dksi.co.id</b> / <b>dksi2026</b></p>
+  </div>
+</div>
+
+<!-- ADMIN LAYOUT -->
+<div id="adminApp" class="hidden min-h-screen flex">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <img id="cmsSidebarLogo" src="../assets/logo/main.png" alt="DKSI" class="h-8">
+      <div class="mt-3">
+        <h1 class="text-sm font-extrabold text-white leading-tight">DKSI CMS</h1>
+        <p class="text-[9px] font-mono tracking-widest text-cyan uppercase">Content Management</p>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-group">
+        <p class="nav-label">Main</p>
+        <a href="#" data-view="dashboard" class="nav-item active"><i class="ri-dashboard-2-line"></i> Dashboard</a>
+        <a href="#" data-view="media" class="nav-item"><i class="ri-image-2-line"></i> Media Library</a>
+        <a href="#" data-view="revisions" class="nav-item"><i class="ri-history-line"></i> Revisions</a>
+      </div>
+      <div class="nav-group">
+        <p class="nav-label">Website Content</p>
+        <a href="#" data-view="homepage" class="nav-item"><i class="ri-home-2-line"></i> Homepage</a>
+        <a href="#" data-view="about" class="nav-item"><i class="ri-building-4-line"></i> About DKSI</a>
+        <a href="#" data-view="process" class="nav-item"><i class="ri-flow-chart"></i> Process</a>
+        <a href="#" data-view="services" class="nav-item"><i class="ri-customer-service-2-line"></i> Services</a>
+        <a href="#" data-view="solutions" class="nav-item"><i class="ri-stack-line"></i> Solutions</a>
+        <a href="#" data-view="portfolio" class="nav-item"><i class="ri-briefcase-4-line"></i> Portfolio</a>
+        <a href="#" data-view="trusted" class="nav-item"><i class="ri-shield-star-line"></i> Trusted By</a>
+        <a href="#" data-view="why" class="nav-item"><i class="ri-question-line"></i> Why DKSI</a>
+        <a href="#" data-view="compliance" class="nav-item"><i class="ri-shield-check-line"></i> Certification</a>
+        <a href="#" data-view="contact" class="nav-item"><i class="ri-mail-line"></i> Contact</a>
+        <a href="#" data-view="cta" class="nav-item"><i class="ri-cursor-line"></i> CTA Settings</a>
+      </div>
+      <div class="nav-group">
+        <p class="nav-label">Company</p>
+        <a href="#" data-view="branding" class="nav-item"><i class="ri-image-2-fill"></i> Branding / Logo</a>
+        <a href="#" data-view="company" class="nav-item"><i class="ri-information-2-line"></i> Company Profile</a>
+        <a href="#" data-view="leadership" class="nav-item"><i class="ri-team-line"></i> Leadership</a>
+      </div>
+      <div class="nav-group">
+        <p class="nav-label">Marketing</p>
+        <a href="#" data-view="seo" class="nav-item"><i class="ri-search-line"></i> SEO</a>
+        <a href="#" data-view="social" class="nav-item"><i class="ri-share-circle-line"></i> Social Media</a>
+      </div>
+      <div class="nav-group">
+        <p class="nav-label">System</p>
+        <a href="#" data-view="activity" class="nav-item"><i class="ri-time-line"></i> Activity Log</a>
+        <a href="#" data-view="contacts" class="nav-item"><i class="ri-inbox-archive-line"></i> Inquiries</a>
+        <a href="#" data-view="settings" class="nav-item"><i class="ri-settings-3-line"></i> Settings</a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <button id="logoutBtn" class="nav-item text-rose-400 hover:bg-rose-500/10 w-full"><i class="ri-logout-box-r-line"></i> Logout</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-area flex-1 min-w-0">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <button id="sidebarToggle" class="lg:hidden w-10 h-10 grid place-items-center rounded-xl bg-slate-800 text-white"><i class="ri-menu-line"></i></button>
+      <div class="breadcrumb text-sm font-bold text-slate-300" id="breadcrumb">
+        <span class="text-slate-500">Dashboard</span> <i class="ri-arrow-right-s-line text-slate-600"></i> <span>Overview</span>
+      </div>
+      <div class="topbar-actions">
+        <div class="hidden md:flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-800 border border-slate-700">
+          <i class="ri-search-line text-slate-400"></i>
+          <input type="search" placeholder="Search content..." class="bg-transparent border-0 outline-none text-xs text-slate-200 placeholder-slate-500 w-32">
+        </div>
+        <a href="../index.html" target="_blank" class="btn-primary flex items-center gap-2">
+          <i class="ri-external-link-line"></i><span class="hidden sm:inline">View Website</span>
+        </a>
+        <button class="w-10 h-10 grid place-items-center rounded-xl bg-slate-800 text-slate-300 relative">
+          <i class="ri-notification-3-line"></i>
+          <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-cyan"></span>
+        </button>
+        <div class="flex items-center gap-2 pl-3 border-l border-slate-700">
+          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-cyan to-blue-500 grid place-items-center text-white text-xs font-bold">A</div>
+          <div class="hidden sm:block">
+            <p class="text-xs font-bold text-white">Admin</p>
+            <p class="text-[9px] text-slate-400">Super Admin</p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- VIEW: DASHBOARD -->
+    <section id="view-dashboard" class="view active p-6 sm:p-8">
+      <div class="mb-8">
+        <h1 class="text-3xl font-extrabold text-white">Good Morning, Admin</h1>
+        <p class="text-slate-400 mt-2">Manage and update your DKSI website content from one place.</p>
+      </div>
+
+      <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <div class="stat-card stat-published">
+          <p class="stat-label">Website Status</p>
+          <p class="stat-value">Published</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Published</p>
+          <p class="stat-value" id="stat-published">—</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Drafts</p>
+          <p class="stat-value" id="stat-drafts">0</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Portfolio</p>
+          <p class="stat-value" id="stat-portfolio">—</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Services</p>
+          <p class="stat-value" id="stat-services">—</p>
+        </div>
+      </div>
+
+      <div class="grid lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2">
+          <div class="cms-card">
+            <div class="cms-card-header">
+              <h3 class="cms-card-title">Quick Action</h3>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 p-6">
+              <button data-view="homepage" class="quick-action"><i class="ri-home-2-line"></i><b>Edit Homepage</b><span>Hero, trust bar, CTA</span></button>
+              <button data-view="portfolio" class="quick-action"><i class="ri-briefcase-4-line"></i><b>Add Portfolio</b><span>Showcase project</span></button>
+              <button data-view="solutions" class="quick-action"><i class="ri-stack-line"></i><b>Manage Solutions</b><span>Infra, Edu, AI</span></button>
+              <button data-view="services" class="quick-action"><i class="ri-customer-service-2-line"></i><b>Edit Services</b><span>5 service cards</span></button>
+              <button data-view="trusted" class="quick-action"><i class="ri-shield-star-line"></i><b>Manage Clients</b><span>Trusted logos</span></button>
+              <button data-view="media" class="quick-action"><i class="ri-image-add-line"></i><b>Upload Media</b><span>Images & files</span></button>
+            </div>
+          </div>
+
+          <div class="cms-card mt-6">
+            <div class="cms-card-header">
+              <h3 class="cms-card-title">Recent Activity</h3>
+              <button data-view="activity" class="text-xs font-bold text-cyan hover:underline">View All →</button>
+            </div>
+            <div class="p-4" id="activityList"></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="cms-card">
+            <div class="cms-card-header">
+              <h3 class="cms-card-title">System Info</h3>
+            </div>
+            <div class="p-6 space-y-4 text-sm">
+              <div class="flex justify-between"><span class="text-slate-400">CMS Version</span><b class="text-white">v2.0.0</b></div>
+              <div class="flex justify-between"><span class="text-slate-400">Storage</span><b class="text-white">localStorage</b></div>
+              <div class="flex justify-between"><span class="text-slate-400">Theme</span><b class="text-cyan">DKSI Royal</b></div>
+              <div class="flex justify-between"><span class="text-slate-400">Last Published</span><b class="text-white" id="lastPublished">—</b></div>
+              <button onclick="admin.exportData()" class="btn-secondary w-full mt-2"><i class="ri-download-line"></i> Export JSON</button>
+              <button onclick="admin.importData()" class="btn-secondary w-full"><i class="ri-upload-line"></i> Import JSON</button>
+              <button onclick="admin.resetData()" class="btn-danger w-full"><i class="ri-refresh-line"></i> Reset to Default</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DYNAMIC VIEW CONTAINER (editors are rendered here by admin.js) -->
+    <section id="view-editor" class="view p-6 sm:p-8 hidden"></section>
+
+  </main>
+</div>
+
+<!-- TOAST -->
+<div id="toastContainer" class="fixed top-6 right-6 z-[1000] space-y-2"></div>
+
+<!-- CONFIRM MODAL -->
+<div id="confirmModal" class="fixed inset-0 z-[999] hidden items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+  <div class="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-md w-full">
+    <h3 id="confirmTitle" class="text-lg font-bold text-white mb-2">Confirm Action</h3>
+    <p id="confirmMsg" class="text-sm text-slate-400 mb-6">This action cannot be undone.</p>
+    <div class="flex justify-end gap-3">
+      <button id="confirmCancel" class="btn-secondary">Cancel</button>
+      <button id="confirmOk" class="btn-danger">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script src="cms-data.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>
