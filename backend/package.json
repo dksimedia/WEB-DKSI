@@ -1,10 +1,13 @@
 {
   "name": "dksi-backend",
-  "version": "1.0.0",
-  "description": "Backend for DKSI Website",
+  "version": "2.0.0",
+  "description": "Backend server and admin CMS for DKSI Website",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "node server.js"
   },
-  "dependencies": {}
+  "dependencies": {
+    "express": "^4.19.2"
+  }
 }

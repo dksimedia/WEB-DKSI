@@ -163,7 +163,7 @@
       b.addEventListener('click', e => {
         const act = b.getAttribute('data-action');
         if (act === 'saveDraft') { doSave(name); }
-        else if (act === 'preview') { window.open('../index.html?preview=1', '_blank'); }
+        else if (act === 'preview') { window.open('../../frontend/index.html?preview=1', '_blank'); }
         else if (act === 'publish') { doPublish(name); }
         else if (act === 'addService') { addService(); }
         else if (act === 'addPortfolio') { addPortfolioItem(); }

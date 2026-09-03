@@ -1,10 +1,11 @@
 {
-  "name": "dksi-corporate-website",
+  "name": "dksi-frontend",
   "version": "2.0.0",
   "private": true,
   "scripts": {
-    "build:css": "tailwindcss -i css/input.css -o css/tailwind.min.css --minify",
-    "dev:css": "tailwindcss -i css/input.css -o css/tailwind.min.css --watch"
+    "dev": "npm run build:css",
+    "build": "npm run build:css",
+    "build:css": "tailwindcss -i src/input.css -o css/tailwind.min.css --minify"
   },
   "dependencies": {
     "@tailwindcss/cli": "^4.3.3",

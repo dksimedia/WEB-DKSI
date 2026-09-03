@@ -1,8 +1,9 @@
 // =============================================
 // DKSI CONTENT API — localStorage-based CMS Bridge
-// Source of Truth: backend/admin/cms-data.js
-// Copied to frontend/cms/cms-data.js on build
 // =============================================
+// Source of Truth: localStorage["dksi_cms_v2"]
+// Public API: window.CMS.get()
+// Admin API: window.CMS.set() saves & dispatches "cms:update"
 
 (function () {
   const KEY = "dksi_cms_v2";
