@@ -1,18 +1,3 @@
-# PT Dua Kawan Sejahtera Indonesia — DKSI Corporate Website + CMS
-
-> **Production-ready** B2B corporate website for PT Dua Kawan Sejahtera Indonesia (DKSI) with fully integrated Content Management System (CMS) Admin Panel.
-
----
-
-## Deskripsi
-
-DKSI Corporate Website adalah platform B2B enterprise dengan **integrated CMS** yang memungkinkan admin untuk mengelola seluruh konten website secara visual tanpa harus menyentuh kode program.
-
-Seluruh konten website (Hero, About, Services, Solutions, Portfolio, Clients, Contact, SEO, dan lainnya) **database-driven** dan dapat diubah melalui Admin Panel di `cms/admin.html`.
-
-**Stack:** Vanilla HTML + Tailwind CSS (CDN) + Vanilla JS + localStorage bridge (tanpa build step).
-
----
 
 ## Struktur Folder
 
@@ -292,9 +277,3 @@ Pada saat pertama kali load, `cms-data.js` otomatis meng-inject:
 
 ---
 
-## Tim Contact
-
-PT Dua Kawan Sejahtera Indonesia
-**Email:** sales@dksi.co.id
-**Website:** www.dksi.co.id
-**Alamat:** Rukan Crown Palace Blok D.3, Jl. Prof Dr. Soepomo No. 231, Tebet, Jakarta Selatan
