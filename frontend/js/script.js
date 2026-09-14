@@ -422,7 +422,7 @@ window.closeModal = closeModal;
 window.openSolutionModal = openSolutionModal;
 window.closeConsultModal = closeConsultModal;
 
-  // Forms Logic — with honeypot & validation anti-spam
+  // Forms Logic — with honeypot & validation anti-spam + backend submission
   function setupForms() {
     const contactForm = document.getElementById("contactForm");
     if (contactForm) {
@@ -440,13 +440,43 @@ window.closeConsultModal = closeConsultModal;
         const phoneVal = inputs[4]?.value || "";
         const catVal = inputs[5]?.value || "";
         const msgVal = inputs[6]?.value || "";
-        if (window.CMS && typeof CMS.contactsAdd === 'function') {
-          CMS.contactsAdd({ name: nameVal, company: companyVal, email: emailVal, phone: phoneVal, category: catVal, message: msgVal });
-        }
-        const msg = document.getElementById("formMsg");
-        if (msg) msg.classList.remove("hidden");
-        contactForm.reset();
-        setTimeout(() => msg && msg.classList.add("hidden"), 5000);
+        const payload = {
+          name: nameVal,
+          company: companyVal,
+          email: emailVal,
+          phone: phoneVal,
+          category: catVal,
+          message: msgVal,
+          honeypot: hp?.value || ''
+        };
+
+        // Send to backend
+        fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+        .then(res => {
+          if (!res.ok) throw new Error(res.status);
+          return res.json();
+        })
+        .then(() => {
+          // Also update local CMS storage for admin to see immediately
+          if (window.CMS && typeof window.CMS.contactsAdd === 'function') {
+            window.CMS.contactsAdd(payload);
+          }
+          const msg = document.getElementById("formMsg");
+          if (msg) msg.classList.remove("hidden");
+          contactForm.reset();
+          setTimeout(() => msg && msg.classList.add("hidden"), 5000);
+        })
+        .catch(err => {
+          const msg = document.getElementById("formMsg");
+          if (msg) {
+            msg.textContent = 'Terjadi kesalahan. Silakan coba lagi nanti.';
+            msg.classList.remove('hidden');
+          }
+        });
       };
     }
     const consultForm = document.getElementById("consultForm");
@@ -458,13 +488,34 @@ window.closeConsultModal = closeConsultModal;
         const companyVal = inputs[1]?.value || "";
         const emailVal = inputs[2]?.value || "";
         const catVal = inputs[3]?.value || "";
-        if (window.CMS && typeof CMS.contactsAdd === 'function') {
-          CMS.contactsAdd({ name: nameVal, company: companyVal, email: emailVal, phone: "", category: catVal, message: "Via consult modal" });
-        }
-        const msg = document.getElementById("consultMsg");
-        if (msg) msg.classList.remove("hidden");
-        consultForm.reset();
-        setTimeout(() => { if (msg) msg.classList.add("hidden"); closeConsultModal(); }, 2500);
+        const payload = { name: nameVal, company: companyVal, email: emailVal, category: catVal, message: "Via consult modal", honeypot: '' };
+
+        // Send to backend
+        fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+        .then(res => {
+          if (!res.ok) throw new Error(res.status);
+          return res.json();
+        })
+        .then(() => {
+          if (window.CMS && typeof window.CMS.contactsAdd === 'function') {
+            window.CMS.contactsAdd(payload);
+          }
+          const msg = document.getElementById("consultMsg");
+          if (msg) msg.classList.remove("hidden");
+          consultForm.reset();
+          setTimeout(() => { if (msg) msg.classList.add("hidden"); closeConsultModal(); }, 2500);
+        })
+        .catch(err => {
+          const msg = document.getElementById("consultMsg");
+          if (msg) {
+            msg.textContent = 'Terjadi kesalahan. Silakan coba lagi nanti.';
+            msg.classList.remove('hidden');
+          }
+        });
       };
     }
   }
