@@ -66,7 +66,7 @@ function applyCMS() {
   const a1 = document.getElementById("heroPrimaryCta");
   if (a1) { a1.textContent = (cms.homepage.primaryCtaText || "") + " "; if (cms.homepage.primaryCtaText) a1.innerHTML = cms.homepage.primaryCtaText + ' <i class="ri-arrow-right-line"></i>'; a1.href = cms.homepage.primaryCtaLink || "#contact"; }
   const a2 = document.getElementById("heroSecondaryCta");
-  if (a2) { a2.textContent = cms.homepage.secondaryCtaText || "Jelajahi Solusi"; a2.href = cms.homepage.secondaryCtaLink || "#solutions-infra"; }
+  if (a2) { a2.textContent = cms.homepage.secondaryCtaText || "Jelajahi Solusi"; let h2 = cms.homepage.secondaryCtaLink || "#solInfra"; h2 = h2.replace("solutions-infra","solInfra").replace("solutions-edu","solEdu").replace("solutions-ai","solAi"); a2.href = h2; }
   const img = document.getElementById("heroImage"); if (img && cms.homepage.heroImage) img.src = cms.homepage.heroImage;
   // Branding: auto-switch between main / secondary light / secondary dark based on theme
   if (cms.branding) {
@@ -104,7 +104,7 @@ function applyCMS() {
   // BuildSmarter (merge into solutions intro if present)
   const bLabel = document.querySelector("section:nth-of-type(7) .label"); if (bLabel && cms.buildSmarter?.label) bLabel.textContent = cms.buildSmarter.label;
   // Solutions / services / why / compliance / trusted / portfolio
-  if (cms.services) window.DKSI_DATA.services = cms.services.map(s => ({ tag: s.tag || "", title: s.title, sub: s.sub || s.subtitle || "", desc: s.desc, points: s.points || [] }));
+  if (cms.services) window.DKSI_DATA.services = cms.services.map(s => ({ tag: s.tag || "", icon: s.icon || "ri-service-line", title: s.title, sub: s.sub || s.subtitle || "", desc: s.desc, points: s.points || [], target: s.target || "", benefit: s.benefit || "" }));
   if (cms.solInfra) window.DKSI_DATA.solInfraData = cms.solInfra.map(x => ({ icon: x.icon || "ri-service-line", title: x.title, desc: x.desc }));
   if (cms.solEdu) window.DKSI_DATA.solEduData = cms.solEdu.map(x => ({ icon: x.icon || "ri-presentation-line", title: x.title, desc: x.desc }));
   if (cms.solAi) window.DKSI_DATA.solAiData = cms.solAi.map(x => ({ icon: x.icon || "ri-building-line", title: x.title, desc: x.desc }));
@@ -165,11 +165,11 @@ if (!window.DKSI_DATA) window.DKSI_DATA = {
     { step: '06', title: 'Maintenance', desc: 'Dukungan purna jual 24/7.', detail: 'Monitoring berkala, pemeliharaan preventif, dan layanan teknis responsif.' }
   ],
   services: [
-    { tag: '01', title: 'DKSI Solutions', sub: 'IT Infrastructure & Security', desc: 'Membangun pondasi jaringan, server, dan keamanan siber yang tangguh.', points: ['Server & Storage', 'Next-Gen Firewall', 'Structured Cabling'] },
-    { tag: '02', title: 'DKSI Data', sub: 'Data Center & Cloud', desc: 'Manajemen pusat data dan integrasi cloud untuk skalabilitas tinggi.', points: ['Hybrid Cloud', 'Disaster Recovery', 'Monitoring 24/7'] },
-    { tag: '03', title: 'DKSI Apps', sub: 'Custom Software & ERP', desc: 'Pengembangan aplikasi web/mobile terintegrasi sesuai kebutuhan institusi.', points: ['Custom ERP', 'Mobile Apps', 'API Integration'] },
-    { tag: '04', title: 'DKSI Procurement', sub: 'ICT Procurement Services', desc: 'Layanan pengadaan perangkat resmi dengan dukungan TKDN lengkap.', points: ['Sesuai LKPP/TKDN', 'Garansi Prinsipal', 'Transparent Pricing'] },
-    { tag: '05', title: 'DKSI Rental', sub: 'IT Equipment Rental', desc: 'Solusi sewa perangkat IT fleksibel untuk event kenegaraan & korporasi.', points: ['Laptop & Server', 'Harian/Bulanan', 'Full Maintenance'] }
+    { tag: '01', icon: 'ri-shield-keyhole-line', title: 'DKSI Solutions', sub: 'IT Infrastructure & Network Security', desc: 'Pondasi jaringan, server & keamanan siber end-to-end — audit, desain, instalasi, hingga maintenance 24/7 bersertifikat ISO 9001:2015.', points: ['Server & Storage Enterprise', 'Next-Gen Firewall & Endpoint Protection', 'Structured Cabling & Fiber Optic 10G'], target: 'Kementerian, BUMN, Kampus, Enterprise multi-cabang', benefit: 'Uptime 99.9% & keamanan berlapis', visible: true },
+    { tag: '02', icon: 'ri-hard-drive-3-line', title: 'DKSI Data', sub: 'Data Center & Hybrid Cloud', desc: 'Desain, migrasi & kelola Data Center on-premise + hybrid cloud dengan backup otomatis dan disaster recovery.', points: ['Hybrid Cloud & Virtualization', 'Backup Otomatis & DR Center', 'Monitoring 24/7 & RTO Minimal'], target: 'Instansi dengan data kritis & regulasi ketat', benefit: 'Skalabilitas elastis & data tetap di Indonesia', visible: true },
+    { tag: '03', icon: 'ri-code-s-slash-line', title: 'DKSI Apps', sub: 'Custom Software, ERP & Mobile', desc: 'Aplikasi web/mobile & ERP custom terintegrasi API — sesuai proses bisnis, bukan template.', points: ['Custom ERP & SIAKAD', 'Mobile Apps Android/iOS', 'API Integration & SSO'], target: 'Kampus, Pemerintahan, Enterprise yang butuh sistem khusus', benefit: 'Proses 40% lebih cepat & tanpa vendor lock-in', visible: true },
+    { tag: '04', icon: 'ri-shopping-bag-4-line', title: 'DKSI Procurement', sub: 'ICT Procurement Resmi & TKDN', desc: 'Pengadaan perangkat ICT resmi prinsipal, dokumen TKDN/LKPP lengkap, garansi & harga transparan.', points: ['Sesuai LKPP & TKDN', 'Garansi Prinsipal Resmi', 'Transparent Pricing & SPK Jelas'], target: 'Pengadaan pemerintah, BUMN, pendidikan (e-Katalog)', benefit: 'Audit-ready & bebas risiko mark-up', visible: true },
+    { tag: '05', icon: 'ri-computer-line', title: 'DKSI Rental', sub: 'IT Equipment Rental Fleksibel', desc: 'Sewa laptop, PC, server, printer & AV untuk event, project, atau kebutuhan musiman — harian/bulanan.', points: ['Laptop, Server, AV & Printer', 'Harian / Bulanan / Tahunan', 'Full Maintenance & On-site Support'], target: 'Event kenegaraan, ujian, training, kantor cabang baru', benefit: 'Tanpa CAPEX, siap pakai <24 jam', visible: true }
   ],
   solInfraData: [
     { icon: 'ri-server-line', title: 'Data Center & Server', desc: 'Pengadaan dan instalasi server enterprise, storage, dan disaster recovery.' },
@@ -275,7 +275,7 @@ function renderGrids() {
   
   // Services
   const sGrid = document.getElementById("servicesGrid");
-  if (sGrid) sGrid.innerHTML = data.services.map(s => `<div class="bg-[var(--bg-card)] border border-[var(--border)] rounded-[32px] p-8 flex flex-col justify-between hover:border-[var(--brand)] transition-all shadow-sm hover:shadow-xl"><div><div class="flex justify-between items-center mb-6"><span class="text-2xl font-black text-[var(--text-muted)]">${s.tag}</span><span class="px-3 py-1 rounded-full bg-[var(--bg-soft)] text-[10px] font-extrabold text-[var(--brand)] border border-[var(--border)]">DKSI</span></div><h3 class="text-xl font-extrabold text-[var(--text)] mb-1">${s.title}</h3><p class="text-xs font-bold text-[var(--text-muted)] mb-4">${s.sub}</p><p class="text-sm text-[var(--text-soft)] leading-relaxed mb-6">${s.desc}</p><ul class="space-y-2 pt-4 border-t border-[var(--border)] mb-6">${s.points.map(p => `<li class="flex items-center gap-2 text-xs font-semibold text-[var(--text)]"><i class="ri-check-line text-[var(--brand)]"></i>${p}</li>`).join('')}</ul></div><a href="#contact" class="text-xs font-extrabold text-[var(--brand)] flex items-center gap-2">Pelajari Layanan <i class="ri-arrow-right-line"></i></a></div>`).join('');
+  if (sGrid) sGrid.innerHTML = data.services.map(s => `<div class="bg-[var(--bg-card)] border border-[var(--border)] rounded-[32px] p-8 flex flex-col justify-between hover:border-[var(--brand)] transition-all shadow-sm hover:shadow-xl"><div><div class="flex justify-between items-center mb-6"><span class="text-2xl font-black text-[var(--text-muted)]">${s.tag}</span><div class="flex items-center gap-2"><span class="w-9 h-9 rounded-xl bg-royal dark:bg-cyan grid place-items-center text-white dark:text-darkBg text-base"><i class="${s.icon || 'ri-service-line'}"></i></span><span class="px-3 py-1 rounded-full bg-[var(--bg-soft)] text-[10px] font-extrabold text-[var(--brand)] border border-[var(--border)]">DKSI</span></div></div><h3 class="text-xl font-extrabold text-[var(--text)] mb-1">${s.title}</h3><p class="text-xs font-bold text-[var(--text-muted)] mb-2">${s.sub}</p>${s.target ? `<p class="text-[11px] text-[var(--text-muted)] mb-1"><i class="ri-user-3-line"></i> Cocok untuk: ${s.target}</p>` : ''}<p class="text-sm text-[var(--text-soft)] leading-relaxed mb-3">${s.desc}</p>${s.benefit ? `<div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 mb-4"><i class="ri-flashlight-line"></i> ${s.benefit}</div>` : ''}<ul class="space-y-2 pt-4 border-t border-[var(--border)] mb-6">${s.points.map(p => `<li class="flex items-center gap-2 text-xs font-semibold text-[var(--text)]"><i class="ri-check-line text-[var(--brand)]"></i>${p}</li>`).join('')}</ul></div><a href="#contact" class="text-xs font-extrabold text-[var(--brand)] flex items-center gap-2">Pelajari Layanan <i class="ri-arrow-right-line"></i></a></div>`).join('');
 
   // Solutions: dynamic from cms.solCategories — each category renders its own grid section
   const dyn = document.getElementById("solutions-dynamic");
@@ -422,19 +422,24 @@ window.closeModal = closeModal;
 window.openSolutionModal = openSolutionModal;
 window.closeConsultModal = closeConsultModal;
 
-  // Forms Logic — also push to CMS contacts inbox
+  // Forms Logic — with honeypot & validation anti-spam
   function setupForms() {
     const contactForm = document.getElementById("contactForm");
     if (contactForm) {
       contactForm.onsubmit = e => {
         e.preventDefault();
+        const hp = document.getElementById("honeypot");
+        if (hp && hp.value) {
+          console.warn("Spam detected via honeypot.");
+          return;
+        }
         const inputs = contactForm.querySelectorAll('input, select, textarea');
-        const nameVal = inputs[0]?.value || "";
-        const companyVal = inputs[1]?.value || "";
-        const emailVal = inputs[2]?.value || "";
-        const phoneVal = inputs[3]?.value || "";
-        const catVal = inputs[4]?.value || "";
-        const msgVal = inputs[5]?.value || "";
+        const nameVal = inputs[1]?.value || "";
+        const companyVal = inputs[2]?.value || "";
+        const emailVal = inputs[3]?.value || "";
+        const phoneVal = inputs[4]?.value || "";
+        const catVal = inputs[5]?.value || "";
+        const msgVal = inputs[6]?.value || "";
         if (window.CMS && typeof CMS.contactsAdd === 'function') {
           CMS.contactsAdd({ name: nameVal, company: companyVal, email: emailVal, phone: phoneVal, category: catVal, message: msgVal });
         }

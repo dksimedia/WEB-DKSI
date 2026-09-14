@@ -37,9 +37,9 @@
 <div class="relative group">
 <button class="nav-link px-3 py-2 flex items-center gap-1">SOLUTIONS <i class="ri-arrow-down-s-line text-xs"></i></button>
 <div class="absolute left-0 top-full mt-2 w-72 bg-[var(--bg-card)] rounded-2xl shadow-xl border border-[var(--border)] p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition">
-<a href="#solutions-infra" class="block px-4 py-3 rounded-xl hover:bg-[var(--bg-soft)]"><span class="block text-sm font-bold text-royal dark:text-cyan">IT Infrastructure & Security</span><span class="text-xs text-slate-500">Network, Data Center, Firewall</span></a>
-<a href="#solutions-edu" class="block px-4 py-3 rounded-xl hover:bg-[var(--bg-soft)]"><span class="block text-sm font-bold text-royal dark:text-cyan">Smart Education</span><span class="text-xs text-slate-500">Smartclassroom, Microteaching, Lab Bahasa</span></a>
-<a href="#solutions-ai" class="block px-4 py-3 rounded-xl hover:bg-[var(--bg-soft)]"><span class="block text-sm font-bold text-royal dark:text-cyan">AI, IoT & Smart Innovation</span><span class="text-xs text-slate-500">Smart Campus, Smart Office, Command Center</span></a>
+<a href="#solInfra" class="block px-4 py-3 rounded-xl hover:bg-[var(--bg-soft)]"><span class="block text-sm font-bold text-royal dark:text-cyan">IT Infrastructure & Security</span><span class="text-xs text-slate-500">Network, Data Center, Firewall</span></a>
+<a href="#solEdu" class="block px-4 py-3 rounded-xl hover:bg-[var(--bg-soft)]"><span class="block text-sm font-bold text-royal dark:text-cyan">Smart Education</span><span class="text-xs text-slate-500">Smartclassroom, Microteaching, Lab Bahasa</span></a>
+<a href="#solAi" class="block px-4 py-3 rounded-xl hover:bg-[var(--bg-soft)]"><span class="block text-sm font-bold text-royal dark:text-cyan">AI, IoT & Smart Innovation</span><span class="text-xs text-slate-500">Smart Campus, Smart Office, Command Center</span></a>
 </div>
 </div>
 <div class="relative group">
@@ -66,7 +66,7 @@
 </div>
 <div id="mobileNav" class="hidden lg:hidden bg-[var(--bg-card)] border-t border-[var(--border)]">
 <div class="px-6 py-4 grid gap-1 text-sm font-semibold">
-<a href="#home" class="py-2">HOME</a><a href="#about" class="py-2">ABOUT</a><a href="#solutions-infra" class="py-2">SOLUTIONS</a><a href="#services" class="py-2">PRODUCTS</a><a href="#portfolio" class="py-2">PORTFOLIO</a><a href="#why" class="py-2">WHY DKSI</a><a href="#contact" class="py-2 text-royal dark:text-cyan">KONSULTASI <i class="ri-arrow-right-line"></i></a>
+<a href="#home" class="py-2">HOME</a><a href="#about" class="py-2">ABOUT</a><a href="#solInfra" class="py-2">SOLUTIONS</a><a href="#services" class="py-2">PRODUCTS</a><a href="#portfolio" class="py-2">PORTFOLIO</a><a href="#why" class="py-2">WHY DKSI</a><a href="#contact" class="py-2 text-royal dark:text-cyan">KONSULTASI <i class="ri-arrow-right-line"></i></a>
 </div>
 </div>
 </header>
@@ -88,7 +88,7 @@
 <p id="heroDesc" class="mt-6 max-w-xl text-[18px] leading-relaxed text-[var(--text-soft)]">Menghadirkan solusi ICT terintegrasi untuk membantu pendidikan, pemerintahan, dan enterprise menjadi lebih <b class="text-[var(--text)]">terkoneksi, aman, dan efisien.</b></p>
 <div class="mt-8 flex flex-wrap gap-3">
 <a id="heroPrimaryCta" href="#contact" class="bg-royal dark:bg-cyan text-white dark:text-darkBg px-8 py-4 rounded-full text-xs font-extrabold tracking-widest hover:brightness-110 transition shadow-lg uppercase">Kebutuhan Anda <i class="ri-arrow-right-line"></i></a>
-<a id="heroSecondaryCta" href="#solutions-infra" class="bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text)] px-8 py-4 rounded-full text-xs font-extrabold tracking-widest hover:bg-[var(--bg-soft)] transition uppercase">Jelajahi Solusi</a>
+<a id="heroSecondaryCta" href="#solInfra" class="bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text)] px-8 py-4 rounded-full text-xs font-extrabold tracking-widest hover:bg-[var(--bg-soft)] transition uppercase">Jelajahi Solusi</a>
 </div>
 </div>
 <div class="relative">
@@ -307,6 +307,7 @@
 <div class="lg:col-span-7">
 <div class="bg-[var(--bg-card)] rounded-[40px] border border-[var(--border)] p-8 sm:p-12 shadow-2xl">
 <form id="contactForm" class="grid gap-6">
+<input type="hidden" name="honeypot" id="honeypot" style="display:none;" tabindex="-1" autocomplete="off">
 <div class="grid sm:grid-cols-2 gap-6">
 <div><label class="form-label">Nama Lengkap</label><input required placeholder="Budi Santoso" class="form-input"></div>
 <div><label class="form-label">Instansi / Perusahaan</label><input placeholder="PT/Kementerian/Universitas" class="form-input"></div>
@@ -354,7 +355,7 @@
 </div>
 <div>
 <h4 class="text-white font-black text-[11px] tracking-widest uppercase mb-6">Solutions</h4>
-<nav class="grid gap-3 text-sm"><a href="#solutions-infra" class="hover:text-cyan transition">Infrastructure & Security</a><a href="#solutions-edu" class="hover:text-cyan transition">Smart Education</a><a href="#solutions-ai" class="hover:text-cyan transition">AI & IoT</a><a href="#services" class="hover:text-cyan transition">DKSI Procurement</a></nav>
+<nav class="grid gap-3 text-sm"><a href="#solInfra" class="hover:text-cyan transition">Infrastructure & Security</a><a href="#solEdu" class="hover:text-cyan transition">Smart Education</a><a href="#solAi" class="hover:text-cyan transition">AI & IoT</a><a href="#services" class="hover:text-cyan transition">DKSI Procurement</a></nav>
 </div>
 <div>
 <h4 class="text-white font-black text-[11px] tracking-widest uppercase mb-6">Contact Info</h4>

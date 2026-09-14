@@ -17,7 +17,7 @@
       primaryCtaText: "Kebutuhan Anda",
       primaryCtaLink: "#contact",
       secondaryCtaText: "Jelajahi Solusi",
-      secondaryCtaLink: "#solutions-infra",
+      secondaryCtaLink: "#solInfra",
       heroImage: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1100&q=80",
       heroBadges: ["AI", "IoT", "SECURITY", "NETWORK", "DATA", "SMART"]
     },
@@ -73,11 +73,11 @@
       ]
     },
     services: [
-      { tag: "01", title: "DKSI Solutions", sub: "IT Infrastructure & Security", desc: "Membangun pondasi jaringan, server, dan keamanan siber yang tangguh.", points: ["Server & Storage", "Next-Gen Firewall", "Structured Cabling"], visible: true },
-      { tag: "02", title: "DKSI Data", sub: "Data Center & Cloud", desc: "Manajemen pusat data dan integrasi cloud untuk skalabilitas tinggi.", points: ["Hybrid Cloud", "Disaster Recovery", "Monitoring 24/7"], visible: true },
-      { tag: "03", title: "DKSI Apps", sub: "Custom Software & ERP", desc: "Pengembangan aplikasi web/mobile terintegrasi sesuai kebutuhan institusi.", points: ["Custom ERP", "Mobile Apps", "API Integration"], visible: true },
-      { tag: "04", title: "DKSI Procurement", sub: "ICT Procurement Services", desc: "Layanan pengadaan perangkat resmi dengan dukungan TKDN lengkap.", points: ["Sesuai LKPP/TKDN", "Garansi Prinsipal", "Transparent Pricing"], visible: true },
-      { tag: "05", title: "DKSI Rental", sub: "IT Equipment Rental", desc: "Solusi sewa perangkat IT fleksibel untuk event kenegaraan & korporasi.", points: ["Laptop & Server", "Harian/Bulanan", "Full Maintenance"], visible: true }
+      { tag: "01", icon: "ri-shield-keyhole-line", title: "DKSI Solutions", sub: "IT Infrastructure & Network Security", desc: "Pondasi jaringan, server & keamanan siber end-to-end — audit, desain, instalasi, hingga maintenance 24/7 bersertifikat ISO 9001:2015.", points: ["Server & Storage Enterprise", "Next-Gen Firewall & Endpoint Protection", "Structured Cabling & Fiber Optic 10G"], target: "Kementerian, BUMN, Kampus, Enterprise multi-cabang", benefit: "Uptime 99.9% & keamanan berlapis", visible: true },
+      { tag: "02", icon: "ri-hard-drive-3-line", title: "DKSI Data", sub: "Data Center & Hybrid Cloud", desc: "Desain, migrasi & kelola Data Center on-premise + hybrid cloud dengan backup otomatis dan disaster recovery.", points: ["Hybrid Cloud & Virtualization", "Backup Otomatis & DR Center", "Monitoring 24/7 & RTO Minimal"], target: "Instansi dengan data kritis & regulasi ketat", benefit: "Skalabilitas elastis & data tetap di Indonesia", visible: true },
+      { tag: "03", icon: "ri-code-s-slash-line", title: "DKSI Apps", sub: "Custom Software, ERP & Mobile", desc: "Aplikasi web/mobile & ERP custom terintegrasi API — sesuai proses bisnis, bukan template.", points: ["Custom ERP & SIAKAD", "Mobile Apps Android/iOS", "API Integration & SSO"], target: "Kampus, Pemerintahan, Enterprise yang butuh sistem khusus", benefit: "Proses 40% lebih cepat & tanpa vendor lock-in", visible: true },
+      { tag: "04", icon: "ri-shopping-bag-4-line", title: "DKSI Procurement", sub: "ICT Procurement Resmi & TKDN", desc: "Pengadaan perangkat ICT resmi prinsipal, dokumen TKDN/LKPP lengkap, garansi & harga transparan.", points: ["Sesuai LKPP & TKDN", "Garansi Prinsipal Resmi", "Transparent Pricing & SPK Jelas"], target: "Pengadaan pemerintah, BUMN, pendidikan (e-Katalog)", benefit: "Audit-ready & bebas risiko mark-up", visible: true },
+      { tag: "05", icon: "ri-computer-line", title: "DKSI Rental", sub: "IT Equipment Rental Fleksibel", desc: "Sewa laptop, PC, server, printer & AV untuk event, project, atau kebutuhan musiman — harian/bulanan.", points: ["Laptop, Server, AV & Printer", "Harian / Bulanan / Tahunan", "Full Maintenance & On-site Support"], target: "Event kenegaraan, ujian, training, kantor cabang baru", benefit: "Tanpa CAPEX, siap pakai <24 jam", visible: true }
     ],
     solInfra: [
       { id: 'infra-1', icon: 'ri-server-line', title: 'Data Center & Server', shortDesc: 'Pengadaan dan instalasi server enterprise, storage, dan disaster recovery.', desc: 'Solusi pusat data enterprise yang handal, scalable, dan aman untuk mendukung operasional bisnis 24/7.', img: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80', features: ['Server Rack Enterprise', 'SAN/NAS Storage', 'Backup Otomatis', 'DR Center'], benefits: ['Uptime 99.9%', 'Scalable', 'ISO 27001'], status: 'published' },
