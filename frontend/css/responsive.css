@@ -1,25 +1,75 @@
-/* --- MOBILE RESPONSIVE FIXES --- */
+/* ==========================================================
+   DKSI — Responsive Overrides
+   Loaded after style.css. Only overrides needed for
+   tablet & mobile. Avoid !important unless Tailwind
+   utility must be overridden.
+
+   Breakpoints (Tailwind-aligned):
+     1024px — lg  (desktop → tablet)
+      768px — md  (tablet → mobile)
+      640px — sm  (small mobile)
+   ========================================================== */
+
+/* --- 01. Image safety — never overflow container --- */
+/* Logo/header images keep intrinsic size; others scale */
+img:not(#siteLogo):not(#footerLogo):not(#aboutLogo) {
+  max-width: 100%;
+  height: auto;
+}
+
+#siteLogo {
+  height: 36px;
+  width: auto;
+  object-fit: contain;
+  max-width: 180px;
+}
+
+#footerLogo,
+#aboutLogo {
+  object-fit: contain;
+}
+
+@media (min-width: 1024px) {
+  #siteLogo { height: 40px; }
+}
+
+/* --- 02. Tablet & below (≤768px) --- */
 @media (max-width: 768px) {
+  /* Typography scale — override Tailwind display sizes */
   h1 { font-size: 2.5rem !important; line-height: 1.1 !important; }
   h2 { font-size: 2rem !important; }
-  .max-w-\[1280px\] { padding-left: 1rem !important; padding-right: 1rem !important; }
+
+  /* Container breathing room */
+  .max-w-\[1280px\] {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Stack grid gaps for readability */
   .grid { gap: 1rem !important; }
-  /* Padding container penyesuaian mobile */
-  section { padding-top: 3.5rem !important; padding-bottom: 3.5rem !important; }
-  /* Hero section image fix */
+
+  /* Section rhythm */
+  section {
+    padding-top: 3.5rem !important;
+    padding-bottom: 3.5rem !important;
+  }
+
+  /* Hero image contained */
   .hero-img img { height: 280px !important; }
 }
 
+/* --- 03. Small mobile (≤640px) --- */
 @media (max-width: 640px) {
   .hero-img img { height: 220px !important; }
-  #heroBadges { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+
+  #heroBadges {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
 }
 
-/* Gambar tidak overflow — jangan override height logo/header */
-img:not(#siteLogo):not(#footerLogo):not(#aboutLogo) { max-width: 100%; height: auto; }
-#siteLogo { height: 36px; width: auto; object-fit: contain; max-width: 180px; }
-@media (min-width: 1024px) { #siteLogo { height: 40px; } }
-#footerLogo, #aboutLogo { object-fit: contain; }
-
-/* Wrapper table / grid responsif */
-.table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+/* --- 04. Utility — scrollable tables on small screens --- */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}

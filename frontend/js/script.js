@@ -1,190 +1,350 @@
 /**
- * DKSI WEBSITE CORE SCRIPT
- * Version: 2.0.0
- * Author: Developer Team
+ * DKSI Website — Core Script
+ * ============================================================
+ * Stack  : Vanilla JS + Tailwind + localStorage CMS bridge
+ * Pages  : frontend/index.html  (public site)
+ *          backend/admin/*       (CMS admin)
+ * CMS    : window.CMS  (frontend/cms/cms-data.js)
+ *          Draft  -> localStorage[dksi_cms_v2]
+ *          Public -> localStorage[dksi_cms_v2_published] (after Publish)
+ * ============================================================
+ * Sections:
+ *   0  Constants & Utils
+ *   1  Theme (light/dark)
+ *   2  Navigation (sticky + mobile + dropdown a11y)
+ *   3  CMS Bridge (applyCMS)
+ *   4  Data Fallback (DKSI_DATA)
+ *   5  Renderers (sectors / process / services / portfolio)
+ *   6  Modals
+ *   7  Forms (contact + consult → POST /api/contact)
+ *   8  Init
+ * ============================================================
  */
+'use strict';
 
-/* ==========================================================================
-   1. THEME MANAGEMENT (LIGHT/DARK)
-   ========================================================================== */
-const themeToggle = document.getElementById('themeToggle');
-const themeIcon = document.getElementById('themeIcon');
-const htmlEl = document.documentElement;
+/* ──────────────────────────────────────────────────────────
+   0. Constants & Utils
+   ────────────────────────────────────────────────────────── */
+
+const API = Object.freeze({
+  CONTACT: '/api/contact',
+  ADMIN_CONTACTS: '/api/admin/contacts',
+});
+
+const LS = Object.freeze({
+  THEME: 'dksi_theme',
+});
+
+// Tiny DOM helpers — avoid repeated querySelector boilerplate
+const $  = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+
+// Safe text/content setters (skip if element missing)
+function setText(id, value) {
+  const el = document.getElementById(id);
+  if (el && value != null) el.textContent = value;
+}
+function setHTML(id, html) {
+  const el = document.getElementById(id);
+  if (el && html != null) el.innerHTML = html;
+}
+function setAttr(id, attr, value) {
+  const el = document.getElementById(id);
+  if (el && value) el.setAttribute(attr, value);
+}
+
+/** POST JSON helper — returns parsed JSON or throws */
+async function postJSON(url, payload) {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+/* ──────────────────────────────────────────────────────────
+   1. Theme (light / dark)
+   ────────────────────────────────────────────────────────── */
+
+const htmlEl      = document.documentElement;
+const themeToggle = $('#themeToggle');
+const themeIcon   = $('#themeIcon');
 
 function updateThemeUI() {
   const isDark = htmlEl.classList.contains('dark');
+  htmlEl.setAttribute('data-theme', isDark ? 'dark' : 'light');
   if (themeIcon) {
-    themeIcon.className = isDark ? "ri-sun-line text-lg text-amber-400" : "ri-moon-line text-lg";
+    themeIcon.className = isDark
+      ? 'ri-sun-line text-lg text-amber-400'
+      : 'ri-moon-line text-lg';
   }
-  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
 }
 
-// Initial UI setup
 updateThemeUI();
 
-// Event listener for toggle button
+// Restore saved preference
+try {
+  const saved = localStorage.getItem(LS.THEME);
+  if (saved === 'dark') htmlEl.classList.add('dark');
+  if (saved === 'light') htmlEl.classList.remove('dark');
+  updateThemeUI();
+} catch (_) {}
+
 themeToggle?.addEventListener('click', () => {
   htmlEl.classList.toggle('dark');
   const isDark = htmlEl.classList.contains('dark');
-  localStorage.setItem('dksi_theme', isDark ? 'dark' : 'light');
+  try { localStorage.setItem(LS.THEME, isDark ? 'dark' : 'light'); } catch (_) {}
   updateThemeUI();
 });
 
-/* ==========================================================================
-   2. NAVIGATION & UI COMPONENTS
-   ========================================================================== */
-// Sticky Navbar on Scroll
-const nav = document.getElementById("navbar");
-window.addEventListener("scroll", () => {
-  if (window.scrollY > 20) nav.classList.add("scrolled");
-  else nav.classList.remove("scrolled");
-});
+/* ──────────────────────────────────────────────────────────
+   2. Navigation
+   ────────────────────────────────────────────────────────── */
 
-// Mobile Menu Toggle
-const menuBtn = document.getElementById("menuBtn");
-const mobileNav = document.getElementById("mobileNav");
-if (menuBtn) {
-  menuBtn.onclick = () => mobileNav.classList.toggle("hidden");
+// 2a. Sticky navbar
+const nav = $('#navbar');
+if (nav) {
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 20);
+  }, { passive: true });
 }
-document.querySelectorAll("#mobileNav a").forEach(a => {
-  a.onclick = () => mobileNav.classList.add("hidden");
-});
 
-// Dropdown a11y — SOLUTIONS / PRODUCTS: click + keyboard + Esc + outside click
-(function initDropdowns(){
-  const dropdowns = document.querySelectorAll('[aria-haspopup="true"]');
-  if(!dropdowns.length) return;
-  const closeAll = (except) => {
-    dropdowns.forEach(btn=>{
-      if(btn===except) return;
-      btn.setAttribute('aria-expanded','false');
-      const m = document.getElementById(btn.getAttribute('aria-controls'));
-      if(m){ m.classList.add('opacity-0','invisible'); m.classList.remove('opacity-100','visible'); }
+// 2b. Mobile menu
+const menuBtn   = $('#menuBtn');
+const mobileNav = $('#mobileNav');
+
+if (menuBtn && mobileNav) {
+  menuBtn.addEventListener('click', () => mobileNav.classList.toggle('hidden'));
+  $$('#mobileNav a').forEach(a =>
+    a.addEventListener('click', () => mobileNav.classList.add('hidden')),
+  );
+}
+
+// 2c. Dropdown a11y — SOLUTIONS / PRODUCTS
+// Supports: hover (CSS group-hover/group-focus-within) + click + keyboard
+// Keys: Enter/Space toggle, ArrowDown open, ArrowUp/Down navigate, Esc close
+(function initDropdowns() {
+  const triggers = $$('[aria-haspopup="true"]');
+  if (!triggers.length) return;
+
+  const closeAll = (except = null) => {
+    triggers.forEach(btn => {
+      if (btn === except) return;
+      btn.setAttribute('aria-expanded', 'false');
+      const menu = document.getElementById(btn.getAttribute('aria-controls'));
+      if (menu) {
+        menu.classList.add('opacity-0', 'invisible');
+        menu.classList.remove('opacity-100', 'visible');
+      }
     });
   };
-  dropdowns.forEach(btn=>{
+
+  triggers.forEach(btn => {
     const menu = document.getElementById(btn.getAttribute('aria-controls'));
-    if(!menu) return;
-    const open = ()=>{ btn.setAttribute('aria-expanded','true'); menu.classList.remove('opacity-0','invisible'); menu.classList.add('opacity-100','visible'); };
-    const close = ()=>{ btn.setAttribute('aria-expanded','false'); menu.classList.add('opacity-0','invisible'); menu.classList.remove('opacity-100','visible'); };
-    const toggle = ()=> btn.getAttribute('aria-expanded')==='true' ? close() : (closeAll(btn), open());
-    btn.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); toggle(); });
-    btn.addEventListener('keydown', (e)=>{
-      if(e.key==='Enter' || e.key===' '){ e.preventDefault(); toggle(); }
-      else if(e.key==='ArrowDown'){ e.preventDefault(); open(); const first=menu.querySelector('[role="menuitem"]'); first&&first.focus(); }
-      else if(e.key==='Escape'){ close(); btn.focus(); }
+    if (!menu) return;
+
+    const open  = () => {
+      btn.setAttribute('aria-expanded', 'true');
+      menu.classList.remove('opacity-0', 'invisible');
+      menu.classList.add('opacity-100', 'visible');
+    };
+    const close = () => {
+      btn.setAttribute('aria-expanded', 'false');
+      menu.classList.add('opacity-0', 'invisible');
+      menu.classList.remove('opacity-100', 'visible');
+    };
+    const toggle = () =>
+      btn.getAttribute('aria-expanded') === 'true' ? close() : (closeAll(btn), open());
+
+    btn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); toggle(); });
+    btn.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+      else if (e.key === 'ArrowDown') {
+        e.preventDefault(); open();
+        menu.querySelector('[role="menuitem"]')?.focus();
+      } else if (e.key === 'Escape') { close(); btn.focus(); }
     });
-    menu.addEventListener('keydown', (e)=>{
-      const items=[...menu.querySelectorAll('[role="menuitem"]')];
-      const idx=items.indexOf(document.activeElement);
-      if(e.key==='ArrowDown'){ e.preventDefault(); items[(idx+1)%items.length]?.focus(); }
-      else if(e.key==='ArrowUp'){ e.preventDefault(); items[(idx-1+items.length)%items.length]?.focus(); }
-      else if(e.key==='Escape'){ e.preventDefault(); close(); btn.focus(); }
-      else if(e.key==='Home'){ e.preventDefault(); items[0]?.focus(); }
-      else if(e.key==='End'){ e.preventDefault(); items[items.length-1]?.focus(); }
+
+    menu.addEventListener('keydown', e => {
+      const items = [...menu.querySelectorAll('[role="menuitem"]')];
+      const idx = items.indexOf(document.activeElement);
+      if (e.key === 'ArrowDown')  { e.preventDefault(); items[(idx + 1) % items.length]?.focus(); }
+      if (e.key === 'ArrowUp')    { e.preventDefault(); items[(idx - 1 + items.length) % items.length]?.focus(); }
+      if (e.key === 'Home')       { e.preventDefault(); items[0]?.focus(); }
+      if (e.key === 'End')        { e.preventDefault(); items[items.length - 1]?.focus(); }
+      if (e.key === 'Escape')     { e.preventDefault(); close(); btn.focus(); }
     });
-    // keep CSS group-focus-within as primary, JS is fallback for click + aria
+
+    // Keep CSS :focus-within as primary; JS open on focus for older browsers
     btn.addEventListener('focus', open);
-    // close when focus leaves group entirely: handled by focusout
-    btn.parentElement.addEventListener('focusout', (e)=>{
-      setTimeout(()=>{ if(!btn.parentElement.contains(document.activeElement)) close(); }, 0);
+    btn.parentElement?.addEventListener('focusout', () => {
+      setTimeout(() => {
+        if (!btn.parentElement.contains(document.activeElement)) close();
+      }, 0);
     });
   });
-  document.addEventListener('click', (e)=>{
-    if(!e.target.closest('[aria-haspopup="true"]') && !e.target.closest('[role="menu"]')) closeAll(null);
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('[aria-haspopup="true"]') && !e.target.closest('[role="menu"]')) {
+      closeAll(null);
+    }
   });
-  document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeAll(null); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAll(null); });
 })();
 
-/* ==========================================================================
-   2b. CMS BRIDGE — inject into frontend
-   ========================================================================== */
-function applyCMS() {
-  if (!window.CMS) return;
-  // Use published snapshot for public view if available
+/* ──────────────────────────────────────────────────────────
+   3. CMS Bridge — applyCMS()
+   Public site reads Published snapshot if exists, else Draft.
+   Split into focused helpers for readability.
+   ────────────────────────────────────────────────────────── */
+
+function getPublicCMS() {
+  if (!window.CMS) return null;
+  // Lazy shim for older cms-data.js without getPublic/getPublished
   if (!window.CMS.getPublic) {
-    window.CMS.getPublic = function() { return window.CMS.getPublished ? window.CMS.getPublished() : window.CMS.get(); };
+    window.CMS.getPublic = () =>
+      window.CMS.getPublished ? window.CMS.getPublished() : window.CMS.get();
   }
-  const cms = window.CMS.getPublic();
-  // Hero
-  const el = (id, prop, val) => { const n = document.getElementById(id); if (n) n.textContent = val; };
-  el("heroEyebrow", null, cms.homepage.eyebrow);
-  el("heroHeadline", null, cms.homepage.headline);
-  el("heroAccent", null, cms.homepage.headlineAccent);
-  el("heroSuffix", null, cms.homepage.headlineSuffix);
-  el("heroDesc", null, cms.homepage.description);
-  const a1 = document.getElementById("heroPrimaryCta");
-  if (a1) { a1.textContent = (cms.homepage.primaryCtaText || "") + " "; if (cms.homepage.primaryCtaText) a1.innerHTML = cms.homepage.primaryCtaText + ' <i class="ri-arrow-right-line"></i>'; a1.href = cms.homepage.primaryCtaLink || "#contact"; }
-  const a2 = document.getElementById("heroSecondaryCta");
-  if (a2) { a2.textContent = cms.homepage.secondaryCtaText || "Jelajahi Solusi"; let h2 = cms.homepage.secondaryCtaLink || "#solInfra"; h2 = h2.replace("solutions-infra","solInfra").replace("solutions-edu","solEdu").replace("solutions-ai","solAi"); a2.href = h2; }
-  const img = document.getElementById("heroImage"); if (img && cms.homepage.heroImage) img.src = cms.homepage.heroImage;
-  // Branding: auto-switch between main / secondary light / secondary dark based on theme
-  if (cms.branding) {
-    const isDark = document.documentElement.classList.contains('dark');
-    const nav = isDark ? (cms.branding.secondaryDark || cms.branding.secondaryLight || cms.branding.mainLogo) : (cms.branding.secondaryLight || cms.branding.secondaryDark || cms.branding.mainLogo);
-    const footer = cms.branding.mainLogo;
-    const about = isDark ? (cms.branding.secondaryDark || cms.branding.mainLogo) : (cms.branding.secondaryLight || cms.branding.mainLogo);
-    const siteLogo = document.getElementById('siteLogo'); if (siteLogo) siteLogo.src = nav;
-    const aboutLogo = document.getElementById('aboutLogo'); if (aboutLogo) aboutLogo.src = about;
-    const footerLogo = document.getElementById('footerLogo'); if (footerLogo) footerLogo.src = footer;
-    // CMS Panel sync
-    const cmsLoginLogo = document.getElementById('cmsLoginLogo'); if (cmsLoginLogo) cmsLoginLogo.src = cms.branding.mainLogo || '../assets/logo/main.png';
-    const cmsSidebarLogo = document.getElementById('cmsSidebarLogo'); if (cmsSidebarLogo) cmsSidebarLogo.src = cms.branding.mainLogo || '../assets/logo/main.png';
-    if (cms.branding.favicon) {
-      let f = document.querySelector('link[rel="icon"]'); if (!f) { f = document.createElement('link'); f.rel='icon'; document.head.appendChild(f); } f.href = cms.branding.favicon;
-    }
+  return window.CMS.getPublic();
+}
+
+function applyHero(cms) {
+  const h = cms.homepage;
+  if (!h) return;
+  setText('heroEyebrow', h.eyebrow);
+  setText('heroHeadline', h.headline);
+  setText('heroAccent', h.headlineAccent);
+  setText('heroSuffix', h.headlineSuffix);
+  setText('heroDesc', h.description);
+
+  const a1 = $('#heroPrimaryCta');
+  if (a1 && h.primaryCtaText) {
+    a1.innerHTML = `${h.primaryCtaText} <i class="ri-arrow-right-line"></i>`;
+    a1.href = h.primaryCtaLink || '#contact';
   }
-  const badges = document.getElementById("heroBadges");
-  if (badges && cms.homepage.heroBadges) badges.innerHTML = cms.homepage.heroBadges.map(b => `<span class="glass-btn">${b}</span>`).join("");
-  const tb = document.getElementById("trustBar");
-  if (tb && cms.trustBar) tb.innerHTML = cms.trustBar.map(t => `<div><div class="text-[10px] font-mono tracking-widest text-[var(--text-muted)] uppercase">${t.label}</div><div class="font-extrabold text-[var(--brand)] text-lg">${t.value}</div></div>`).join("");
-  const aboutLabel = document.getElementById("aboutLabel"); if (aboutLabel) aboutLabel.textContent = cms.about.label || "DKSI Profile";
-  const aboutHeadline = document.getElementById("aboutHeadline"); if (aboutHeadline) aboutHeadline.textContent = cms.about.headline;
-  const aboutDesc = document.getElementById("aboutDesc"); if (aboutDesc) aboutDesc.innerHTML = cms.about.paragraphs.map(p => p).join("<br><br>");
-  // About right card — cert tiles + footer line
-  const aboutCardTagline = document.getElementById("aboutCardTagline"); if (aboutCardTagline && cms.company?.tagline) aboutCardTagline.textContent = '"' + cms.company.tagline + '"';
-  const aboutCert1 = document.getElementById("aboutCert1"); if (aboutCert1) aboutCert1.textContent = cms.company?.stats?.cert1 || aboutCert1.textContent;
-  const aboutCert2 = document.getElementById("aboutCert2"); if (aboutCert2) aboutCert2.textContent = cms.company?.stats?.cert2 || aboutCert2.textContent;
-  const aboutCity = document.getElementById("aboutCity"); if (aboutCity) aboutCity.textContent = cms.company?.city || aboutCity.textContent;
-  const aboutEstablished = document.getElementById("aboutEstablished"); if (aboutEstablished) aboutEstablished.textContent = 'EST. ' + (cms.company?.established || aboutEstablished.textContent.replaceAll('EST.','').trim());
-  // Sync DKSI_DATA from CMS so renderers use admin data
+  const a2 = $('#heroSecondaryCta');
+  if (a2) {
+    a2.textContent = h.secondaryCtaText || 'Jelajahi Solusi';
+    a2.href = (h.secondaryCtaLink || '#solInfra')
+      .replace('solutions-infra', 'solInfra')
+      .replace('solutions-edu', 'solEdu')
+      .replace('solutions-ai', 'solAi');
+  }
+  const img = $('#heroImage');
+  if (img && h.heroImage) img.src = h.heroImage;
+
+  if (h.heroBadges) setHTML('heroBadges',
+    h.heroBadges.map(b => `<span class="glass-btn">${b}</span>`).join(''));
+}
+
+function applyBranding(cms) {
+  if (!cms.branding) return;
+  const isDark = htmlEl.classList.contains('dark');
+  const navLogo   = isDark ? (cms.branding.secondaryDark  || cms.branding.mainLogo) : (cms.branding.secondaryLight || cms.branding.mainLogo);
+  const aboutLogo = isDark ? (cms.branding.secondaryDark  || cms.branding.mainLogo) : (cms.branding.secondaryLight || cms.branding.mainLogo);
+  const footLogo  = cms.branding.mainLogo;
+
+  const siteLogo = $('#siteLogo');   if (siteLogo)  siteLogo.src = navLogo;
+  const abLogo   = $('#aboutLogo');  if (abLogo)    abLogo.src   = aboutLogo;
+  const ftLogo   = $('#footerLogo'); if (ftLogo)    ftLogo.src   = footLogo;
+
+  if (cms.branding.favicon) {
+    let link = $('link[rel="icon"]');
+    if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
+    link.href = cms.branding.favicon;
+  }
+}
+
+function applyAboutAndCompany(cms) {
+  if (cms.trustBar) setHTML('trustBar',
+    cms.trustBar.map(t =>
+      `<div><div class="text-[10px] font-mono tracking-widest text-[var(--text-muted)] uppercase">${t.label}</div>`
+    + `<div class="font-extrabold text-[var(--brand)] text-lg">${t.value}</div></div>`).join(''));
+
+  if (cms.about) {
+    setText('aboutLabel', cms.about.label || 'DKSI Profile');
+    setText('aboutHeadline', cms.about.headline);
+    if (cms.about.paragraphs) setHTML('aboutDesc', cms.about.paragraphs.join('<br><br>'));
+  }
+  if (cms.company) {
+    const c = cms.company;
+    const tagline = $('#aboutCardTagline');
+    if (tagline && c.tagline) tagline.textContent = `"${c.tagline}"`;
+    setText('aboutCert1', c.stats?.cert1);
+    setText('aboutCert2', c.stats?.cert2);
+    setText('aboutCity', c.city);
+    const est = $('#aboutEstablished');
+    if (est && c.established) est.textContent = `EST. ${c.established}`;
+  }
   if (cms.sectors) window.DKSI_DATA.sectors = cms.sectors;
-  // Process
-  if (cms.process) { window.DKSI_DATA.steps = cms.process.steps.map(s => ({ step: s.num, title: s.title, desc: s.desc, detail: s.detail })); }
-  // BuildSmarter (merge into solutions intro if present)
-  const bLabel = document.querySelector("section:nth-of-type(7) .label"); if (bLabel && cms.buildSmarter?.label) bLabel.textContent = cms.buildSmarter.label;
-  // Solutions / services / why / compliance / trusted / portfolio
-  if (cms.services) window.DKSI_DATA.services = cms.services.map(s => ({ tag: s.tag || "", icon: s.icon || "ri-service-line", title: s.title, sub: s.sub || s.subtitle || "", desc: s.desc, points: s.points || [], target: s.target || "", benefit: s.benefit || "" }));
-  if (cms.solInfra) window.DKSI_DATA.solInfraData = cms.solInfra.map(x => ({ icon: x.icon || "ri-service-line", title: x.title, desc: x.desc }));
-  if (cms.solEdu) window.DKSI_DATA.solEduData = cms.solEdu.map(x => ({ icon: x.icon || "ri-presentation-line", title: x.title, desc: x.desc }));
-  if (cms.solAi) window.DKSI_DATA.solAiData = cms.solAi.map(x => ({ icon: x.icon || "ri-building-line", title: x.title, desc: x.desc }));
-  if (cms.why) window.DKSI_DATA.whyData = cms.why.map(w => ({ icon: w.icon || "ri-award-line", title: w.title, desc: w.desc }));
-  if (cms.compliance) window.DKSI_DATA.complianceData = cms.compliance.map(c => ({ icon: c.icon || "ri-shield-check-line", title: c.title, subtitle: c.subtitle || "", desc: c.desc, points: c.points || [] }));
-  if (cms.trusted) window.DKSI_DATA.trustedData = cms.trusted.map(t => t.name || t);
+}
+
+function applyCollections(cms) {
+  // Process steps
+  if (cms.process?.steps) {
+    window.DKSI_DATA.steps = cms.process.steps.map(s => ({
+      step: s.num, title: s.title, desc: s.desc, detail: s.detail,
+    }));
+  }
+  // Services / solutions / portfolio / trusted / why / compliance
+  if (cms.services) {
+    window.DKSI_DATA.services = cms.services.map(s => ({
+      tag: s.tag || '', icon: s.icon || 'ri-service-line',
+      title: s.title, sub: s.sub || s.subtitle || '',
+      desc: s.desc, points: s.points || [],
+      target: s.target || '', benefit: s.benefit || '', visible: s.visible !== false,
+    }));
+  }
+  if (cms.solInfra) window.DKSI_DATA.solInfraData = cms.solInfra.map(x => ({ icon: x.icon || 'ri-service-line', title: x.title, desc: x.desc }));
+  if (cms.solEdu)   window.DKSI_DATA.solEduData   = cms.solEdu.map(x => ({ icon: x.icon || 'ri-presentation-line', title: x.title, desc: x.desc }));
+  if (cms.solAi)    window.DKSI_DATA.solAiData    = cms.solAi.map(x => ({ icon: x.icon || 'ri-building-line', title: x.title, desc: x.desc }));
+  if (cms.why)        window.DKSI_DATA.whyData        = cms.why.map(w => ({ icon: w.icon || 'ri-award-line', title: w.title, desc: w.desc }));
+  if (cms.compliance) window.DKSI_DATA.complianceData = cms.compliance.map(c => ({ icon: c.icon || 'ri-shield-check-line', title: c.title, subtitle: c.subtitle || '', desc: c.desc, points: c.points || [] }));
+  if (cms.trusted)    window.DKSI_DATA.trustedData    = cms.trusted.map(t => t.name || t);
   if (cms.portfolio?.items) window.DKSI_DATA.portfolios = cms.portfolio.items;
-  // SEO
+}
+
+function applySeoAndContact(cms) {
   if (cms.seo?.title) document.title = cms.seo.title;
-  const metaDesc = document.querySelector('meta[name="description"]'); if (metaDesc && cms.seo?.description) metaDesc.content = cms.seo.description;
-  // Company info in contact/footer
-  const ftCity = document.getElementById("footerCity"); if (ftCity && cms.company?.city) ftCity.textContent = cms.company.city;
-  const ftEmail = document.getElementById("footerEmail"); if (ftEmail && cms.company?.email) ftEmail.textContent = cms.company.email;
-  const ftPhone = document.getElementById("footerPhone"); if (ftPhone && cms.company?.phone) ftPhone.textContent = cms.company.phone;
-  const phoneLinks = document.querySelectorAll('[href^="tel:"]'); phoneLinks.forEach(a => { if (cms.company?.phone) { a.href = "tel:" + cms.company.phone.replaceAll(" ","").replaceAll("-",""); a.textContent = cms.company.phone; } });
-  const mailLinks = document.querySelectorAll('[href^="mailto:"]'); mailLinks.forEach(a => { if (cms.company?.email) { a.href = "mailto:" + cms.company.email; a.textContent = cms.company.email; } });
-  const addrEl = document.querySelector("#contact .text-sm.font-bold.leading-relaxed"); if (addrEl && cms.company?.address) addrEl.textContent = cms.company.address;
-  // Contact section headline & CTA texts
-  const contactTitle = document.querySelector("#contact .text-4xl.sm\\:text-5xl"); // may have that class — fallback to id
-  const contactTitle2 = document.getElementById("contactHeadline"); if (contactTitle2 && cms.contact?.title) contactTitle2.textContent = cms.contact.title;
-  else if (contactTitle && cms.contact?.title) contactTitle.textContent = cms.contact.title;
-  const submitBtn = document.querySelector('#contact button[type="submit"]'); if (submitBtn && cms.contact?.submitText) submitBtn.textContent = cms.contact.submitText;
-  const formMsgEl = document.getElementById("formMsg"); if (formMsgEl && cms.contact?.successMsg) formMsgEl.textContent = cms.contact.successMsg;
-  // Social links (footer) — sync CMS social into footer icons
+  const metaDesc = $('meta[name="description"]');
+  if (metaDesc && cms.seo?.description) metaDesc.content = cms.seo.description;
+
+  // Footer / contact company info
+  const company = cms.company;
+  if (company) {
+    setText('footerCity', company.city);
+    setText('footerEmail', company.email);
+    setText('footerPhone', company.phone);
+    $$('[href^="tel:"]').forEach(a => {
+      if (company.phone) {
+        a.href = `tel:${company.phone.replaceAll(' ', '').replaceAll('-', '')}`;
+        a.textContent = company.phone;
+      }
+    });
+    $$('[href^="mailto:"]').forEach(a => {
+      if (company.email) { a.href = `mailto:${company.email}`; a.textContent = company.email; }
+    });
+    const addrEl = $('#contact .text-sm.font-bold.leading-relaxed');
+    if (addrEl && company.address) addrEl.textContent = company.address;
+  }
+
+  if (cms.contact) {
+    const t2 = $('#contactHeadline');
+    if (t2) t2.textContent = cms.contact.title;
+    const submitBtn = $('#contact button[type="submit"]');
+    if (submitBtn && cms.contact.submitText) submitBtn.textContent = cms.contact.submitText;
+    const formMsg = $('#formMsg');
+    if (formMsg && cms.contact.successMsg) formMsg.textContent = cms.contact.successMsg;
+  }
+
+  // Social links
   if (cms.social) {
-    const socialMap = { linkedin: 'ri-linkedin-fill', instagram: 'ri-instagram-line', facebook: 'ri-facebook-circle-line', youtube: 'ri-youtube-line', email: 'ri-mail-line' };
-    const footSocial = document.querySelector("footer .flex.gap-3, footer .flex.gap-4");
+    const footSocial = $('footer .flex.gap-3, footer .flex.gap-4');
     if (footSocial) {
       footSocial.querySelectorAll('a').forEach(a => {
-        if (a.href.startsWith('mailto:') && cms.social.email) { a.href = cms.social.email; }
+        if (a.href.startsWith('mailto:') && cms.social.email) a.href = cms.social.email;
         else if (a.querySelector('.ri-linkedin-fill') && cms.social.linkedin) a.href = cms.social.linkedin;
         else if (a.querySelector('.ri-instagram-line') && cms.social.instagram) a.href = cms.social.instagram;
         else if (a.querySelector('.ri-facebook-circle-line') && cms.social.facebook) a.href = cms.social.facebook;
@@ -192,398 +352,382 @@ function applyCMS() {
       });
     }
   }
-  window.addEventListener("cms:update", applyCMS);
 }
 
-(function initCMSBridge(){ if (document.readyState !== "loading") applyCMS(); else document.addEventListener("DOMContentLoaded", applyCMS); window.addEventListener("cms:update", applyCMS); if (window.BroadcastChannel) { try { const bc = new BroadcastChannel("dksi_cms"); bc.onmessage = e => { if (e.data?.type === "update") applyCMS(); }; } catch(e){} } })();
+function applyCMS() {
+  const cms = getPublicCMS();
+  if (!cms) return;
+  applyHero(cms);
+  applyBranding(cms);
+  applyAboutAndCompany(cms);
+  applyCollections(cms);
+  applySeoAndContact(cms);
+}
 
-/* ==========================================================================
-   3. DATA LAYER (Fallback — overridden by CMS if cms-data.js present)
-   ========================================================================== */
-if (!window.DKSI_DATA) window.DKSI_DATA = {
-  sectors: {
-    education: { desc: "Solusi kampus cerdas, ruang kelas interaktif hybrid, dan lab bahasa berbasis AI untuk institusi pendidikan modern.", sols: ["Smartclassroom", "Microteaching", "Lab Bahasa", "WiFi Kampus"] },
-    government: { desc: "Infrastruktur Command Center, sistem konferensi paperless, dan pengadaan bersertifikasi TKDN untuk instansi pemerintahan.", sols: ["Command Center", "AV Sidang", "Procurement TKDN", "Cybersecurity"] },
-    enterprise: { desc: "Hybrid cloud, arsitektur SD-WAN multi-cabang, serta enterprise data center yang handal dan high-availability.", sols: ["Enterprise Data Center", "SD-WAN", "Firewall Next-Gen", "IT Rental"] }
-  },
-  steps: [
-    { step: '01', title: 'Consultation', desc: 'Analisis kebutuhan sistem.', detail: 'Discovery mendalam untuk memetakan tantangan operasional dan teknis instansi Anda.' },
-    { step: '02', title: 'Assessment', desc: 'Audit infrastruktur existing.', detail: 'Pemeriksaan menyeluruh terhadap perangkat, jaringan, dan keamanan saat ini.' },
-    { step: '03', title: 'Solution Design', desc: 'Arsitektur dan perencanaan.', detail: 'Merancang topologi, spesifikasi hardware/software, dan estimasi anggaran yang efisien.' },
-    { step: '04', title: 'Implementation', desc: 'Eksekusi oleh expert.', detail: 'Pemasangan perangkat, konfigurasi jaringan, dan integrasi sistem dengan standar ISO.' },
-    { step: '05', title: 'Training', desc: 'Transfer knowledge.', detail: 'Pelatihan operasional bagi tim internal untuk memastikan pemanfaatan sistem optimal.' },
-    { step: '06', title: 'Maintenance', desc: 'Dukungan purna jual 24/7.', detail: 'Monitoring berkala, pemeliharaan preventif, dan layanan teknis responsif.' }
-  ],
-  services: [
-    { tag: '01', icon: 'ri-shield-keyhole-line', title: 'DKSI Solutions', sub: 'IT Infrastructure & Network Security', desc: 'Pondasi jaringan, server & keamanan siber end-to-end — audit, desain, instalasi, hingga maintenance 24/7 bersertifikat ISO 9001:2015.', points: ['Server & Storage Enterprise', 'Next-Gen Firewall & Endpoint Protection', 'Structured Cabling & Fiber Optic 10G'], target: 'Kementerian, BUMN, Kampus, Enterprise multi-cabang', benefit: 'Uptime 99.9% & keamanan berlapis', visible: true },
-    { tag: '02', icon: 'ri-hard-drive-3-line', title: 'DKSI Data', sub: 'Data Center & Hybrid Cloud', desc: 'Desain, migrasi & kelola Data Center on-premise + hybrid cloud dengan backup otomatis dan disaster recovery.', points: ['Hybrid Cloud & Virtualization', 'Backup Otomatis & DR Center', 'Monitoring 24/7 & RTO Minimal'], target: 'Instansi dengan data kritis & regulasi ketat', benefit: 'Skalabilitas elastis & data tetap di Indonesia', visible: true },
-    { tag: '03', icon: 'ri-code-s-slash-line', title: 'DKSI Apps', sub: 'Custom Software, ERP & Mobile', desc: 'Aplikasi web/mobile & ERP custom terintegrasi API — sesuai proses bisnis, bukan template.', points: ['Custom ERP & SIAKAD', 'Mobile Apps Android/iOS', 'API Integration & SSO'], target: 'Kampus, Pemerintahan, Enterprise yang butuh sistem khusus', benefit: 'Proses 40% lebih cepat & tanpa vendor lock-in', visible: true },
-    { tag: '04', icon: 'ri-shopping-bag-4-line', title: 'DKSI Procurement', sub: 'ICT Procurement Resmi & TKDN', desc: 'Pengadaan perangkat ICT resmi prinsipal, dokumen TKDN/LKPP lengkap, garansi & harga transparan.', points: ['Sesuai LKPP & TKDN', 'Garansi Prinsipal Resmi', 'Transparent Pricing & SPK Jelas'], target: 'Pengadaan pemerintah, BUMN, pendidikan (e-Katalog)', benefit: 'Audit-ready & bebas risiko mark-up', visible: true },
-    { tag: '05', icon: 'ri-computer-line', title: 'DKSI Rental', sub: 'IT Equipment Rental Fleksibel', desc: 'Sewa laptop, PC, server, printer & AV untuk event, project, atau kebutuhan musiman — harian/bulanan.', points: ['Laptop, Server, AV & Printer', 'Harian / Bulanan / Tahunan', 'Full Maintenance & On-site Support'], target: 'Event kenegaraan, ujian, training, kantor cabang baru', benefit: 'Tanpa CAPEX, siap pakai <24 jam', visible: true }
-  ],
-  solInfraData: [
-    { icon: 'ri-server-line', title: 'Data Center & Server', desc: 'Pengadaan dan instalasi server enterprise, storage, dan disaster recovery.' },
-    { icon: 'ri-wifi-line', title: 'Networking & WiFi', desc: 'Backbone fiber, switching, dan WiFi enterprise untuk coverage optimal.' },
-    { icon: 'ri-shield-keyhole-line', title: 'Network Security', desc: 'Next-gen firewall, endpoint protection, dan VPN aman.' },
-    { icon: 'ri-hard-drive-line', title: 'Storage & Backup', desc: 'Solusi NAS/SAN dan backup otomatis dengan RTO minimal.' },
-    { icon: 'ri-router-line', title: 'SD-WAN & VPN', desc: 'Konektivitas multi-cabang yang efisien dan terenkripsi.' },
-    { icon: 'ri-cpu-line', title: 'IT Infrastructure Audit', desc: 'Assessment menyeluruh untuk perencanaan upgrade infrastruktur.' }
-  ],
-  solEduData: [
-    { icon: 'ri-presentation-line', title: 'Smartclassroom', desc: 'Ruang kelas interaktif dengan interactive flat panel dan hybrid learning.' },
-    { icon: 'ri-mic-line', title: 'Microteaching Lab', desc: 'Lab simulasi mengajar dengan perekaman multi-kamera dan review.' },
-    { icon: 'ri-translate-2', title: 'Lab Bahasa Digital', desc: 'Platform lab bahasa berbasis AI untuk pembelajaran bahasa modern.' },
-    { icon: 'ri-team-line', title: 'LMS & E-Learning', desc: 'Learning management system terintegrasi untuk kampus.' }
-  ],
-  solAiData: [
-    { icon: 'ri-building-line', title: 'Smart Campus', desc: 'Integrasi IoT untuk manajemen gedung, energi, dan keamanan kampus.' },
-    { icon: 'ri-home-office-line', title: 'Smart Office', desc: 'Ruang kerja otomatis, booking system, dan paperless meeting.' },
-    { icon: 'ri-command-line', title: 'Command Center', desc: 'Pusat kendali data terintegrasi dengan dashboard real-time.' },
-    { icon: 'ri-robot-line', title: 'AI Analytics', desc: 'Analitik prediktif berbasis AI untuk decision support.' },
-    { icon: 'ri-sensor-line', title: 'IoT Integration', desc: 'Sensor pintar untuk monitoring lingkungan dan aset.' },
-    { icon: 'ri-vidicon-line', title: 'AV & Video Conference', desc: 'Sistem AV terintegrasi untuk rapat hybrid berkualitas tinggi.' }
-  ],
-  whyData: [
-    { icon: 'ri-award-line', title: 'ISO 9001:2015', desc: 'Manajemen mutu bersertifikasi internasional untuk setiap proyek.' },
-    { icon: 'ri-team-line', title: 'Expert Team', desc: 'Tim engineer berpengalaman di bidang ICT dan smart systems.' },
-    { icon: 'ri-customer-service-2-line', title: 'End-to-End Service', desc: 'Layanan lengkap dari konsultasi hingga maintenance 24/7.' },
-    { icon: 'ri-shield-check-line', title: 'TKDN Compliant', desc: 'Dukungan regulasi TKDN untuk pengadaan pemerintah dan BUMN.' }
-  ],
-  complianceData: [
-    { icon: 'ri-shield-check-line', title: 'ISO 9001:2015', subtitle: 'Quality Management Certified', desc: 'Komitmen terhadap standar mutu internasional dalam setiap tahapan proyek — dari perencanaan hingga maintenance.', points: ['Proses terdokumentasi', 'Audit berkala', 'Continuous improvement'] },
-    { icon: 'ri-government-line', title: 'TKDN Support', subtitle: 'Komitmen Produk Dalam Negeri', desc: 'Mendukung regulasi TKDN untuk pengadaan pemerintah, BUMN, dan institusi pendidikan nasional.', points: ['Dokumen TKDN lengkap', 'Sesuai LKPP', 'Vendor resmi prinsipal'] }
-  ],
-  trustedData: ['KEMENDIKBUD', 'KEMENAKER', 'KEMENKUMHAM', 'KEMENDAGRI', 'BUMN', 'UNIVERSITAS NEGERI'],
-  portfolios: {
-    "av": { title: "Audio Visual & Smart Room", client: "Kementerian Pendidikan & Kebudayaan", loc: "Jakarta", desc: "Instalasi sistem AV terintegrasi dan smart room untuk ruang sidang utama.", img: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80", cat: "edu" },
-    "office": { title: "Smart Office System", client: "Kementerian Ketenagakerjaan", loc: "Jakarta Selatan", desc: "Implementasi sistem rapat digital tanpa kertas dan otomatisasi ruang kerja.", img: "https://images.unsplash.com/photo-1497366811353-2533774fa78d?auto=format&fit=crop&w=800&q=80", cat: "smart" },
-    "micro": { title: "Microteaching Lab", client: "Universitas Negeri", loc: "Bandung", desc: "Laboratorium pengajaran interaktif dengan perekaman video multi-sudut.", img: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80", cat: "edu" },
-    "infra": { title: "Enterprise Data Center", client: "Kementerian Hukum & HAM", loc: "Jakarta", desc: "Pengadaan server high-availability dan sistem backup terpusat.", img: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80", cat: "infra" },
-    "net": { title: "Backbone Networking", client: "BUMN & Instansi Pemerintah", loc: "Multi Cabang", desc: "Pemasangan fiber optic backbone dan router enterprise grade.", img: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80", cat: "infra" },
-    "rental": { title: "National Event ICT Rental", client: "Event Kenegaraan Nasional", loc: "Nasional", desc: "Penyediaan ratusan unit perangkat laptop & server dengan dukungan teknis on-site.", img: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80", cat: "smart" }
+// Bridge: run once + on update events (same-tab + cross-tab)
+(function initCMSBridge() {
+  const run = () => { try { applyCMS(); } catch (_) {} };
+  if (document.readyState !== 'loading') run();
+  else document.addEventListener('DOMContentLoaded', run);
+  window.addEventListener('cms:update', run);
+  window.addEventListener('cms:published', run);
+  if (window.BroadcastChannel) {
+    try {
+      const bc = new BroadcastChannel('dksi_cms');
+      bc.onmessage = e => {
+        if (e.data?.type === 'update' || e.data?.type === 'published') run();
+      };
+    } catch (_) {}
   }
-};
+})();
 
-/* ==========================================================================
-   4. RENDER LOGIC (DOM MANIPULATION)
-   ========================================================================== */
-// A. Render Sectors (Education/Gov/Enterprise)
-const sectorTabs = document.querySelectorAll(".sector-btn");
-const sectorDetail = document.getElementById("sectorDetail");
-
-function renderSector(secKey) {
-  const data = DKSI_DATA.sectors[secKey];
-  if (!sectorDetail) return;
-  sectorDetail.innerHTML = `
-    <p class="text-sm font-medium text-[var(--text-soft)] leading-relaxed mb-4">${data.desc}</p>
-    <div class="flex flex-wrap gap-2">
-      ${data.sols.map(s => `<span class="px-3 py-1.5 rounded-xl bg-[var(--bg)] border border-[var(--border)] text-xs font-bold text-[var(--brand)]">${s}</span>`).join('')}
-    </div>`;
-  sectorTabs.forEach(b => {
-    const isActive = b.dataset.sector === secKey;
-    b.className = isActive 
-      ? "sector-btn py-3 px-3 rounded-xl text-[11px] font-extrabold transition-all bg-[var(--bg-card)] text-[var(--brand)] shadow-sm"
-      : "sector-btn py-3 px-3 rounded-xl text-[11px] font-extrabold transition-all text-[var(--text-muted)]";
-  });
+/* ──────────────────────────────────────────────────────────
+   4. Data Fallback (used when CMS not yet loaded)
+   Overridden by applyCMS() above.
+   ────────────────────────────────────────────────────────── */
+if (!window.DKSI_DATA) {
+  window.DKSI_DATA = {
+    sectors: {
+      education:  { desc: 'Solusi kampus cerdas, ruang kelas interaktif hybrid, dan lab bahasa berbasis AI.', sols: ['Smartclassroom', 'Microteaching', 'Lab Bahasa', 'WiFi Kampus'] },
+      government: { desc: 'Command Center, paperless conference, dan pengadaan TKDN untuk instansi pemerintah.', sols: ['Command Center', 'AV Sidang', 'Procurement TKDN', 'Cybersecurity'] },
+      enterprise: { desc: 'Hybrid cloud, SD-WAN multi-cabang, dan enterprise data center high-availability.', sols: ['Enterprise Data Center', 'SD-WAN', 'Firewall Next-Gen', 'IT Rental'] },
+    },
+    steps: [
+      { step: '01', title: 'Consultation',    desc: 'Analisis kebutuhan sistem.',     detail: 'Discovery mendalam untuk memetakan tantangan operasional instansi Anda.' },
+      { step: '02', title: 'Assessment',      desc: 'Audit infrastruktur existing.',  detail: 'Pemeriksaan menyeluruh terhadap perangkat dan jaringan saat ini.' },
+      { step: '03', title: 'Solution Design', desc: 'Arsitektur dan perencanaan.',    detail: 'Merancang topologi, spesifikasi, dan estimasi anggaran efisien.' },
+      { step: '04', title: 'Implementation',  desc: 'Eksekusi oleh expert.',          detail: 'Pemasangan, konfigurasi, dan integrasi dengan standar ISO.' },
+      { step: '05', title: 'Training',        desc: 'Transfer knowledge.',            detail: 'Pelatihan operasional bagi tim internal.' },
+      { step: '06', title: 'Maintenance',     desc: 'Dukungan purna jual 24/7.',      detail: 'Monitoring berkala dan layanan teknis responsif.' },
+    ],
+    services: [
+      { tag: '01', icon: 'ri-shield-keyhole-line', title: 'DKSI Solutions',   sub: 'IT Infrastructure & Network Security', desc: 'Jaringan, server & keamanan siber end-to-end — audit hingga maintenance 24/7.', points: ['Server & Storage Enterprise', 'Next-Gen Firewall', 'Structured Cabling 10G'], target: 'Kementerian, BUMN, Kampus', benefit: 'Uptime 99.9% & keamanan berlapis', visible: true },
+      { tag: '02', icon: 'ri-hard-drive-3-line',   title: 'DKSI Data',        sub: 'Data Center & Hybrid Cloud', desc: 'Desain & kelola Data Center hybrid dengan backup otomatis dan DR.', points: ['Hybrid Cloud', 'Backup Otomatis & DR', 'Monitoring 24/7'], target: 'Instansi data kritis', benefit: 'Skalabilitas elastis', visible: true },
+      { tag: '03', icon: 'ri-code-s-slash-line',   title: 'DKSI Apps',        sub: 'Custom Software, ERP & Mobile', desc: 'Aplikasi web/mobile & ERP custom terintegrasi API.', points: ['Custom ERP & SIAKAD', 'Mobile Apps', 'API & SSO'], target: 'Kampus & Enterprise', benefit: 'Proses 40% lebih cepat', visible: true },
+      { tag: '04', icon: 'ri-shopping-bag-4-line', title: 'DKSI Procurement', sub: 'ICT Procurement Resmi & TKDN', desc: 'Pengadaan ICT resmi prinsipal, dokumen TKDN/LKPP lengkap.', points: ['Sesuai LKPP & TKDN', 'Garansi Prinsipal', 'Transparent Pricing'], target: 'Pemerintah & BUMN', benefit: 'Audit-ready', visible: true },
+      { tag: '05', icon: 'ri-computer-line',       title: 'DKSI Rental',      sub: 'IT Equipment Rental Fleksibel', desc: 'Sewa laptop/PC/server/printer/AV — harian/bulanan.', points: ['Laptop, Server, AV', 'Harian/Bulanan', 'Full Support'], target: 'Event & project', benefit: 'Tanpa CAPEX, <24 jam', visible: true },
+    ],
+    solInfraData: [
+      { icon: 'ri-server-line',          title: 'Data Center & Server', desc: 'Server enterprise, storage, dan disaster recovery.' },
+      { icon: 'ri-wifi-line',            title: 'Networking & WiFi',    desc: 'Fiber backbone, switching, dan WiFi enterprise.' },
+      { icon: 'ri-shield-keyhole-line',  title: 'Network Security',     desc: 'Next-gen firewall, endpoint protection, dan VPN.' },
+      { icon: 'ri-hard-drive-line',      title: 'Storage & Backup',     desc: 'NAS/SAN dan backup otomatis RTO minimal.' },
+      { icon: 'ri-router-line',          title: 'SD-WAN & VPN',         desc: 'Konektivitas multi-cabang terenkripsi.' },
+      { icon: 'ri-cpu-line',             title: 'IT Infrastructure Audit', desc: 'Assessment untuk perencanaan upgrade.' },
+    ],
+    solEduData: [
+      { icon: 'ri-presentation-line', title: 'Smartclassroom',   desc: 'Ruang kelas interaktif dengan hybrid learning.' },
+      { icon: 'ri-mic-line',          title: 'Microteaching Lab',desc: 'Lab simulasi mengajar multi-kamera.' },
+      { icon: 'ri-translate-2',       title: 'Lab Bahasa Digital', desc: 'Platform lab bahasa berbasis AI.' },
+      { icon: 'ri-team-line',         title: 'LMS & E-Learning', desc: 'Learning management system terintegrasi.' },
+    ],
+    solAiData: [
+      { icon: 'ri-building-line',    title: 'Smart Campus',      desc: 'IoT untuk manajemen gedung & energi kampus.' },
+      { icon: 'ri-home-office-line', title: 'Smart Office',      desc: 'Booking system & paperless meeting.' },
+      { icon: 'ri-command-line',     title: 'Command Center',    desc: 'Pusat kendali data dashboard real-time.' },
+      { icon: 'ri-robot-line',       title: 'AI Analytics',      desc: 'Analitik prediktif untuk decision support.' },
+      { icon: 'ri-sensor-line',      title: 'IoT Integration',   desc: 'Sensor pintar monitoring lingkungan & aset.' },
+      { icon: 'ri-vidicon-line',     title: 'AV & Video Conference', desc: 'Sistem AV hybrid berkualitas tinggi.' },
+    ],
+    whyData: [
+      { icon: 'ri-award-line',                 title: 'ISO 9001:2015',      desc: 'Manajemen mutu bersertifikasi internasional.' },
+      { icon: 'ri-team-line',                 title: 'Expert Team',         desc: 'Engineer berpengalaman di ICT & smart systems.' },
+      { icon: 'ri-customer-service-2-line',   title: 'End-to-End Service',  desc: 'Konsultasi hingga maintenance 24/7.' },
+      { icon: 'ri-shield-check-line',         title: 'TKDN Compliant',      desc: 'Dukungan regulasi TKDN untuk pemerintah & BUMN.' },
+    ],
+    complianceData: [
+      { icon: 'ri-shield-check-line', title: 'ISO 9001:2015', subtitle: 'Quality Management Certified', desc: 'Standar mutu internasional di setiap tahapan proyek.', points: ['Proses terdokumentasi', 'Audit berkala', 'Continuous improvement'] },
+      { icon: 'ri-government-line',   title: 'TKDN Support',  subtitle: 'Komitmen Produk Dalam Negeri', desc: 'Mendukung regulasi TKDN untuk pengadaan nasional.', points: ['Dokumen TKDN lengkap', 'Sesuai LKPP', 'Vendor resmi prinsipal'] },
+    ],
+    trustedData: ['KEMENDIKBUD', 'KEMENAKER', 'KEMENKUMHAM', 'KEMENDAGRI', 'BUMN', 'UNIVERSITAS'],
+    portfolios: {
+      av:     { title: 'Audio Visual & Smart Room',  client: 'Kementerian Pendidikan & Kebudayaan', loc: 'Jakarta', desc: 'Sistem AV terintegrasi & smart room paperless.', img: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80', cat: 'smart', status: 'published' },
+      office: { title: 'Smart Office System',        client: 'Kementerian Ketenagakerjaan',          loc: 'Jakarta Selatan', desc: 'Paperless Conference & office automation.',       img: 'https://images.unsplash.com/photo-1497366811353-2533774fa78d?auto=format&fit=crop&w=800&q=80', cat: 'smart', status: 'published' },
+      micro:  { title: 'Microteaching Lab',          client: 'Universitas Negeri',                   loc: 'Bandung', desc: 'Lab simulasi mengajar multi-kamera.',               img: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80', cat: 'edu',   status: 'published' },
+      infra:  { title: 'Enterprise Data Center',     client: 'Kementerian Hukum & HAM',              loc: 'Jakarta', desc: 'Server high-availability & backup terpusat.',       img: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80', cat: 'infra', status: 'published' },
+      net:    { title: 'Backbone Networking',        client: 'BUMN & Instansi Pemerintah',           loc: 'Multi Cabang', desc: 'Fiber backbone & router enterprise.',            img: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80', cat: 'infra', status: 'published' },
+      rental: { title: 'National Event ICT Rental',  client: 'Event Kenegaraan Nasional',            loc: 'Nasional', desc: 'Ratusan unit laptop & server on-site support.',     img: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80', cat: 'smart', status: 'published' },
+    },
+  };
 }
 
-// B. Render Process Steps
+/* ──────────────────────────────────────────────────────────
+   5. Renderers
+   ────────────────────────────────────────────────────────── */
+
+// 5a. Sectors (About tabs)
+function renderSector(secKey) {
+  const data = window.DKSI_DATA.sectors[secKey];
+  const detail = $('#sectorDetail');
+  const tabs   = $$('.sector-btn');
+  if (!data || !detail) return;
+
+  tabs.forEach(b => {
+    const active = b.dataset.sector === secKey;
+    b.className = active
+      ? 'sector-btn py-3 px-3 rounded-xl text-[11px] font-extrabold bg-[var(--bg-card)] text-[var(--brand)] shadow-sm'
+      : 'sector-btn py-3 px-3 rounded-xl text-[11px] font-extrabold text-[var(--text-muted)]';
+  });
+
+  detail.innerHTML =
+    `<p class="text-sm text-[var(--text-soft)] leading-relaxed mb-4">${data.desc}</p>`
+  + `<ul class="grid grid-cols-2 gap-2">${data.sols.map(s =>
+      `<li class="flex items-center gap-2 text-xs font-semibold text-[var(--text)]"><i class="ri-check-line text-[var(--brand)]"></i>${s}</li>`
+    ).join('')}</ul>`;
+}
+
+// 5b. Process steps
 let currentStep = 0;
 function renderProcess() {
-  const steps = DKSI_DATA.steps;
-  const btnContainer = document.getElementById("stepButtons");
-  const detailContainer = document.getElementById("stepDetail");
-  const progressBar = document.getElementById("processProgress");
-  if (!btnContainer) return;
+  const steps = window.DKSI_DATA.steps;
+  const container = $('#processSteps');
+  const detail    = $('#processDetail');
+  if (!container || !detail) return;
 
-  btnContainer.innerHTML = steps.map((s, i) => `
-    <button type="button" onclick="setStep(${i})" class="text-left p-5 rounded-2xl transition-all border ${currentStep === i ? 'bg-[var(--bg)] border-[var(--brand)] shadow-lg ring-2 ring-[var(--brand)]/20 -translate-y-1' : 'bg-[var(--bg-soft)] border-[var(--border)] hover:bg-[var(--bg)]'}">
-      <span class="text-[10px] font-black px-2 py-0.5 rounded-md ${currentStep === i ? 'bg-[var(--brand)] text-white' : 'bg-[var(--border)] text-[var(--text-muted)]'}">${s.step}</span>
-      <h3 class="text-xs font-bold mt-3 mb-1 text-[var(--text)]">${s.title}</h3>
-      <p class="text-[10px] text-[var(--text-muted)] line-clamp-1">${s.desc}</p>
-    </button>`).join("");
+  container.innerHTML = steps.map((s, i) =>
+    `<button onclick="setStep(${i})" class="text-left p-4 rounded-2xl border transition-all ${i === currentStep ? 'bg-[var(--brand)] text-white border-[var(--brand)] shadow-lg' : 'bg-[var(--bg-card)] border-[var(--border)] hover:border-[var(--brand)]'}">`
+  + `<div class="text-[10px] font-mono tracking-widest ${i === currentStep ? 'text-white/70' : 'text-[var(--text-muted)]'}">${s.step}</div>`
+  + `<div class="text-sm font-extrabold mt-1">${s.title}</div>`
+  + `<div class="text-xs mt-1 ${i === currentStep ? 'text-white/80' : 'text-[var(--text-soft)]'}">${s.desc}</div>`
+  + `</button>`
+  ).join('');
 
-  detailContainer.innerHTML = `
-    <div class="grid md:grid-cols-3 gap-8 items-center">
-      <div class="md:col-span-2">
-        <span class="px-3 py-1 rounded-lg bg-[var(--brand)] text-white text-[10px] font-black uppercase">Tahap ${steps[currentStep].step}</span>
-        <h3 class="text-2xl font-extrabold text-[var(--text)] mt-3 mb-2">${steps[currentStep].title}</h3>
-        <p class="text-sm font-bold text-[var(--brand)] mb-3">${steps[currentStep].desc}</p>
-        <p class="text-xs text-[var(--text-soft)] leading-relaxed">${steps[currentStep].detail}</p>
-      </div>
-      <div class="flex justify-end">
-        <button onclick="setStep(${(currentStep + 1) % steps.length})" class="px-6 py-3 rounded-2xl bg-[var(--brand)] text-white text-xs font-bold uppercase tracking-widest hover:scale-105 transition">Selanjutnya →</button>
-      </div>
-    </div>`;
-
-  if (progressBar) progressBar.style.width = `${(currentStep / (steps.length - 1)) * 100}%`;
+  const active = steps[currentStep];
+  detail.innerHTML =
+    `<h3 class="text-xl font-extrabold text-[var(--text)]">${active.title}</h3>`
+  + `<p class="text-sm text-[var(--text-soft)] leading-relaxed mt-2">${active.detail}</p>`;
 }
 
-// C. Render Grids (Infra, Edu, AI, Why, Compliance, Trusted)
+// 5c. Services + Solutions grids
 function renderGrids() {
   const data = window.DKSI_DATA;
-  
-  // Services
-    // Filter services visible vs draft
-    const visibleServices = data.services.filter(s => s.visible !== false);
-  const sGrid = document.getElementById("servicesGrid");
-  if (sGrid) sGrid.innerHTML = visibleServices.map(s => `<div class="bg-[var(--bg-card)] border border-[var(--border)] rounded-[32px] p-8 flex flex-col justify-between hover:border-[var(--brand)] transition-all shadow-sm hover:shadow-xl"><div><div class="flex justify-between items-center mb-6"><span class="text-2xl font-black text-[var(--text-muted)]">${s.tag}</span><div class="flex items-center gap-2"><span class="w-9 h-9 rounded-xl bg-royal dark:bg-cyan grid place-items-center text-white dark:text-darkBg text-base"><i class="${s.icon || 'ri-service-line'}"></i></span><span class="px-3 py-1 rounded-full bg-[var(--bg-soft)] text-[10px] font-extrabold text-[var(--brand)] border border-[var(--border)]">DKSI</span></div></div><h3 class="text-xl font-extrabold text-[var(--text)] mb-1">${s.title}</h3><p class="text-xs font-bold text-[var(--text-muted)] mb-2">${s.sub}</p>${s.target ? `<p class="text-[11px] text-[var(--text-muted)] mb-1"><i class="ri-user-3-line"></i> Cocok untuk: ${s.target}</p>` : ''}<p class="text-sm text-[var(--text-soft)] leading-relaxed mb-3">${s.desc}</p>${s.benefit ? `<div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 mb-4"><i class="ri-flashlight-line"></i> ${s.benefit}</div>` : ''}<ul class="space-y-2 pt-4 border-t border-[var(--border)] mb-6">${s.points.map(p => `<li class="flex items-center gap-2 text-xs font-semibold text-[var(--text)]"><i class="ri-check-line text-[var(--brand)]"></i>${p}</li>`).join('')}</ul></div><a href="#contact" class="text-xs font-extrabold text-[var(--brand)] flex items-center gap-2">Pelajari Layanan <i class="ri-arrow-right-line"></i></a></div>`).join('');
 
-  // Solutions: dynamic from cms.solCategories — each category renders its own grid section
-  const dyn = document.getElementById("solutions-dynamic");
-  if (dyn) {
-    const cats = (window.CMS ? window.CMS.get().solCategories : null) || [
-      { id: 'solInfra', name: 'IT Infrastructure & Security', desc: 'Solusi infrastruktur TI dan keamanan siber untuk instansi dan enterprise.', icon: 'ri-server-line' },
-      { id: 'solEdu', name: 'Smart Education & Digital Learning', desc: 'Ruang kelas interaktif, lab bahasa berbasis AI, dan sistem manajemen pembelajaran.', icon: 'ri-presentation-line' },
-      { id: 'solAi', name: 'AI, IoT & Smart Innovation', desc: 'Inovasi teknologi terkini untuk smart campus, smart office, dan command center.', icon: 'ri-robot-line' }
-    ];
-    const getArr = (id) => (window.CMS ? window.CMS.get()[id] : null) || data[id + 'Data'] || data[id] || [];
-    const iFromBg = ['bg-[var(--bg)]', 'bg-[var(--bg-soft)]', 'bg-[var(--bg)]', 'bg-[var(--bg-soft)]', 'bg-[var(--bg)]'];
-    const sectionHtml = cats.map((cat, idx) => {
-      const arr = getArr(cat.id);
-      if (!arr.length) return '';
-      const bgClass = iFromBg[idx % iFromBg.length];
-      const isEduStyle = cat.id === 'solEdu' || cat.name.toLowerCase().includes('education');
-      if (isEduStyle) {
-        return `
-          <section id="${cat.id}" class="py-20 lg:py-28 ${bgClass}">
-            <div class="max-w-[1280px] mx-auto px-6 lg:px-8">
-              <div class="grid lg:grid-cols-2 gap-16 items-center">
-                <div class="relative">
-                  <div class="absolute -top-6 -left-6 w-full h-full bg-gradient-to-br from-royal/10 to-cyan/10 rounded-[40px] -z-10"></div>
-                  <img loading="lazy" decoding="async" src="${arr[0]?.img || 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80'}" class="w-full h-[400px] object-cover rounded-[32px]" alt="${cat.name}">
-                </div>
-                <div>
-                  <div class="label mb-2">${cat.name}</div>
-                  <p class="text-[var(--text-soft)] leading-relaxed mb-8">${cat.desc}</p>
-                  <div class="space-y-4">${arr.map(s => `<div class="flex gap-4 p-5 rounded-2xl bg-[var(--bg-card)] border border-[var(--border)] hover:border-[var(--brand)] transition-all"><div class="w-12 h-12 rounded-xl bg-royal dark:bg-cyan flex items-center justify-center text-white dark:text-darkBg text-xl flex-shrink-0"><i class="${s.icon || 'ri-service-line'}"></i></div><div><h4 class="font-extrabold text-sm text-[var(--text)]">${s.title}</h4><p class="text-xs text-[var(--text-soft)] mt-1 leading-relaxed">${s.shortDesc || s.desc}</p></div></div>`).join('')}</div>
-                </div>
-              </div>
-            </div>
-          </section>`;
-      }
-      return `
-        <section id="${cat.id}" class="py-20 lg:py-28 ${bgClass}">
-          <div class="max-w-[1280px] mx-auto px-6 lg:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-16">
-              <div class="label mb-2">${cat.name}</div>
-              <p class="text-[var(--text-soft)] mt-4">${cat.desc}</p>
-            </div>
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              ${arr.map(s => `<div class="bg-[var(--bg-card)] border border-[var(--border)] rounded-[32px] p-8 hover:border-[var(--brand)] transition-all shadow-sm hover:shadow-xl"><div class="w-12 h-12 rounded-2xl bg-royal dark:bg-cyan flex items-center justify-center text-white dark:text-darkBg text-xl mb-4"><i class="${s.icon || 'ri-service-line'}"></i></div><h3 class="font-extrabold text-lg mb-2 text-[var(--text)]">${s.title}</h3><p class="text-sm text-[var(--text-soft)] leading-relaxed mb-4">${s.shortDesc || s.desc}</p><button onclick="openSolutionModal('${s.title}')" class="text-xs font-extrabold text-[var(--brand)] flex items-center gap-2">Detail <i class="ri-arrow-right-line"></i></button></div>`).join('')}
-            </div>
-          </div>
-        </section>`;
-    }).join('');
-    dyn.innerHTML = sectionHtml;
-    // Also sync map overrides for legacy ids if requested
-    if (window.CMS && window.CMS.get().solInfra) window.DKSI_DATA.solInfraData = window.CMS.get().solInfra.map(x => ({ icon: x.icon || "ri-service-line", title: x.title, desc: x.desc || x.shortDesc || '' }));
-    if (window.CMS && window.CMS.get().solEdu) window.DKSI_DATA.solEduData = window.CMS.get().solEdu.map(x => ({ icon: x.icon || "ri-presentation-line", title: x.title, desc: x.desc || x.shortDesc || '' }));
-    if (window.CMS && window.CMS.get().solAi) window.DKSI_DATA.solAiData = window.CMS.get().solAi.map(x => ({ icon: x.icon || "ri-building-line", title: x.title, desc: x.desc || x.shortDesc || '' }));
-    return; // skip hardcoded renderers below when dynamic rendered
+  // Services — only visible items (drafts hidden from public)
+  const sGrid = $('#servicesGrid');
+  if (sGrid) {
+    const visible = data.services.filter(s => s.visible !== false);
+    sGrid.innerHTML = visible.map(s =>
+      `<div class="bg-[var(--bg-card)] border border-[var(--border)] rounded-[32px] p-8 flex flex-col justify-between hover:border-[var(--brand)] transition-all shadow-sm hover:shadow-xl">`
+    + `<div><div class="flex justify-between items-center mb-6"><span class="text-2xl font-black text-[var(--text-muted)]">${s.tag}</span>`
+    + `<div class="flex items-center gap-2"><span class="w-9 h-9 rounded-xl bg-royal dark:bg-cyan grid place-items-center text-white dark:text-darkBg text-base"><i class="${s.icon || 'ri-service-line'}"></i></span>`
+    + `<span class="px-3 py-1 rounded-full bg-[var(--bg-soft)] text-[10px] font-extrabold text-[var(--brand)] border border-[var(--border)]">DKSI</span></div></div>`
+    + `<h3 class="text-xl font-extrabold text-[var(--text)] mb-1">${s.title}</h3>`
+    + `<p class="text-xs font-bold text-[var(--text-muted)] mb-2">${s.sub}</p>`
+    + (s.target  ? `<p class="text-[11px] text-[var(--text-muted)] mb-1"><i class="ri-user-3-line"></i> Cocok untuk: ${s.target}</p>` : '')
+    + `<p class="text-sm text-[var(--text-soft)] leading-relaxed mb-3">${s.desc}</p>`
+    + (s.benefit ? `<div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 mb-4"><i class="ri-flashlight-line"></i> ${s.benefit}</div>` : '')
+    + `<ul class="space-y-2 pt-4 border-t border-[var(--border)] mb-6">${s.points.map(p => `<li class="flex items-center gap-2 text-xs font-semibold text-[var(--text)]"><i class="ri-check-line text-[var(--brand)]"></i>${p}</li>`).join('')}</ul></div>`
+    + `<a href="#contact" class="text-xs font-extrabold text-[var(--brand)] flex items-center gap-2">Pelajari Layanan <i class="ri-arrow-right-line"></i></a></div>`
+    ).join('');
   }
 
-  // Legacy static renderers (fallback only if #solutions-dynamic missing — currently not rendered)
-  // Solutions: Infra
-  const infraGrid = document.getElementById("solInfraGrid");
-  if (infraGrid) infraGrid.innerHTML = data.solInfraData.map(s => `<div class="bg-[var(--bg-card)] border border-[var(--border)] rounded-[32px] p-8 hover:border-[var(--brand)] transition-all shadow-sm hover:shadow-xl"><div class="w-12 h-12 rounded-2xl bg-royal dark:bg-cyan flex items-center justify-center text-white dark:text-darkBg text-xl mb-4"><i class="${s.icon}"></i></div><h3 class="font-extrabold text-lg mb-2 text-[var(--text)]">${s.title}</h3><p class="text-sm text-[var(--text-soft)] leading-relaxed mb-4">${s.desc}</p><button onclick="openSolutionModal('${s.title}')" class="text-xs font-extrabold text-[var(--brand)] flex items-center gap-2">Detail <i class="ri-arrow-right-line"></i></button></div>`).join('');
+  // Solutions — dynamic by category (from CMS solCategories)
+  const dyn = $('#solutions-dynamic');
+  if (dyn) {
+    const cats = (window.CMS?.get()?.solCategories) || [
+      { id: 'solInfra', name: 'IT Infrastructure & Network Security', desc: 'Infrastruktur TI & keamanan siber.', icon: 'ri-server-line', color: 'royal' },
+      { id: 'solEdu',   name: 'Smart Education & Digital Learning',   desc: 'Kelas interaktif & lab bahasa AI.',       icon: 'ri-presentation-line', color: 'cyan' },
+      { id: 'solAi',    name: 'AI, IoT & Smart Innovation',           desc: 'Smart campus, smart office, command center.', icon: 'ri-robot-line', color: 'navy' },
+    ];
+    const dataMap = { solInfra: data.solInfraData, solEdu: data.solEduData, solAi: data.solAiData };
 
-  // Solutions: Education
-  const eduList = document.getElementById("solEduList");
-  if (eduList) eduList.innerHTML = data.solEduData.map(s => `<div class="flex gap-4 p-5 rounded-2xl bg-[var(--bg-card)] border border-[var(--border)] hover:border-[var(--brand)] transition-all"><div class="w-12 h-12 rounded-xl bg-royal dark:bg-cyan flex items-center justify-center text-white dark:text-darkBg text-xl flex-shrink-0"><i class="${s.icon}"></i></div><div><h4 class="font-extrabold text-sm text-[var(--text)]">${s.title}</h4><p class="text-xs text-[var(--text-soft)] mt-1 leading-relaxed">${s.desc}</p></div></div>`).join('');
+    dyn.innerHTML = cats.map(cat => {
+      const items = dataMap[cat.id] || [];
+      if (!items.length) return '';
+      return `<section id="${cat.id}" class="py-16">`
+        + `<div class="flex items-center gap-3 mb-8"><span class="w-10 h-10 rounded-xl bg-royal dark:bg-cyan grid place-items-center text-white"><i class="${cat.icon}"></i></span>`
+        + `<div><h3 class="text-xl font-extrabold text-[var(--text)]">${cat.name}</h3><p class="text-sm text-[var(--text-soft)]">${cat.desc}</p></div></div>`
+        + `<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">${items.map(it =>
+            `<div class="p-6 rounded-3xl bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--brand)] transition-all">`
+          + `<div class="w-10 h-10 rounded-xl bg-[var(--bg-soft)] grid place-items-center text-[var(--brand)] mb-4"><i class="${it.icon}"></i></div>`
+          + `<h4 class="text-sm font-extrabold text-[var(--text)] mb-2">${it.title}</h4>`
+          + `<p class="text-xs text-[var(--text-soft)] leading-relaxed">${it.desc}</p>`
+          + `</div>`
+          ).join('')}</div></section>`;
+    }).join('');
+  }
 
-  // Solutions: AI & Smart
-  const aiGrid = document.getElementById("solAiGrid");
-  if (aiGrid) aiGrid.innerHTML = data.solAiData.map(s => `<div class="bg-[var(--bg-soft)] border border-[var(--border)] rounded-[32px] p-8 hover:bg-[var(--bg-card)] hover:border-[var(--brand)] transition-all"><div class="w-12 h-12 rounded-2xl bg-royal dark:bg-cyan flex items-center justify-center text-white dark:text-darkBg text-xl mb-4"><i class="${s.icon}"></i></div><h3 class="font-extrabold text-lg mb-2 text-[var(--text)]">${s.title}</h3><p class="text-sm text-[var(--text-soft)] leading-relaxed mb-4">${s.desc}</p><button onclick="openSolutionModal('${s.title}')" class="text-xs font-extrabold text-[var(--brand)]">Pelajari →</button></div>`).join('');
-
-  // Why Us
-  const wGrid = document.getElementById("whyGrid");
-  if (wGrid) wGrid.innerHTML = data.whyData.map(w => `<div class="bg-[var(--bg-card)] border border-[var(--border)] rounded-[32px] p-8 hover:border-[var(--brand)] transition-all shadow-sm hover:shadow-xl"><div class="w-14 h-14 rounded-2xl bg-royal dark:bg-cyan flex items-center justify-center text-white dark:text-darkBg text-2xl mb-4"><i class="${w.icon}"></i></div><h3 class="font-extrabold text-lg mb-2 text-[var(--text)]">${w.title}</h3><p class="text-sm text-[var(--text-soft)] leading-relaxed">${w.desc}</p></div>`).join('');
-
-  // Compliance
-  const cGrid = document.getElementById("complianceGrid");
-  if (cGrid) cGrid.innerHTML = data.complianceData.map(c => `<div class="bg-[var(--bg-card)] border border-[var(--border)] rounded-[32px] p-8 shadow-sm hover:shadow-xl transition-all"><div class="w-14 h-14 rounded-2xl bg-royal dark:bg-cyan flex items-center justify-center text-white dark:text-darkBg text-2xl mb-6"><i class="${c.icon}"></i></div><h3 class="text-2xl font-extrabold text-[var(--text)] mb-1">${c.title}</h3><p class="text-xs font-bold text-[var(--brand)] mb-4 uppercase tracking-widest">${c.subtitle}</p><p class="text-sm text-[var(--text-soft)] leading-relaxed mb-6">${c.desc}</p><ul class="space-y-2">${c.points.map(p => `<li class="flex items-center gap-2 text-xs font-semibold text-[var(--text)]"><i class="ri-check-line text-emerald-500"></i>${p}</li>`).join('')}</ul></div>`).join('');
-
-  // Trusted By
-  const tLogos = document.getElementById("trustedLogos");
-  if (tLogos) tLogos.innerHTML = data.trustedData.map(n => `<div class="px-6 py-4 rounded-2xl bg-[var(--bg-soft)] border border-[var(--border)] text-xs font-black tracking-widest text-[var(--text-muted)]">${n}</div>`).join('');
+  // Why / Compliance / Trusted — simple text grids (no heavy DOM)
+  const whyGrid = $('#whyGrid');
+  if (whyGrid && data.whyData) {
+    whyGrid.innerHTML = data.whyData.map(w =>
+      `<div class="text-center p-6"><div class="w-12 h-12 rounded-2xl bg-royal dark:bg-cyan grid place-items-center text-white mx-auto mb-4"><i class="${w.icon} text-xl"></i></div>`
+    + `<h4 class="text-sm font-extrabold text-[var(--text)]">${w.title}</h4><p class="text-xs text-[var(--text-soft)] mt-2">${w.desc}</p></div>`
+    ).join('');
+  }
+  const compGrid = $('#complianceGrid');
+  if (compGrid && data.complianceData) {
+    compGrid.innerHTML = data.complianceData.map(c =>
+      `<div class="p-6 rounded-3xl bg-[var(--bg)] border border-[var(--border)]"><div class="w-10 h-10 rounded-xl bg-[var(--bg-soft)] grid place-items-center text-[var(--brand)] mb-4"><i class="${c.icon}"></i></div>`
+    + `<h4 class="text-sm font-extrabold text-[var(--text)]">${c.title}</h4><p class="text-xs font-bold text-[var(--text-muted)]">${c.subtitle || ''}</p>`
+    + `<p class="text-xs text-[var(--text-soft)] mt-2">${c.desc}</p>`
+    + (c.points?.length ? `<ul class="mt-3 space-y-1">${c.points.map(p => `<li class="text-xs text-[var(--text-soft)] flex items-center gap-2"><i class="ri-check-line text-[var(--brand)]"></i>${p}</li>`).join('')}</ul>` : '')
+    + `</div>`
+    ).join('');
+  }
+  const trustedGrid = $('#trustedGrid');
+  if (trustedGrid && data.trustedData) {
+    trustedGrid.innerHTML = data.trustedData.map(name =>
+      `<div class="p-4 rounded-2xl bg-[var(--bg)] border border-[var(--border)] text-center"><span class="text-xs font-black tracking-widest text-[var(--text-muted)]">${name}</span></div>`
+    ).join('');
+  }
 }
 
-// D. Render Portfolios with Filter
-const pfGrid = document.getElementById("portfolioGrid");
+// 5d. Portfolio (filter + draft guard)
+const pfGrid = $('#portfolioGrid');
+
 function renderPortfolio(cat = 'all') {
   if (!pfGrid) return;
-  const items = Object.entries(DKSI_DATA.portfolios);
-    // Filter out drafts for public view - keep only published items
-    const filtered = items.filter(([k, v]) => v.status !== 'draft' && (cat === 'all' || v.cat === cat));
-  
-  pfGrid.innerHTML = filtered.map(([k, p]) => `
-    <div class="bg-[var(--bg-card)] border border-[var(--border)] rounded-[32px] overflow-hidden group hover:border-[var(--brand)] transition-all shadow-sm hover:shadow-xl flex flex-col justify-between">
-      <div>
-        <div class="overflow-hidden h-[180px]"><img loading="lazy" decoding="async" src="${p.img}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt=""></div>
-        <div class="p-8">
-          <span class="text-[10px] font-mono tracking-widest text-[var(--brand)] uppercase font-bold">${p.client} • ${p.loc}</span>
-          <h3 class="text-lg font-extrabold text-[var(--text)] mt-1 mb-2">${p.title}</h3>
-          <p class="text-xs text-[var(--text-soft)] leading-relaxed">${p.desc}</p>
-        </div>
-      </div>
-      <div class="px-8 pb-8"><button onclick="openModal('${k}')" class="text-xs font-extrabold text-[var(--brand)] flex items-center gap-2">Detail Project <i class="ri-arrow-right-line"></i></button></div>
-    </div>`).join('');
+  const entries  = Object.entries(window.DKSI_DATA.portfolios);
+  // Public: hide drafts. Admin preview uses ?preview=1 to show all — handled via CMS bridge if needed
+  const filtered = entries.filter(([, v]) => v.status !== 'draft' && (cat === 'all' || v.cat === cat));
+
+  if (!filtered.length) {
+    pfGrid.innerHTML = `<p class="col-span-full text-center text-sm text-[var(--text-muted)] py-10">Belum ada project di kategori ini.</p>`;
+    return;
+  }
+  pfGrid.innerHTML = filtered.map(([k, p]) =>
+    `<div class="bg-[var(--bg-card)] border border-[var(--border)] rounded-[32px] overflow-hidden group hover:border-[var(--brand)] transition-all shadow-sm hover:shadow-xl flex flex-col justify-between">`
+  + `<div><div class="overflow-hidden h-[180px]"><img loading="lazy" decoding="async" src="${p.img}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt=""></div>`
+  + `<div class="p-8"><span class="text-[10px] font-mono tracking-widest text-[var(--brand)] uppercase font-bold">${p.client} \u2022 ${p.loc}</span>`
+  + `<h3 class="text-lg font-extrabold text-[var(--text)] mt-1 mb-2">${p.title}</h3>`
+  + `<p class="text-xs text-[var(--text-soft)] leading-relaxed">${p.desc}</p></div></div>`
+  + `<div class="px-8 pb-8"><button onclick="openModal('${k}')" class="text-xs font-extrabold text-[var(--brand)] flex items-center gap-2">Detail Project <i class="ri-arrow-right-line"></i></button></div>`
+  + `</div>`
+  ).join('');
 }
 
-/* ==========================================================================
-   5. MODALS & FORMS
-   ========================================================================== */
-function openModal(key) {
-  const p = DKSI_DATA.portfolios[key];
-  if (!p) return;
-  document.getElementById("mContent").innerHTML = `
-    <img loading="lazy" decoding="async" src="${p.img}" class="w-full h-[260px] object-cover rounded-2xl mb-6 shadow-md">
-    <span class="text-xs font-mono text-[var(--brand)] font-bold uppercase">${p.client} • ${p.loc}</span>
-    <h3 class="text-2xl font-extrabold text-[var(--text)] mt-1 mb-3">${p.title}</h3>
-    <p class="text-sm text-[var(--text-soft)] leading-relaxed mb-6">${p.desc}</p>
-    <div class="p-4 rounded-2xl bg-[var(--bg-soft)] border border-[var(--border)] flex justify-between items-center">
-      <span class="text-xs font-bold text-[var(--text-muted)]">Status: Selesai & Beroperasi</span>
-      <a href="#contact" onclick="closeModal()" class="px-5 py-2.5 rounded-xl bg-[var(--brand)] text-white text-xs font-black uppercase">Konsultasi Serupa</a>
-    </div>`;
-  toggleModal('solutionModal', true);
-}
-
-function openSolutionModal(title) {
-  document.getElementById("mContent").innerHTML = `
-    <div class="w-16 h-16 rounded-2xl bg-royal dark:bg-cyan flex items-center justify-center text-white text-2xl mb-6"><i class="ri-star-line"></i></div>
-    <h3 class="text-2xl font-extrabold text-[var(--text)] mb-3">${title}</h3>
-    <p class="text-sm text-[var(--text-soft)] leading-relaxed mb-6">Solusi ${title} dari DKSI dirancang untuk memenuhi kebutuhan infrastruktur digital modern dengan standar keamanan dan performa tinggi.</p>
-    <a href="#contact" onclick="closeModal()" class="inline-flex px-6 py-3 rounded-xl bg-[var(--brand)] text-white text-xs font-black uppercase">Konsultasi solusi ini →</a>`;
-  toggleModal('solutionModal', true);
-}
+/* ──────────────────────────────────────────────────────────
+   6. Modals
+   ────────────────────────────────────────────────────────── */
 
 function toggleModal(id, show) {
   const el = document.getElementById(id);
   if (!el) return;
-  if (show) { el.classList.remove("hidden"); el.classList.add("flex"); document.body.style.overflow = 'hidden'; }
-  else { el.classList.add("hidden"); el.classList.remove("flex"); document.body.style.overflow = ''; }
+  el.classList.toggle('hidden', !show);
+  el.classList.toggle('flex', show);
+  document.body.style.overflow = show ? 'hidden' : '';
 }
-
-function closeModal() { toggleModal('solutionModal', false); }
+function closeModal()        { toggleModal('solutionModal', false); }
 function closeConsultModal() { toggleModal('consultModal', false); }
 
-// Global Window Hooks
-window.setStep = i => { currentStep = i; renderProcess(); };
-window.openModal = openModal;
-window.closeModal = closeModal;
+function openModal(key) {
+  const p = window.DKSI_DATA.portfolios[key];
+  if (!p) return;
+  const content = $('#mContent');
+  if (!content) return;
+  content.innerHTML =
+    `<img loading="lazy" decoding="async" src="${p.img}" class="w-full h-[260px] object-cover rounded-2xl mb-6 shadow-md">`
+  + `<span class="text-xs font-mono text-[var(--brand)] font-bold uppercase">${p.client} \u2022 ${p.loc}</span>`
+  + `<h3 class="text-2xl font-extrabold text-[var(--text)] mt-1 mb-3">${p.title}</h3>`
+  + `<p class="text-sm text-[var(--text-soft)] leading-relaxed mb-6">${p.desc}</p>`
+  + `<div class="p-4 rounded-2xl bg-[var(--bg-soft)] border border-[var(--border)] flex justify-between items-center">`
+  + `<span class="text-xs font-bold text-[var(--text-muted)]">Status: Selesai &amp; Beroperasi</span>`
+  + `<a href="#contact" onclick="closeModal()" class="px-5 py-2.5 rounded-xl bg-[var(--brand)] text-white text-xs font-black uppercase">Konsultasi Serupa</a></div>`;
+  toggleModal('solutionModal', true);
+}
+
+function openSolutionModal(title) {
+  const content = $('#mContent');
+  if (!content) return;
+  content.innerHTML =
+    `<div class="w-16 h-16 rounded-2xl bg-royal dark:bg-cyan flex items-center justify-center text-white text-2xl mb-6"><i class="ri-star-line"></i></div>`
+  + `<h3 class="text-2xl font-extrabold text-[var(--text)] mb-3">${title}</h3>`
+  + `<p class="text-sm text-[var(--text-soft)] leading-relaxed mb-6">Solusi ${title} dari DKSI dirancang untuk kebutuhan infrastruktur digital modern dengan standar keamanan tinggi.</p>`
+  + `<a href="#contact" onclick="closeModal()" class="inline-flex px-6 py-3 rounded-xl bg-[var(--brand)] text-white text-xs font-black uppercase">Konsultasi solusi ini \u2192</a>`;
+  toggleModal('solutionModal', true);
+}
+
+// Expose for inline onclick handlers in HTML
+window.setStep          = i => { currentStep = i; renderProcess(); };
+window.openModal        = openModal;
+window.closeModal       = closeModal;
 window.openSolutionModal = openSolutionModal;
 window.closeConsultModal = closeConsultModal;
 
-  // Forms Logic — with honeypot & validation anti-spam + backend submission
-  function setupForms() {
-    const contactForm = document.getElementById("contactForm");
-    if (contactForm) {
-      contactForm.onsubmit = e => {
-        e.preventDefault();
-        const hp = document.getElementById("honeypot");
-        if (hp && hp.value) {
-          console.warn("Spam detected via honeypot.");
-          return;
-        }
-        const inputs = contactForm.querySelectorAll('input, select, textarea');
-        const nameVal = inputs[1]?.value || "";
-        const companyVal = inputs[2]?.value || "";
-        const emailVal = inputs[3]?.value || "";
-        const phoneVal = inputs[4]?.value || "";
-        const catVal = inputs[5]?.value || "";
-        const msgVal = inputs[6]?.value || "";
-        const payload = {
-          name: nameVal,
-          company: companyVal,
-          email: emailVal,
-          phone: phoneVal,
-          category: catVal,
-          message: msgVal,
-          honeypot: hp?.value || ''
-        };
+/* ──────────────────────────────────────────────────────────
+   7. Forms — honeypot + backend POST
+   Shared helper so contact & consult don't duplicate logic.
+   ────────────────────────────────────────────────────────── */
 
-        // Send to backend
-        fetch('/api/contact', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        })
-        .then(res => {
-          if (!res.ok) throw new Error(res.status);
-          return res.json();
-        })
-        .then(() => {
-          // Also update local CMS storage for admin to see immediately
-          if (window.CMS && typeof window.CMS.contactsAdd === 'function') {
-            window.CMS.contactsAdd(payload);
-          }
-          const msg = document.getElementById("formMsg");
-          if (msg) msg.classList.remove("hidden");
-          contactForm.reset();
-          setTimeout(() => msg && msg.classList.add("hidden"), 5000);
-        })
-        .catch(err => {
-          const msg = document.getElementById("formMsg");
-          if (msg) {
-            msg.textContent = 'Terjadi kesalahan. Silakan coba lagi nanti.';
-            msg.classList.remove('hidden');
-          }
-        });
-      };
+function bindForm({ formId, msgId, getPayload, onSuccess }) {
+  const form = document.getElementById(formId);
+  if (!form) return;
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+
+    // Honeypot — hidden field that bots fill
+    const hp = document.getElementById('honeypot');
+    if (hp?.value) { console.warn('[DKSI] Spam blocked (honeypot).'); return; }
+
+    const payload = getPayload(form);
+    if (!payload.name || !payload.email) return; // HTML5 required handles this, guard anyway
+
+    const msg = document.getElementById(msgId);
+    try {
+      await postJSON(API.CONTACT, { ...payload, honeypot: hp?.value || '' });
+      // Mirror to local CMS so admin sees it instantly without polling
+      if (window.CMS?.contactsAdd) window.CMS.contactsAdd(payload);
+      if (msg) msg.classList.remove('hidden');
+      form.reset();
+      onSuccess?.(msg);
+    } catch (err) {
+      if (msg) {
+        msg.textContent = 'Terjadi kesalahan. Silakan coba lagi nanti.';
+        msg.classList.remove('hidden');
+      }
     }
-    const consultForm = document.getElementById("consultForm");
-    if (consultForm) {
-      consultForm.onsubmit = e => {
-        e.preventDefault();
-        const inputs = consultForm.querySelectorAll('input, textarea, select');
-        const nameVal = inputs[0]?.value || "";
-        const companyVal = inputs[1]?.value || "";
-        const emailVal = inputs[2]?.value || "";
-        const catVal = inputs[3]?.value || "";
-        const payload = { name: nameVal, company: companyVal, email: emailVal, category: catVal, message: "Via consult modal", honeypot: '' };
-
-        // Send to backend
-        fetch('/api/contact', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        })
-        .then(res => {
-          if (!res.ok) throw new Error(res.status);
-          return res.json();
-        })
-        .then(() => {
-          if (window.CMS && typeof window.CMS.contactsAdd === 'function') {
-            window.CMS.contactsAdd(payload);
-          }
-          const msg = document.getElementById("consultMsg");
-          if (msg) msg.classList.remove("hidden");
-          consultForm.reset();
-          setTimeout(() => { if (msg) msg.classList.add("hidden"); closeConsultModal(); }, 2500);
-        })
-        .catch(err => {
-          const msg = document.getElementById("consultMsg");
-          if (msg) {
-            msg.textContent = 'Terjadi kesalahan. Silakan coba lagi nanti.';
-            msg.classList.remove('hidden');
-          }
-        });
-      };
-    }
-  }
-
-/* ==========================================================================
-   6. INITIALIZATION
-   ========================================================================== */
-function initSectors() {
-  const tabs = document.querySelectorAll(".sector-btn");
-  const detail = document.getElementById("sectorDetail");
-  if (!tabs.length || !detail) { setTimeout(initSectors, 300); return; }
-  tabs.forEach(b => {
-    b.addEventListener("click", () => renderSector(b.dataset.sector));
   });
-  renderSector("education");
+}
+
+function setupForms() {
+  // Contact section form — inputs order: [honeypot, name, company, email, phone, category, message]
+  bindForm({
+    formId: 'contactForm',
+    msgId: 'formMsg',
+    getPayload: form => {
+      const f = form.querySelectorAll('input, select, textarea');
+      return {
+        name:     f[1]?.value.trim() || '',
+        company:  f[2]?.value.trim() || '',
+        email:    f[3]?.value.trim() || '',
+        phone:    f[4]?.value.trim() || '',
+        category: f[5]?.value || 'General',
+        message:  f[6]?.value.trim() || '',
+      };
+    },
+    onSuccess: msg => setTimeout(() => msg?.classList.add('hidden'), 5000),
+  });
+
+  // Consult modal form — inputs order: [name, company, email, category]
+  bindForm({
+    formId: 'consultForm',
+    msgId: 'consultMsg',
+    getPayload: form => {
+      const f = form.querySelectorAll('input, textarea, select');
+      return {
+        name:     f[0]?.value.trim() || '',
+        company:  f[1]?.value.trim() || '',
+        email:    f[2]?.value.trim() || '',
+        category: f[3]?.value || 'General',
+        message:  'Via consult modal',
+      };
+    },
+    onSuccess: msg => setTimeout(() => { msg?.classList.add('hidden'); closeConsultModal(); }, 2500),
+  });
+}
+
+/* ──────────────────────────────────────────────────────────
+   8. Init
+   ────────────────────────────────────────────────────────── */
+
+function initSectors() {
+  const tabs   = $$('.sector-btn');
+  const detail = $('#sectorDetail');
+  if (!tabs.length || !detail) { setTimeout(initSectors, 300); return; }
+  tabs.forEach(btn => btn.addEventListener('click', () => renderSector(btn.dataset.sector)));
+  renderSector('education');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -592,30 +736,31 @@ document.addEventListener('DOMContentLoaded', () => {
   renderGrids();
   renderPortfolio('all');
   setupForms();
-  
+
   // Close modals on backdrop click
   document.addEventListener('click', e => {
     if (e.target.id === 'solutionModal') closeModal();
     if (e.target.id === 'consultModal') closeConsultModal();
   });
 
-  // Filters binding
-  document.querySelectorAll(".filter-btn").forEach(b => {
-    b.onclick = () => {
-      document.querySelectorAll(".filter-btn").forEach(x => x.className = "filter-btn");
-      b.className = "filter-btn active";
-      renderPortfolio(b.dataset.filter);
-    };
+  // Portfolio filters
+  $$('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      $$('.filter-btn').forEach(x => { x.className = 'filter-btn'; });
+      btn.className = 'filter-btn active';
+      renderPortfolio(btn.dataset.filter);
+    });
   });
 
-  // Re-apply CMS after init so hero/trust/about reflect admin data
-  if (window.CMS && typeof applyCMS === 'function') { try { applyCMS(); renderGrids(); renderPortfolio('all'); } catch(e){} }
+  // Re-apply CMS after first paint (hero/trust/about may have been updated via admin)
+  try { applyCMS(); renderGrids(); renderPortfolio('all'); } catch (_) {}
 });
 
-// Also listen for CMS updates cross-tab
-window.addEventListener("cms:update", () => { try { applyCMS(); renderGrids(); renderPortfolio('all'); renderSector("education"); } catch(e){} });
+// Cross-tab live update
+window.addEventListener('cms:update',   () => { try { applyCMS(); renderGrids(); renderPortfolio('all'); renderSector('education'); } catch (_) {} });
+window.addEventListener('cms:published',() => { try { applyCMS(); renderGrids(); renderPortfolio('all'); } catch (_) {} });
 
-// If script loaded after DOM already ready (deferred), init immediately
+// If script loaded deferred after DOM ready
 if (document.readyState !== 'loading') {
   setTimeout(() => { initSectors(); renderGrids(); renderPortfolio('all'); }, 100);
 }
