@@ -55,8 +55,11 @@ document.querySelectorAll("#mobileNav a").forEach(a => {
    ========================================================================== */
 function applyCMS() {
   if (!window.CMS) return;
-  const cms = 
-  const cms = window.CMS.getPublic ? window.CMS.getPublic() : window.CMS.get();
+  // Use published snapshot for public view if available
+  if (!window.CMS.getPublic) {
+    window.CMS.getPublic = function() { return window.CMS.getPublished ? window.CMS.getPublished() : window.CMS.get(); };
+  }
+  const cms = window.CMS.getPublic();
   // Hero
   const el = (id, prop, val) => { const n = document.getElementById(id); if (n) n.textContent = val; };
   el("heroEyebrow", null, cms.homepage.eyebrow);
