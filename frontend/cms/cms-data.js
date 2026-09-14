@@ -41,6 +41,20 @@
       ctaPrimary: "Konsultasi Sektor",
       ctaSecondary: "Lihat Alur Kerja"
     },
+    sectors: {
+      Education: {
+        desc: "Solusi ICT terintegrasi untuk meningkatkan kualitas pendidikan.",
+        sols: ["Jaringan Sekolah", "LMS Digital", "Smart Classroom", "E-Learning Platform"]
+      },
+      Government: {
+        desc: "Solusi ICT terintegrasi untuk mendukung pemerintahan digital.",
+        sols: ["Smart City", "E-Government Portal", "Keamanan Data", "Cloud Infrastructure"]
+      },
+      Enterprise: {
+        desc: "Solusi ICT terintegrasi untuk meningkatkan efisiensi bisnis enterprise.",
+        sols: ["ERP Custom", "Data Center", "Network Security", "Mobile Apps"]
+      }
+    },
     branding: {
       mainLogo: "assets/logo/main.png",
       secondaryLight: "assets/logo/secondary-light.png",

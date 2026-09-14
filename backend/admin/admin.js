@@ -421,7 +421,7 @@
           </div>
           <div class="cms-card"><div class="cms-card-header"><h3 class="cms-card-title">Sectors (3 tabs)</h3></div>
             <div class="p-6 repeater">
-              ${Object.entries(data.sectors).map(([key, s]) => `
+              ${Object.entries(data.sectors || {}).map(([key, s]) => `
                 <div class="repeater-item">
                   <div class="repeater-head"><span class="repeater-title">${escapeHtml(key)}</span><span class="tag">${escapeHtml(s.sols ? s.sols.length + ' sols' : '')}</span></div>
                   <textarea data-field="sectors.${key}.desc" class="field-textarea" rows="2">${escapeHtml(s.desc)}</textarea>
