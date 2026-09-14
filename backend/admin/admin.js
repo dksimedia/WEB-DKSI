@@ -1004,11 +1004,8 @@
       e.preventDefault();
       const email = document.getElementById('loginEmail')?.value?.trim();
       const pass = document.getElementById('loginPass')?.value;
-      
-      // Hardcoded credentials for local MVP - replacement for real backend auth
       const ADMIN_EMAIL = 'admin@dksi.co.id';
       const ADMIN_PASS = 'dksi2026';
-
       if (email === ADMIN_EMAIL && pass === ADMIN_PASS) {
         localStorage.setItem(AUTH_KEY, '1');
         window.CMS.addActivity('Admin login', email);
@@ -1016,7 +1013,6 @@
         showToast('Signed in — welcome back', 'success');
       } else {
         showToast('Invalid email or password', 'error');
-        window.CMS.addActivity('Failed login attempt', email || 'unknown');
       }
     });
 
@@ -1209,6 +1205,23 @@
         renderEditor('portfolio');
       });
     }
+      ,
+
+    loadContactsFromServer() {
+      fetch('/api/admin/contacts')
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            window.CMS.contactsData = data;
+            window.CMS.contactsLoaded = true;
+            console.log('[Admin] Contacts loaded from server:', data.length);
+            if (document.querySelector('.nav-item[data-view="contacts"]')?.classList.contains('active')) {
+              renderEditor('contacts');
+            }
+          }
+        })
+        .catch(err => console.warn('[Admin] Failed to load contacts:', err));
+    }
   };
 
   function initNav() {
@@ -1239,25 +1252,7 @@
         const m = document.getElementById('confirmModal');
         m.classList.add('hidden'); m.classList.remove('flex');
       }
-  
-
-    loadContactsFromServer() {
-      fetch('/api/admin/contacts')
-        .then(res => res.json())
-        .then(data => {
-          if (Array.isArray(data)) {
-            window.CMS.contactsData = data;
-            window.CMS.contactsLoaded = true;
-            console.log('[Admin] Contacts loaded from server:', data.length);
-            // Trigger contacts view refresh if currently visible
-            if (document.querySelector('.nav-item[data-view="contacts"]')?.classList.contains('active')) {
-              renderEditor('contacts');
-            }
-          }
-        })
-        .catch(err => console.warn('[Admin] Failed to load contacts:', err));;
-    }
-  });
+    });
   }
 
   if (document.getElementById('loginScreen')) initAuth();
