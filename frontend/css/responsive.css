@@ -1,0 +1,22 @@
+/* --- MOBILE RESPONSIVE FIXES --- */
+@media (max-width: 768px) {
+  h1 { font-size: 2.5rem !important; line-height: 1.1 !important; }
+  h2 { font-size: 2rem !important; }
+  .max-w-\[1280px\] { padding-left: 1rem !important; padding-right: 1rem !important; }
+  .grid { gap: 1rem !important; }
+  /* Padding container penyesuaian mobile */
+  section { padding-top: 3.5rem !important; padding-bottom: 3.5rem !important; }
+  /* Hero section image fix */
+  .hero-img img { height: 280px !important; }
+}
+
+@media (max-width: 640px) {
+  .hero-img img { height: 220px !important; }
+  #heroBadges { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+
+/* Pastikan gambar tidak overflow */
+img { max-width: 100%; height: auto; }
+
+/* Wrapper table / grid responsif */
+.table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }

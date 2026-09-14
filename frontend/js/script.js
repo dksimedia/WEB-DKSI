@@ -299,7 +299,7 @@ function renderGrids() {
               <div class="grid lg:grid-cols-2 gap-16 items-center">
                 <div class="relative">
                   <div class="absolute -top-6 -left-6 w-full h-full bg-gradient-to-br from-royal/10 to-cyan/10 rounded-[40px] -z-10"></div>
-                  <img src="${arr[0]?.img || 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80'}" class="w-full h-[400px] object-cover rounded-[32px]" alt="${cat.name}">
+                  <img loading="lazy" decoding="async" src="${arr[0]?.img || 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80'}" class="w-full h-[400px] object-cover rounded-[32px]" alt="${cat.name}">
                 </div>
                 <div>
                   <div class="label mb-2">${cat.name}</div>
@@ -367,7 +367,7 @@ function renderPortfolio(cat = 'all') {
   pfGrid.innerHTML = filtered.map(([k, p]) => `
     <div class="bg-[var(--bg-card)] border border-[var(--border)] rounded-[32px] overflow-hidden group hover:border-[var(--brand)] transition-all shadow-sm hover:shadow-xl flex flex-col justify-between">
       <div>
-        <div class="overflow-hidden h-[180px]"><img src="${p.img}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt=""></div>
+        <div class="overflow-hidden h-[180px]"><img loading="lazy" decoding="async" src="${p.img}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt=""></div>
         <div class="p-8">
           <span class="text-[10px] font-mono tracking-widest text-[var(--brand)] uppercase font-bold">${p.client} • ${p.loc}</span>
           <h3 class="text-lg font-extrabold text-[var(--text)] mt-1 mb-2">${p.title}</h3>
@@ -385,7 +385,7 @@ function openModal(key) {
   const p = DKSI_DATA.portfolios[key];
   if (!p) return;
   document.getElementById("mContent").innerHTML = `
-    <img src="${p.img}" class="w-full h-[260px] object-cover rounded-2xl mb-6 shadow-md">
+    <img loading="lazy" decoding="async" src="${p.img}" class="w-full h-[260px] object-cover rounded-2xl mb-6 shadow-md">
     <span class="text-xs font-mono text-[var(--brand)] font-bold uppercase">${p.client} • ${p.loc}</span>
     <h3 class="text-2xl font-extrabold text-[var(--text)] mt-1 mb-3">${p.title}</h3>
     <p class="text-sm text-[var(--text-soft)] leading-relaxed mb-6">${p.desc}</p>

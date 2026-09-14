@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/tailwind.min.css">
 <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/responsive.css">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
 <script>
   (function() {
@@ -29,7 +30,7 @@
 <header id="navbar" class="fixed top-0 inset-x-0 z-50 transition-all duration-300 bg-transparent border-b border-transparent">
 <div class="max-w-[1280px] mx-auto px-6 lg:px-8 h-[72px] flex items-center justify-between">
 <a id="siteLogoWrap" href="#home" class="flex items-center gap-3">
-<img id="siteLogo" src="assets/logo/secondary-light.png" alt="DKSI Logo" class="h-16 transition-all">
+<img id="siteLogo" src="assets/logo/secondary-light.png" alt="DKSI Logo" class="h-16 transition-all" loading="lazy" decoding="async">
 </a>
 <nav class="hidden lg:flex items-center gap-1 text-[13px] font-semibold tracking-wide">
 <a href="#home" class="nav-link active px-3 py-2">HOME</a>
@@ -76,7 +77,7 @@
      =========================================== -->
 <section id="home" class="relative min-h-[92vh] flex items-center overflow-hidden bg-slate-50 dark:bg-slate-950">
 <div class="absolute inset-0">
-<img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80" class="w-full h-full object-cover opacity-[0.04] dark:opacity-[0.12]" alt="">
+<img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80" class="w-full h-full object-cover opacity-[0.04] dark:opacity-[0.12]" alt="" loading="lazy" decoding="async">
 <div class="absolute inset-0 bg-gradient-to-b from-white/30 via-transparent to-white dark:from-slate-950/30 dark:to-slate-950"></div>
 <div class="absolute inset-0 opacity-[0.05]" style="background-image:linear-gradient(rgba(10,45,122,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(10,45,122,.1) 1px,transparent 1px);background-size:56px 56px"></div>
 </div>
@@ -93,7 +94,7 @@
 </div>
 <div class="relative">
 <div class="relative rounded-[32px] overflow-hidden bg-[var(--bg-card)] border border-[var(--border)] shadow-2xl hero-img">
-<img id="heroImage" src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1100&q=80" class="w-full h-[440px] object-cover object-center" alt="Enterprise ICT">
+<img id="heroImage" src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1100&q=80" class="w-full h-[440px] object-cover object-center" alt="Enterprise ICT" loading="lazy" decoding="async">
 <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent dark:from-black/60"></div>
 <div id="heroBadges" class="absolute bottom-5 left-5 right-5 grid grid-cols-3 gap-2 z-10">
 <span class="glass-btn">AI</span><span class="glass-btn">IoT</span><span class="glass-btn">SECURITY</span>
@@ -145,7 +146,7 @@
 <div class="relative p-2 bg-gradient-to-tr from-royal/20 to-cyan/20 rounded-[40px]">
 <div class="relative bg-gradient-to-br from-[#0A2D7A] to-[#041635] dark:from-[#111827] dark:to-[#030712] rounded-[38px] p-8 text-white shadow-2xl border border-white/10 overflow-hidden">
 <div class="relative z-10">
-<img id="aboutLogo" src="assets/logo/secondary-dark.png" alt="DKSI" class="h-6 mb-8 opacity-90">
+<img id="aboutLogo" src="assets/logo/secondary-dark.png" alt="DKSI" class="h-6 mb-8 opacity-90" loading="lazy" decoding="async">
 <h3 id="aboutCardTagline" class="text-2xl font-black mb-4">"Support Your Business With ICT"</h3>
 <div class="space-y-4"><div class="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/10"><i class="ri-shield-check-line text-2xl text-cyan flex-shrink-0 mt-0.5"></i><div><p class="text-xs font-bold" id="aboutCert1">ISO 9001:2015</p><p class="text-[10px] opacity-70" id="aboutCert1Sub">Manajemen Mutu Internasional</p></div></div>
 <div class="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10"><i class="ri-government-line text-2xl text-cyan flex-shrink-0 mt-0.5"></i><div><p class="text-xs font-bold" id="aboutCert2">TKDN Support</p><p class="text-[10px] opacity-70" id="aboutCert2Sub">Kepatuhan Regulasi Nasional</p></div></div>
@@ -339,7 +340,7 @@
 <div class="max-w-[1280px] mx-auto px-6 lg:px-8 py-16">
 <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
 <div>
-<img id="footerLogo" src="assets/logo/main.png" alt="DKSI" class="h-8 mb-6">
+<img id="footerLogo" src="assets/logo/main.png" alt="DKSI" class="h-8 mb-6" loading="lazy" decoding="async">
 <p class="text-sm leading-relaxed mb-6">Integrated ICT & Smart Solutions provider for education, government, and enterprise sectors in Indonesia. Est. 2019.</p>
 <div class="flex gap-3">
 <a href="#" aria-label="LinkedIn" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-cyan hover:text-darkBg transition-all"><i class="ri-linkedin-fill"></i></a>
