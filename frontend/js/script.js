@@ -480,9 +480,14 @@ function renderSector(secKey) {
 let currentStep = 0;
 function renderProcess() {
   const steps = window.DKSI_DATA.steps;
-  const container = $('#processSteps');
-  const detail    = $('#processDetail');
+  const container = $('#stepButtons');
+  const detail    = $('#stepDetail');
+  const progress  = $('#processProgress');
   if (!container || !detail) return;
+
+  if (progress) {
+    progress.style.width = `${(currentStep / (steps.length - 1)) * 100}%`;
+  }
 
   container.innerHTML = steps.map((s, i) =>
     `<button onclick="setStep(${i})" class="text-left p-4 rounded-2xl border transition-all ${i === currentStep ? 'bg-[var(--brand)] text-white border-[var(--brand)] shadow-lg' : 'bg-[var(--bg-card)] border-[var(--border)] hover:border-[var(--brand)]'}">`
@@ -501,23 +506,47 @@ function renderProcess() {
 // 5c. Services + Solutions grids
 function renderGrids() {
   const data = window.DKSI_DATA;
+  const cms = window.CMS?.get() || {};
 
-  // Services — only visible items (drafts hidden from public)
+  // Build Smarter Section
+  const bs = cms.buildSmarter || data.buildSmarter;
+  if (bs) {
+    const bsSection = $('#services').nextElementSibling; // The "Bangun Infrastruktur" section
+    if (bsSection && bsSection.querySelector('h2')) {
+      const h2 = bsSection.querySelector('h2');
+      h2.innerHTML = `${bs.headline} <span class="text-[var(--brand)]">${bs.headlineAccent}</span>`;
+      const p = bsSection.querySelector('p');
+      if (p) p.textContent = bs.description;
+      
+      const grid = bsSection.querySelector('.grid');
+      if (grid && bs.cards) {
+        grid.innerHTML = bs.cards.map(c => 
+          `<div class="p-8 rounded-[32px] bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--brand)] transition-all shadow-sm hover:shadow-md">`
+        + `<div class="w-14 h-14 rounded-2xl bg-royal dark:bg-cyan flex items-center justify-center text-white dark:text-darkBg text-2xl mb-6 shadow-lg"><i class="${c.icon}"></i></div>`
+        + `<h3 class="font-extrabold text-lg mb-3 text-[var(--text)]">${c.title}</h3>`
+        + `<p class="text-sm text-[var(--text-soft)] leading-relaxed">${c.desc}</p>`
+        + `</div>`
+        ).join('');
+      }
+    }
+  }
+
+  // Services — Solusi Utama
   const sGrid = $('#servicesGrid');
   if (sGrid) {
     const visible = data.services.filter(s => s.visible !== false);
     sGrid.innerHTML = visible.map(s =>
       `<div class="bg-[var(--bg-card)] border border-[var(--border)] rounded-[32px] p-8 flex flex-col justify-between hover:border-[var(--brand)] transition-all shadow-sm hover:shadow-xl">`
-    + `<div><div class="flex justify-between items-center mb-6"><span class="text-2xl font-black text-[var(--text-muted)]">${s.tag}</span>`
-    + `<div class="flex items-center gap-2"><span class="w-9 h-9 rounded-xl bg-royal dark:bg-cyan grid place-items-center text-white dark:text-darkBg text-base"><i class="${s.icon || 'ri-service-line'}"></i></span>`
-    + `<span class="px-3 py-1 rounded-full bg-[var(--bg-soft)] text-[10px] font-extrabold text-[var(--brand)] border border-[var(--border)]">DKSI</span></div></div>`
+    + `<div><div class="flex justify-between items-center mb-8"><span class="text-2xl font-black text-[var(--text-muted)] opacity-20">${s.tag}</span>`
+    + `<div class="flex items-center gap-2"><div class="w-12 h-12 rounded-2xl bg-royal dark:bg-cyan grid place-items-center text-white dark:text-darkBg text-xl shadow-md"><i class="${s.icon || 'ri-service-line'}"></i></div>`
+    + `</div></div>`
     + `<h3 class="text-xl font-extrabold text-[var(--text)] mb-1">${s.title}</h3>`
-    + `<p class="text-xs font-bold text-[var(--text-muted)] mb-2">${s.sub}</p>`
-    + (s.target  ? `<p class="text-[11px] text-[var(--text-muted)] mb-1"><i class="ri-user-3-line"></i> Cocok untuk: ${s.target}</p>` : '')
-    + `<p class="text-sm text-[var(--text-soft)] leading-relaxed mb-3">${s.desc}</p>`
-    + (s.benefit ? `<div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 mb-4"><i class="ri-flashlight-line"></i> ${s.benefit}</div>` : '')
-    + `<ul class="space-y-2 pt-4 border-t border-[var(--border)] mb-6">${s.points.map(p => `<li class="flex items-center gap-2 text-xs font-semibold text-[var(--text)]"><i class="ri-check-line text-[var(--brand)]"></i>${p}</li>`).join('')}</ul></div>`
-    + `<a href="#contact" class="text-xs font-extrabold text-[var(--brand)] flex items-center gap-2">Pelajari Layanan <i class="ri-arrow-right-line"></i></a></div>`
+    + `<p class="text-xs font-bold text-[var(--brand)] mb-3 uppercase tracking-wider">${s.sub}</p>`
+    + (s.target  ? `<p class="text-[11px] text-[var(--text-soft)] mb-2 flex items-center gap-1.5"><i class="ri-user-3-line text-[var(--brand)]"></i> ${s.target}</p>` : '')
+    + `<p class="text-sm text-[var(--text-soft)] leading-relaxed mb-4">${s.desc}</p>`
+    + (s.benefit ? `<div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/50 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 mb-6"><i class="ri-flashlight-line"></i> ${s.benefit}</div>` : '')
+    + `<ul class="space-y-2.5 pt-6 border-t border-[var(--border)] mb-8">${s.points.map(p => `<li class="flex items-center gap-2.5 text-xs font-semibold text-[var(--text)]"><i class="ri-checkbox-circle-fill text-[var(--brand)] text-sm"></i>${p}</li>`).join('')}</ul></div>`
+    + `<a href="#contact" class="inline-flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-[var(--bg-soft)] border border-[var(--border)] text-xs font-extrabold text-[var(--brand)] hover:bg-[var(--brand)] hover:text-white transition-all">Pelajari Layanan <i class="ri-arrow-right-line"></i></a></div>`
     ).join('');
   }
 
@@ -534,16 +563,22 @@ function renderGrids() {
     dyn.innerHTML = cats.map(cat => {
       const items = dataMap[cat.id] || [];
       if (!items.length) return '';
-      return `<section id="${cat.id}" class="py-16">`
-        + `<div class="flex items-center gap-3 mb-8"><span class="w-10 h-10 rounded-xl bg-royal dark:bg-cyan grid place-items-center text-white"><i class="${cat.icon}"></i></span>`
-        + `<div><h3 class="text-xl font-extrabold text-[var(--text)]">${cat.name}</h3><p class="text-sm text-[var(--text-soft)]">${cat.desc}</p></div></div>`
+      return `<section id="${cat.id}" class="py-20 border-t border-[var(--border)]">`
+        + `<div class="max-w-[1280px] mx-auto px-6 lg:px-8">`
+        + `<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">`
+        + `<div><div class="label mb-2">${cat.id === 'solInfra' ? 'INFRASTRUCTURE' : cat.id === 'solEdu' ? 'EDUCATION' : 'INNOVATION'}</div>`
+        + `<h2 class="text-3xl font-extrabold text-[var(--text)]">${cat.name}</h2>`
+        + `<p class="text-sm text-[var(--text-soft)] max-w-xl mt-2">${cat.desc}</p></div>`
+        + `<div class="w-12 h-12 rounded-2xl bg-[var(--bg-soft)] border border-[var(--border)] grid place-items-center text-[var(--brand)] text-xl shadow-sm"><i class="${cat.icon}"></i></div>`
+        + `</div>`
         + `<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">${items.map(it =>
-            `<div class="p-6 rounded-3xl bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--brand)] transition-all">`
-          + `<div class="w-10 h-10 rounded-xl bg-[var(--bg-soft)] grid place-items-center text-[var(--brand)] mb-4"><i class="${it.icon}"></i></div>`
-          + `<h4 class="text-sm font-extrabold text-[var(--text)] mb-2">${it.title}</h4>`
-          + `<p class="text-xs text-[var(--text-soft)] leading-relaxed">${it.desc}</p>`
+            `<div class="group p-8 rounded-[32px] bg-[var(--bg-card)] border border-[var(--border)] hover:border-[var(--brand)] transition-all shadow-sm hover:shadow-xl flex flex-col justify-between">`
+          + `<div><div class="w-12 h-12 rounded-2xl bg-[var(--bg-soft)] grid place-items-center text-[var(--brand)] mb-6 group-hover:scale-110 transition-transform"><i class="${it.icon} text-xl"></i></div>`
+          + `<h4 class="text-lg font-extrabold text-[var(--text)] mb-3">${it.title}</h4>`
+          + `<p class="text-sm text-[var(--text-soft)] leading-relaxed mb-6">${it.desc}</p></div>`
+          + `<button onclick="openSolutionModal('${it.title}')" class="text-xs font-extrabold text-[var(--brand)] flex items-center gap-2">Detail Solusi <i class="ri-arrow-right-line"></i></button>`
           + `</div>`
-          ).join('')}</div></section>`;
+          ).join('')}</div></div></section>`;
     }).join('');
   }
 
