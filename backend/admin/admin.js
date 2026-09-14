@@ -988,6 +988,7 @@
     function showAdmin() {
       loginScreen.style.display = 'none';
       adminApp.classList.remove('hidden');
+      admin.loadContactsFromServer();
       refreshDashboard();
     }
 
@@ -1238,7 +1239,25 @@
         const m = document.getElementById('confirmModal');
         m.classList.add('hidden'); m.classList.remove('flex');
       }
-    });
+  
+
+    loadContactsFromServer() {
+      fetch('/api/admin/contacts')
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            window.CMS.contactsData = data;
+            window.CMS.contactsLoaded = true;
+            console.log('[Admin] Contacts loaded from server:', data.length);
+            // Trigger contacts view refresh if currently visible
+            if (document.querySelector('.nav-item[data-view="contacts"]')?.classList.contains('active')) {
+              renderEditor('contacts');
+            }
+          }
+        })
+        .catch(err => console.warn('[Admin] Failed to load contacts:', err));;
+    }
+  });
   }
 
   if (document.getElementById('loginScreen')) initAuth();
