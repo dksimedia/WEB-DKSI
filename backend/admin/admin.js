@@ -1003,13 +1003,19 @@
       e.preventDefault();
       const email = document.getElementById('loginEmail')?.value?.trim();
       const pass = document.getElementById('loginPass')?.value;
-      if (email && pass) {
+      
+      // Hardcoded credentials for local MVP - replacement for real backend auth
+      const ADMIN_EMAIL = 'admin@dksi.co.id';
+      const ADMIN_PASS = 'dksi2026';
+
+      if (email === ADMIN_EMAIL && pass === ADMIN_PASS) {
         localStorage.setItem(AUTH_KEY, '1');
         window.CMS.addActivity('Admin login', email);
         showAdmin();
         showToast('Signed in — welcome back', 'success');
       } else {
-        showToast('Please enter email and password', 'error');
+        showToast('Invalid email or password', 'error');
+        window.CMS.addActivity('Failed login attempt', email || 'unknown');
       }
     });
 
