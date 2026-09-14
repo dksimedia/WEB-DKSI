@@ -222,6 +222,7 @@
       // Fallback: editor with no data-field inputs (e.g., portfolio table), skip merge
     }
     window.CMS.addActivity('Saved draft', editorName);
+    window.CMS.saveDraft();
     window.CMS.revisionsPush(window.CMS.get());
     showToast('Draft saved successfully — data live in localStorage', 'success');
   }
@@ -230,9 +231,7 @@
     const ok = await confirmDialog('Publish this content?', 'This version will become visible on the live website.', false);
     if (!ok) return;
     const data = window.CMS.get();
-    data.meta = data.meta || {};
-    data.meta.lastPublished = new Date().toISOString();
-    window.CMS.save(data);
+    window.CMS.publish(data);
     window.CMS.addActivity('Published content', editorName);
     window.CMS.revisionsPush(data);
     showToast('Published successfully!', 'success');

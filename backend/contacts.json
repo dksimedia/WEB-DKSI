@@ -1,0 +1,24 @@
+[
+  {
+    "id": 1789368651612,
+    "name": "Nav Test",
+    "company": "",
+    "email": "nav@test.id",
+    "phone": "",
+    "category": "General",
+    "message": "test nav",
+    "date": "2026-09-14T06:50:51.612Z",
+    "status": "New"
+  },
+  {
+    "id": 1789360511950,
+    "name": "Test User",
+    "company": "PT Test",
+    "email": "test@dksi.co.id",
+    "phone": "+62 811-0000",
+    "category": "IT Infrastructure",
+    "message": "Halo ini test inquiry",
+    "date": "2026-09-14T04:35:11.950Z",
+    "status": "New"
+  }
+]

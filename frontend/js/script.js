@@ -55,7 +55,8 @@ document.querySelectorAll("#mobileNav a").forEach(a => {
    ========================================================================== */
 function applyCMS() {
   if (!window.CMS) return;
-  const cms = window.CMS.get();
+  const cms = 
+  const cms = window.CMS.getPublic ? window.CMS.getPublic() : window.CMS.get();
   // Hero
   const el = (id, prop, val) => { const n = document.getElementById(id); if (n) n.textContent = val; };
   el("heroEyebrow", null, cms.homepage.eyebrow);
@@ -274,8 +275,10 @@ function renderGrids() {
   const data = window.DKSI_DATA;
   
   // Services
+    // Filter services visible vs draft
+    const visibleServices = data.services.filter(s => s.visible !== false);
   const sGrid = document.getElementById("servicesGrid");
-  if (sGrid) sGrid.innerHTML = data.services.map(s => `<div class="bg-[var(--bg-card)] border border-[var(--border)] rounded-[32px] p-8 flex flex-col justify-between hover:border-[var(--brand)] transition-all shadow-sm hover:shadow-xl"><div><div class="flex justify-between items-center mb-6"><span class="text-2xl font-black text-[var(--text-muted)]">${s.tag}</span><div class="flex items-center gap-2"><span class="w-9 h-9 rounded-xl bg-royal dark:bg-cyan grid place-items-center text-white dark:text-darkBg text-base"><i class="${s.icon || 'ri-service-line'}"></i></span><span class="px-3 py-1 rounded-full bg-[var(--bg-soft)] text-[10px] font-extrabold text-[var(--brand)] border border-[var(--border)]">DKSI</span></div></div><h3 class="text-xl font-extrabold text-[var(--text)] mb-1">${s.title}</h3><p class="text-xs font-bold text-[var(--text-muted)] mb-2">${s.sub}</p>${s.target ? `<p class="text-[11px] text-[var(--text-muted)] mb-1"><i class="ri-user-3-line"></i> Cocok untuk: ${s.target}</p>` : ''}<p class="text-sm text-[var(--text-soft)] leading-relaxed mb-3">${s.desc}</p>${s.benefit ? `<div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 mb-4"><i class="ri-flashlight-line"></i> ${s.benefit}</div>` : ''}<ul class="space-y-2 pt-4 border-t border-[var(--border)] mb-6">${s.points.map(p => `<li class="flex items-center gap-2 text-xs font-semibold text-[var(--text)]"><i class="ri-check-line text-[var(--brand)]"></i>${p}</li>`).join('')}</ul></div><a href="#contact" class="text-xs font-extrabold text-[var(--brand)] flex items-center gap-2">Pelajari Layanan <i class="ri-arrow-right-line"></i></a></div>`).join('');
+  if (sGrid) sGrid.innerHTML = visibleServices.map(s => `<div class="bg-[var(--bg-card)] border border-[var(--border)] rounded-[32px] p-8 flex flex-col justify-between hover:border-[var(--brand)] transition-all shadow-sm hover:shadow-xl"><div><div class="flex justify-between items-center mb-6"><span class="text-2xl font-black text-[var(--text-muted)]">${s.tag}</span><div class="flex items-center gap-2"><span class="w-9 h-9 rounded-xl bg-royal dark:bg-cyan grid place-items-center text-white dark:text-darkBg text-base"><i class="${s.icon || 'ri-service-line'}"></i></span><span class="px-3 py-1 rounded-full bg-[var(--bg-soft)] text-[10px] font-extrabold text-[var(--brand)] border border-[var(--border)]">DKSI</span></div></div><h3 class="text-xl font-extrabold text-[var(--text)] mb-1">${s.title}</h3><p class="text-xs font-bold text-[var(--text-muted)] mb-2">${s.sub}</p>${s.target ? `<p class="text-[11px] text-[var(--text-muted)] mb-1"><i class="ri-user-3-line"></i> Cocok untuk: ${s.target}</p>` : ''}<p class="text-sm text-[var(--text-soft)] leading-relaxed mb-3">${s.desc}</p>${s.benefit ? `<div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 mb-4"><i class="ri-flashlight-line"></i> ${s.benefit}</div>` : ''}<ul class="space-y-2 pt-4 border-t border-[var(--border)] mb-6">${s.points.map(p => `<li class="flex items-center gap-2 text-xs font-semibold text-[var(--text)]"><i class="ri-check-line text-[var(--brand)]"></i>${p}</li>`).join('')}</ul></div><a href="#contact" class="text-xs font-extrabold text-[var(--brand)] flex items-center gap-2">Pelajari Layanan <i class="ri-arrow-right-line"></i></a></div>`).join('');
 
   // Solutions: dynamic from cms.solCategories — each category renders its own grid section
   const dyn = document.getElementById("solutions-dynamic");
@@ -362,7 +365,8 @@ const pfGrid = document.getElementById("portfolioGrid");
 function renderPortfolio(cat = 'all') {
   if (!pfGrid) return;
   const items = Object.entries(DKSI_DATA.portfolios);
-  const filtered = cat === 'all' ? items : items.filter(([k, v]) => v.cat === cat);
+    // Filter out drafts for public view - keep only published items
+    const filtered = items.filter(([k, v]) => v.status !== 'draft' && (cat === 'all' || v.cat === cat));
   
   pfGrid.innerHTML = filtered.map(([k, p]) => `
     <div class="bg-[var(--bg-card)] border border-[var(--border)] rounded-[32px] overflow-hidden group hover:border-[var(--brand)] transition-all shadow-sm hover:shadow-xl flex flex-col justify-between">

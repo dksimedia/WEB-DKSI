@@ -6,6 +6,7 @@
 
 (function () {
   const KEY = "dksi_cms_v2";
+  const PUBLISHED_KEY = "dksi_cms_v2_published";
 
   const DEFAULTS = {
     homepage: {
@@ -224,9 +225,10 @@
     return base;
   }
 
-  function save(data) {
+  function saveDraft(data) {
     localStorage.setItem(KEY, JSON.stringify(data));
     window.dispatchEvent(new CustomEvent("cms:update", { detail: data }));
+    window.dispatchEvent(new CustomEvent("cms:draft-update", { detail: data }));
     try {
       if (window.BroadcastChannel) {
         const bc = new BroadcastChannel("dksi_cms");
@@ -234,6 +236,35 @@
         bc.close();
       }
     } catch (e) {}
+  }
+  function save(data) { return saveDraft(data); }
+
+  function getPublished() {
+    try {
+      const raw = localStorage.getItem(PUBLISHED_KEY);
+      if (!raw) return deepClone(DEFAULTS);
+      const parsed = JSON.parse(raw);
+      return mergeDefaults(deepClone(DEFAULTS), parsed);
+    } catch (e) { return deepClone(DEFAULTS); }
+  }
+  function publish(snapshot) {
+    const snap = snapshot ? deepClone(snapshot) : load();
+    snap.meta = snap.meta || {};
+    snap.meta.lastPublished = new Date().toISOString();
+    localStorage.setItem(PUBLISHED_KEY, JSON.stringify(snap));
+    // also keep draft meta in sync so dashboard lastPublished shows correctly
+    try { const draft = load(); draft.meta = draft.meta || {}; draft.meta.lastPublished = snap.meta.lastPublished; localStorage.setItem(KEY, JSON.stringify(draft)); } catch(e){}
+    window.dispatchEvent(new CustomEvent("cms:published", { detail: snap }));
+    window.dispatchEvent(new CustomEvent("cms:update", { detail: snap }));
+    try {
+      if (window.BroadcastChannel) {
+        const bc = new BroadcastChannel("dksi_cms");
+        bc.postMessage({ type: "published", data: snap });
+        bc.postMessage({ type: "update", data: snap });
+        bc.close();
+      }
+    } catch (e) {}
+    return snap;
   }
 
   function get() { return load(); }
