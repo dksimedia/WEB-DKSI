@@ -988,8 +988,9 @@
     function showAdmin() {
       loginScreen.style.display = 'none';
       adminApp.classList.remove('hidden');
-      admin.loadContactsFromServer();
       refreshDashboard();
+      // deferred - window.admin may not exist yet on auto-login
+      setTimeout(() => { if (window.admin?.loadContactsFromServer) window.admin?.loadContactsFromServer(); }, 0);
     }
 
     function showLogin() {

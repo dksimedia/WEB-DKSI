@@ -62,6 +62,7 @@ app.get('/api/admin/contacts', (req, res) => {
 
 // Serve Admin CMS
 app.use('/admin', express.static(path.join(__dirname, 'admin')));
+app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
 // API health check
 app.get('/api/health', (req, res) => {
