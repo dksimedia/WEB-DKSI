@@ -35,21 +35,21 @@
 <a href="#home" class="nav-link active px-3 py-2">HOME</a>
 <a href="#about" class="nav-link px-3 py-2">ABOUT</a>
 <div class="relative group">
-<button class="nav-link px-3 py-2 flex items-center gap-1">SOLUTIONS <i class="ri-arrow-down-s-line text-xs"></i></button>
-<div class="absolute left-0 top-full mt-2 w-72 bg-[var(--bg-card)] rounded-2xl shadow-xl border border-[var(--border)] p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition">
-<a href="#solInfra" class="block px-4 py-3 rounded-xl hover:bg-[var(--bg-soft)]"><span class="block text-sm font-bold text-royal dark:text-cyan">IT Infrastructure & Security</span><span class="text-xs text-slate-500">Network, Data Center, Firewall</span></a>
-<a href="#solEdu" class="block px-4 py-3 rounded-xl hover:bg-[var(--bg-soft)]"><span class="block text-sm font-bold text-royal dark:text-cyan">Smart Education</span><span class="text-xs text-slate-500">Smartclassroom, Microteaching, Lab Bahasa</span></a>
-<a href="#solAi" class="block px-4 py-3 rounded-xl hover:bg-[var(--bg-soft)]"><span class="block text-sm font-bold text-royal dark:text-cyan">AI, IoT & Smart Innovation</span><span class="text-xs text-slate-500">Smart Campus, Smart Office, Command Center</span></a>
+<button class="nav-link px-3 py-2 flex items-center gap-1" aria-haspopup="true" aria-expanded="false" aria-controls="sol-dropdown">SOLUTIONS <i class="ri-arrow-down-s-line text-xs"></i></button>
+<div id="sol-dropdown" role="menu" class="absolute left-0 top-full mt-2 w-72 bg-[var(--bg-card)] rounded-2xl shadow-xl border border-[var(--border)] p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible focus-within:opacity-100 focus-within:visible transition">
+<a role="menuitem" tabindex="0" href="#solInfra" class="block px-4 py-3 rounded-xl hover:bg-[var(--bg-soft)]"><span class="block text-sm font-bold text-royal dark:text-cyan">IT Infrastructure & Security</span><span class="text-xs text-slate-500">Network, Data Center, Firewall</span></a>
+<a role="menuitem" tabindex="0" href="#solEdu" class="block px-4 py-3 rounded-xl hover:bg-[var(--bg-soft)]"><span class="block text-sm font-bold text-royal dark:text-cyan">Smart Education</span><span class="text-xs text-slate-500">Smartclassroom, Microteaching, Lab Bahasa</span></a>
+<a role="menuitem" tabindex="0" href="#solAi" class="block px-4 py-3 rounded-xl hover:bg-[var(--bg-soft)]"><span class="block text-sm font-bold text-royal dark:text-cyan">AI, IoT & Smart Innovation</span><span class="text-xs text-slate-500">Smart Campus, Smart Office, Command Center</span></a>
 </div>
 </div>
 <div class="relative group">
-<button class="nav-link px-3 py-2 flex items-center gap-1">PRODUCTS <i class="ri-arrow-down-s-line text-xs"></i></button>
-<div class="absolute left-0 top-full mt-2 w-64 bg-[var(--bg-card)] rounded-2xl shadow-xl border border-[var(--border)] p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition">
-<a href="#services" class="block px-4 py-2.5 rounded-xl hover:bg-[var(--bg-soft)] text-sm font-medium">DKSI Solutions</a>
-<a href="#services" class="block px-4 py-2.5 rounded-xl hover:bg-[var(--bg-soft)] text-sm font-medium">DKSI Data</a>
-<a href="#services" class="block px-4 py-2.5 rounded-xl hover:bg-[var(--bg-soft)] text-sm font-medium">DKSI Apps</a>
-<a href="#services" class="block px-4 py-2.5 rounded-xl hover:bg-[var(--bg-soft)] text-sm font-medium">DKSI Procurement</a>
-<a href="#services" class="block px-4 py-2.5 rounded-xl hover:bg-[var(--bg-soft)] text-sm font-medium">DKSI Rental</a>
+<button class="nav-link px-3 py-2 flex items-center gap-1" aria-haspopup="true" aria-expanded="false" aria-controls="prod-dropdown">PRODUCTS <i class="ri-arrow-down-s-line text-xs"></i></button>
+<div id="prod-dropdown" role="menu" class="absolute left-0 top-full mt-2 w-64 bg-[var(--bg-card)] rounded-2xl shadow-xl border border-[var(--border)] p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible focus-within:opacity-100 focus-within:visible transition">
+<a role="menuitem" tabindex="0" href="#services" class="block px-4 py-2.5 rounded-xl hover:bg-[var(--bg-soft)] text-sm font-medium">DKSI Solutions</a>
+<a role="menuitem" tabindex="0" href="#services" class="block px-4 py-2.5 rounded-xl hover:bg-[var(--bg-soft)] text-sm font-medium">DKSI Data</a>
+<a role="menuitem" tabindex="0" href="#services" class="block px-4 py-2.5 rounded-xl hover:bg-[var(--bg-soft)] text-sm font-medium">DKSI Apps</a>
+<a role="menuitem" tabindex="0" href="#services" class="block px-4 py-2.5 rounded-xl hover:bg-[var(--bg-soft)] text-sm font-medium">DKSI Procurement</a>
+<a role="menuitem" tabindex="0" href="#services" class="block px-4 py-2.5 rounded-xl hover:bg-[var(--bg-soft)] text-sm font-medium">DKSI Rental</a>
 </div>
 </div>
 <a href="#portfolio" class="nav-link px-3 py-2">PORTFOLIO</a>

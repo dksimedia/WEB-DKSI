@@ -50,6 +50,52 @@ document.querySelectorAll("#mobileNav a").forEach(a => {
   a.onclick = () => mobileNav.classList.add("hidden");
 });
 
+// Dropdown a11y — SOLUTIONS / PRODUCTS: click + keyboard + Esc + outside click
+(function initDropdowns(){
+  const dropdowns = document.querySelectorAll('[aria-haspopup="true"]');
+  if(!dropdowns.length) return;
+  const closeAll = (except) => {
+    dropdowns.forEach(btn=>{
+      if(btn===except) return;
+      btn.setAttribute('aria-expanded','false');
+      const m = document.getElementById(btn.getAttribute('aria-controls'));
+      if(m){ m.classList.add('opacity-0','invisible'); m.classList.remove('opacity-100','visible'); }
+    });
+  };
+  dropdowns.forEach(btn=>{
+    const menu = document.getElementById(btn.getAttribute('aria-controls'));
+    if(!menu) return;
+    const open = ()=>{ btn.setAttribute('aria-expanded','true'); menu.classList.remove('opacity-0','invisible'); menu.classList.add('opacity-100','visible'); };
+    const close = ()=>{ btn.setAttribute('aria-expanded','false'); menu.classList.add('opacity-0','invisible'); menu.classList.remove('opacity-100','visible'); };
+    const toggle = ()=> btn.getAttribute('aria-expanded')==='true' ? close() : (closeAll(btn), open());
+    btn.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); toggle(); });
+    btn.addEventListener('keydown', (e)=>{
+      if(e.key==='Enter' || e.key===' '){ e.preventDefault(); toggle(); }
+      else if(e.key==='ArrowDown'){ e.preventDefault(); open(); const first=menu.querySelector('[role="menuitem"]'); first&&first.focus(); }
+      else if(e.key==='Escape'){ close(); btn.focus(); }
+    });
+    menu.addEventListener('keydown', (e)=>{
+      const items=[...menu.querySelectorAll('[role="menuitem"]')];
+      const idx=items.indexOf(document.activeElement);
+      if(e.key==='ArrowDown'){ e.preventDefault(); items[(idx+1)%items.length]?.focus(); }
+      else if(e.key==='ArrowUp'){ e.preventDefault(); items[(idx-1+items.length)%items.length]?.focus(); }
+      else if(e.key==='Escape'){ e.preventDefault(); close(); btn.focus(); }
+      else if(e.key==='Home'){ e.preventDefault(); items[0]?.focus(); }
+      else if(e.key==='End'){ e.preventDefault(); items[items.length-1]?.focus(); }
+    });
+    // keep CSS group-focus-within as primary, JS is fallback for click + aria
+    btn.addEventListener('focus', open);
+    // close when focus leaves group entirely: handled by focusout
+    btn.parentElement.addEventListener('focusout', (e)=>{
+      setTimeout(()=>{ if(!btn.parentElement.contains(document.activeElement)) close(); }, 0);
+    });
+  });
+  document.addEventListener('click', (e)=>{
+    if(!e.target.closest('[aria-haspopup="true"]') && !e.target.closest('[role="menu"]')) closeAll(null);
+  });
+  document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeAll(null); });
+})();
+
 /* ==========================================================================
    2b. CMS BRIDGE — inject into frontend
    ========================================================================== */
