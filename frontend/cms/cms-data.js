@@ -6,6 +6,7 @@
 
 (function () {
   const KEY = "dksi_cms_v2";
+  const PUBLISHED_KEY = "dksi_cms_v2_published";
 
   const DEFAULTS = {
     homepage: {
@@ -18,7 +19,7 @@
       primaryCtaLink: "#contact",
       secondaryCtaText: "Jelajahi Solusi",
       secondaryCtaLink: "#solInfra",
-      heroImage: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&q=60&fit=crop&w=1100&q=60",
+      heroImage: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1100&q=80",
       heroBadges: ["AI", "IoT", "SECURITY", "NETWORK", "DATA", "SMART"]
     },
     trustBar: [
@@ -94,14 +95,14 @@
       { tag: "05", icon: "ri-computer-line", title: "DKSI Rental", sub: "IT Equipment Rental Fleksibel", desc: "Sewa laptop, PC, server, printer & AV untuk event, project, atau kebutuhan musiman — harian/bulanan.", points: ["Laptop, Server, AV & Printer", "Harian / Bulanan / Tahunan", "Full Maintenance & On-site Support"], target: "Event kenegaraan, ujian, training, kantor cabang baru", benefit: "Tanpa CAPEX, siap pakai <24 jam", visible: true }
     ],
     solInfra: [
-      { id: 'infra-1', icon: 'ri-server-line', title: 'Data Center & Server', shortDesc: 'Pengadaan dan instalasi server enterprise, storage, dan disaster recovery.', desc: 'Solusi pusat data enterprise yang handal, scalable, dan aman untuk mendukung operasional bisnis 24/7.', img: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&q=60&fit=crop&w=800&q=60', features: ['Server Rack Enterprise', 'SAN/NAS Storage', 'Backup Otomatis', 'DR Center'], benefits: ['Uptime 99.9%', 'Scalable', 'ISO 27001'], status: 'published' },
-      { id: 'infra-2', icon: 'ri-wifi-line', title: 'Networking & WiFi', shortDesc: 'Backbone fiber, switching, dan WiFi enterprise untuk coverage optimal.', desc: 'Infrastruktur jaringan enterprise-grade fiber optic backbone + managed switch + WiFi 6.', img: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&q=60&fit=crop&w=800&q=60', features: ['Fiber Optic 10G', 'Managed Switch L3', 'WiFi 6 AP', 'Network Monitoring'], benefits: ['10 Gbps', 'Coverage 100%', 'Auto failover'], status: 'published' }
+      { id: 'infra-1', icon: 'ri-server-line', title: 'Data Center & Server', shortDesc: 'Pengadaan dan instalasi server enterprise, storage, dan disaster recovery.', desc: 'Solusi pusat data enterprise yang handal, scalable, dan aman untuk mendukung operasional bisnis 24/7.', img: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80', features: ['Server Rack Enterprise', 'SAN/NAS Storage', 'Backup Otomatis', 'DR Center'], benefits: ['Uptime 99.9%', 'Scalable', 'ISO 27001'], status: 'published' },
+      { id: 'infra-2', icon: 'ri-wifi-line', title: 'Networking & WiFi', shortDesc: 'Backbone fiber, switching, dan WiFi enterprise untuk coverage optimal.', desc: 'Infrastruktur jaringan enterprise-grade fiber optic backbone + managed switch + WiFi 6.', img: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80', features: ['Fiber Optic 10G', 'Managed Switch L3', 'WiFi 6 AP', 'Network Monitoring'], benefits: ['10 Gbps', 'Coverage 100%', 'Auto failover'], status: 'published' }
     ],
     solEdu: [
-      { id: 'edu-1', icon: 'ri-presentation-line', title: 'Smartclassroom', shortDesc: 'Ruang kelas interaktif dengan interactive flat panel dan hybrid learning.', desc: 'Ruang kelas modern dengan interactive flat panel 75-86 inci, video conference, dan platform hybrid learning.', img: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&q=60&fit=crop&w=800&q=60', features: ['Interactive Flat Panel', 'Hybrid Conference', 'Wireless Casting', 'Auto Recording'], benefits: ['Interaktif', 'Hybrid learning', 'Rekam otomatis'], status: 'published' }
+      { id: 'edu-1', icon: 'ri-presentation-line', title: 'Smartclassroom', shortDesc: 'Ruang kelas interaktif dengan interactive flat panel dan hybrid learning.', desc: 'Ruang kelas modern dengan interactive flat panel 75-86 inci, video conference, dan platform hybrid learning.', img: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80', features: ['Interactive Flat Panel', 'Hybrid Conference', 'Wireless Casting', 'Auto Recording'], benefits: ['Interaktif', 'Hybrid learning', 'Rekam otomatis'], status: 'published' }
     ],
     solAi: [
-      { id: 'ai-1', icon: 'ri-building-line', title: 'Smart Campus', shortDesc: 'Integrasi IoT untuk manajemen gedung, energi, dan keamanan kampus.', desc: 'Platform IoT terintegrasi untuk manajemen gedung pintar, monitoring energi real-time, dan sistem keamanan kampus otomatis.', img: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&q=60&fit=crop&w=800&q=60', features: ['IoT Sensors', 'Energy Management', 'Smart Access', 'Real-time Monitoring'], benefits: ['Efisiensi energi 30%', 'Monitoring terpusat', 'Automation'], status: 'published' }
+      { id: 'ai-1', icon: 'ri-building-line', title: 'Smart Campus', shortDesc: 'Integrasi IoT untuk manajemen gedung, energi, dan keamanan kampus.', desc: 'Platform IoT terintegrasi untuk manajemen gedung pintar, monitoring energi real-time, dan sistem keamanan kampus otomatis.', img: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80', features: ['IoT Sensors', 'Energy Management', 'Smart Access', 'Real-time Monitoring'], benefits: ['Efisiensi energi 30%', 'Monitoring terpusat', 'Automation'], status: 'published' }
     ],
     solCategories: [
       { id: 'solInfra', name: 'IT Infrastructure & Network Security', desc: 'Solusi infrastruktur TI dan keamanan siber untuk instansi dan enterprise.', icon: 'ri-server-line', color: 'royal' },
@@ -139,12 +140,12 @@
     ],
     portfolio: {
       items: {
-        "av": { title: "Audio Visual & Smart Room", client: "Kementerian Pendidikan & Kebudayaan", loc: "Jakarta", shortDesc: "Instalasi sistem AV terintegrasi dan smart room untuk ruang paperless.", desc: "Implementasi komprehensif sistem AV terintegrasi mencakup display interaktif, audio conference, dan manajemen ruang pintar.", img: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&q=60&fit=crop&w=800&q=60", cat: "smart", featured: false, status: "published" },
-        "office": { title: "Smart Office System", client: "Kementerian Ketenagakerjaan", loc: "Jakarta Selatan", desc: "Paperless Conference System dan digital office automation.", img: "https://images.unsplash.com/photo-1497366811353-2533774fa78d?auto=format&q=60&fit=crop&w=800&q=60", cat: "smart", featured: true, status: "published" },
-        "micro": { title: "Microteaching Lab", client: "Universitas Negeri", loc: "Bandung", desc: "Lab simulasi mengajar dengan perekaman multi-kamera.", img: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&q=60&fit=crop&w=800&q=60", cat: "edu", featured: false, status: "published" },
-        "infra": { title: "Enterprise Data Center", client: "Kementerian Hukum & HAM", loc: "Jakarta", desc: "Server high-availability dan sistem backup terpusat.", img: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&q=60&fit=crop&w=800&q=60", cat: "infra", featured: false, status: "published" },
-        "net": { title: "Backbone Networking", client: "BUMN & Instansi Pemerintah", loc: "Multi Cabang", desc: "Pemasangan fiber optic backbone dan router enterprise grade.", img: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&q=60&fit=crop&w=800&q=60", cat: "infra", featured: false, status: "published" },
-        "rental": { title: "National Event ICT Rental", client: "Event Kenegaraan Nasional", loc: "Nasional", desc: "Penyediaan ratusan unit perangkat laptop & server dengan dukungan teknis on-site.", img: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&q=60&fit=crop&w=800&q=60", cat: "smart", featured: false, status: "published" }
+        "av": { title: "Audio Visual & Smart Room", client: "Kementerian Pendidikan & Kebudayaan", loc: "Jakarta", shortDesc: "Instalasi sistem AV terintegrasi dan smart room untuk ruang paperless.", desc: "Implementasi komprehensif sistem AV terintegrasi mencakup display interaktif, audio conference, dan manajemen ruang pintar.", img: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80", cat: "smart", featured: false, status: "published" },
+        "office": { title: "Smart Office System", client: "Kementerian Ketenagakerjaan", loc: "Jakarta Selatan", desc: "Paperless Conference System dan digital office automation.", img: "https://images.unsplash.com/photo-1497366811353-2533774fa78d?auto=format&fit=crop&w=800&q=80", cat: "smart", featured: true, status: "published" },
+        "micro": { title: "Microteaching Lab", client: "Universitas Negeri", loc: "Bandung", desc: "Lab simulasi mengajar dengan perekaman multi-kamera.", img: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80", cat: "edu", featured: false, status: "published" },
+        "infra": { title: "Enterprise Data Center", client: "Kementerian Hukum & HAM", loc: "Jakarta", desc: "Server high-availability dan sistem backup terpusat.", img: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80", cat: "infra", featured: false, status: "published" },
+        "net": { title: "Backbone Networking", client: "BUMN & Instansi Pemerintah", loc: "Multi Cabang", desc: "Pemasangan fiber optic backbone dan router enterprise grade.", img: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80", cat: "infra", featured: false, status: "published" },
+        "rental": { title: "National Event ICT Rental", client: "Event Kenegaraan Nasional", loc: "Nasional", desc: "Penyediaan ratusan unit perangkat laptop & server dengan dukungan teknis on-site.", img: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80", cat: "smart", featured: false, status: "published" }
       },
       filterOrder: ["all", "edu", "infra", "smart"]
     },
@@ -176,7 +177,7 @@
       title: "PT Dua Kawan Sejahtera Indonesia | Integrated ICT & Smart Solutions",
       description: "DKSI menyediakan solusi ICT terintegrasi untuk pendidikan, pemerintahan, dan enterprise.",
       keywords: "ICT, infrastruktur, smart education, AI, IoT, data center, pengadaan",
-      ogImage: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&q=60&fit=crop&w=1200&q=60"
+      ogImage: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80"
     },
     social: {
       linkedin: "#",
@@ -224,9 +225,10 @@
     return base;
   }
 
-  function save(data) {
+  function saveDraft(data) {
     localStorage.setItem(KEY, JSON.stringify(data));
     window.dispatchEvent(new CustomEvent("cms:update", { detail: data }));
+    window.dispatchEvent(new CustomEvent("cms:draft-update", { detail: data }));
     try {
       if (window.BroadcastChannel) {
         const bc = new BroadcastChannel("dksi_cms");
@@ -234,6 +236,35 @@
         bc.close();
       }
     } catch (e) {}
+  }
+  function save(data) { return saveDraft(data); }
+
+  function getPublished() {
+    try {
+      const raw = localStorage.getItem(PUBLISHED_KEY);
+      if (!raw) return deepClone(DEFAULTS);
+      const parsed = JSON.parse(raw);
+      return mergeDefaults(deepClone(DEFAULTS), parsed);
+    } catch (e) { return deepClone(DEFAULTS); }
+  }
+  function publish(snapshot) {
+    const snap = snapshot ? deepClone(snapshot) : load();
+    snap.meta = snap.meta || {};
+    snap.meta.lastPublished = new Date().toISOString();
+    localStorage.setItem(PUBLISHED_KEY, JSON.stringify(snap));
+    // also keep draft meta in sync so dashboard lastPublished shows correctly
+    try { const draft = load(); draft.meta = draft.meta || {}; draft.meta.lastPublished = snap.meta.lastPublished; localStorage.setItem(KEY, JSON.stringify(draft)); } catch(e){}
+    window.dispatchEvent(new CustomEvent("cms:published", { detail: snap }));
+    window.dispatchEvent(new CustomEvent("cms:update", { detail: snap }));
+    try {
+      if (window.BroadcastChannel) {
+        const bc = new BroadcastChannel("dksi_cms");
+        bc.postMessage({ type: "published", data: snap });
+        bc.postMessage({ type: "update", data: snap });
+        bc.close();
+      }
+    } catch (e) {}
+    return snap;
   }
 
   function get() { return load(); }
