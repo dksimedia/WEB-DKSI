@@ -225,13 +225,12 @@ function applyHero(cms) {
     a1.href = h.primaryCtaLink || '#contact';
   }
   const a2 = $('#heroSecondaryCta');
-  if (a2) {
-    a2.textContent = h.secondaryCtaText || 'Jelajahi Solusi';
-    a2.href = (h.secondaryCtaLink || '#solInfra')
-      .replace('solutions-infra', 'solInfra')
-      .replace('solutions-edu', 'solEdu')
-      .replace('solutions-ai', 'solAi');
-  }
+    if (a2) {
+      a2.textContent = h.secondaryCtaText || 'Jelajahi Solusi';
+      let _link = h.secondaryCtaLink || '#solutions';
+      _link = _link.replace('#solInfra','#sol-infra').replace('#solEdu','#sol-edu').replace('#solAi','#sol-ai');
+      a2.href = _link;
+    }
   const img = $('#heroImage');
   if (img && h.heroImage) img.src = h.heroImage;
 
@@ -799,3 +798,41 @@ window.addEventListener('cms:published',() => { try { applyCMS(); renderGrids();
 if (document.readyState !== 'loading') {
   setTimeout(() => { initSectors(); renderGrids(); renderPortfolio('all'); }, 100);
 }
+
+// Smooth scrolling for anchor links with navbar offset
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    const targetId = this.getAttribute('href');
+    if (targetId === '#') return;
+    const targetEl = document.querySelector(targetId);
+    if (targetEl) {
+      e.preventDefault();
+      const navHeight = document.getElementById('navbar')?.offsetHeight || 72;
+      const targetPos = targetEl.getBoundingClientRect().top + window.pageYOffset - navHeight;
+      window.scrollTo({
+        top: targetPos,
+        behavior: 'smooth'
+      });
+    }
+  });
+});
+document.addEventListener('mousemove', e => {
+  document.querySelectorAll('.bento-item').forEach(item => {
+    const rect = item.getBoundingClientRect();
+    item.style.setProperty('--x', `${e.clientX - rect.left}px`);
+    item.style.setProperty('--y', `${e.clientY - rect.top}px`);
+  });
+});
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('active');
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('section').forEach(sec => {
+  sec.classList.add('reveal');
+  observer.observe(sec);
+});

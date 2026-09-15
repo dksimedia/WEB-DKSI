@@ -1,40 +1,59 @@
-/* ============================================
-   DKSI WEBSITE — DESIGN TOKENS & THEME
-   Light default + .dark override
-   ============================================ */
-
-/* --- 01: Color Variables (Light) --- */
+/* --- 01: Updated Design Tokens (Taste-driven) --- */
 :root {
   --bg: #ffffff;
-  --bg-soft: #f8fafc;
+  --bg-soft: #f8faf9;
   --bg-card: #ffffff;
-  --bg-hero: #f8faff;
-  --bg-hero-top: rgba(255,255,255,.6);
-  --bg-hero-mid: rgba(255,255,255,.8);
-  --text: #0f172a;
-  --text-soft: #475569;
-  --text-muted: #64748b;
-  --border: #e2e8f0;
-  --brand: #0A2D7A;
+  --text: #1a1a1a;
+  --text-soft: #4a4a4a;
+  --text-muted: #737373;
+  --border: #e5e5e5;
+  --brand: #1a365d; /* Sophisticated Slate Blue */
+  --font-body: 'Manrope', system-ui, sans-serif;
+  --font-head: 'Orbitron', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  /* Light mode hero gradients */
+  --bg-hero: #f8faf9;
+  --bg-hero-top: rgba(255,255,255,0.6);
+  --bg-hero-mid: rgba(255,255,255,0.8);
 }
 
-/* --- 02: Dark Mode Variables --- */
 .dark {
-  --bg: #030712;
-  --bg-soft: #111827;
-  --bg-card: #1f2937;
-  --bg-hero: #030712;
-  --bg-hero-top: rgba(3,7,18,.7);
-  --bg-hero-mid: rgba(3,7,18,.9);
-  --text: #f3f4f6;
-  --text-soft: #d1d5db;
-  --text-muted: #9ca3af;
-  --border: #374151;
-  --brand: #38BDF8;
+  --bg: #070707;
+  --bg-soft: #0c0c0c;
+  --bg-card: #121212;
+  --text: #e0e0e0;
+  --text-soft: #999999;
+  --text-muted: #4a4a4a;
+  --border: #1f1f1f;
+  --brand: #4a75c2;
+  /* Dark mode hero gradients */
+  --bg-hero: #070707;
+  --bg-hero-top: rgba(7,7,7,0.7);
+  --bg-hero-mid: rgba(7,7,7,0.9);
 }
 
-/* --- 03: Base --- */
-body { background: var(--bg); color: var(--text); transition: background .3s, color .3s; }
+/* Fix light mode tabrakan: Text in cards/hero/buttons */
+.bg-gradient-to-br {
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.85);
+}
+.bg-gradient-to-br h2, .bg-gradient-to-br p {
+  color: var(--text-primary);
+}
+.bg-gradient-to-br p {
+  color: var(--text-secondary);
+}
+/* Ensure button contrast */
+.bg-white {
+  background-color: #ffffff !important;
+  color: #1a365d !important;
+}
+
+/* --- 02: Typography Hierarchy --- */
+body { font-family: var(--font-body); font-weight: 400; line-height: 1.6; }
+h1, h2, h3 { font-family: var(--font-head); font-weight: 600; color: var(--text); }
+.font-mono { font-family: var(--font-mono); }
+.label { font-size: 10px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: var(--brand); }
 
 /* --- 04: Navbar --- */
 .nav-link { color: var(--text-soft); font-weight: 600; }
@@ -47,29 +66,128 @@ body { background: var(--bg); color: var(--text); transition: background .3s, co
 
 .glass-btn {
   backdrop-filter: blur(8px);
-  background: rgba(255,255,255,.12);
-  border: 1px solid rgba(255,255,255,.2);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 999px;
   padding: 6px 12px;
   font-size: 10px;
-  letter-spacing: .12em;
+  letter-spacing: 0.12em;
   font-weight: 800;
-  color: #fff;
+  color: #ccc;
   text-align: center;
 }
+.dark .glass-btn {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.06);
+  color: #aaa;
+}
 
-.form-label { font-size: 10px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 8px; }
+.form-label { font-size: 10px; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 8px; }
 .form-input {
   width: 100%; border: 1px solid var(--border); border-radius: 16px;
   padding: 14px 18px; font-size: 14px; background: var(--bg-soft);
   color: var(--text); outline: none; transition: .3s;
 }
-.form-input:focus { border-color: var(--brand); box-shadow: 0 0 0 4px rgba(56,189,248,.12); }
+.form-input:focus { border-color: var(--brand); box-shadow: 0 0 0 4px rgba(37,99,235,0.15); }
+.dark .form-input:focus { box-shadow: 0 0 0 4px rgba(37,99,235,0.25); }
 
 .filter-btn { padding: 8px 16px; border-radius: 12px; font-size: 11px; font-weight: 800; color: var(--text-muted); transition: .2s; }
 .filter-btn.active { background: var(--brand); color: #fff; }
 .filter-btn:hover:not(.active) { background: var(--bg-soft); color: var(--text); }
+.dark .filter-btn:hover:not(.active) { background: #1a1a1a; color: #ccc; }
 
-/* --- 06: Hero — Image Effect --- */
-.hero-img { transition: transform .6s cubic-bezier(0.16,1,0.3,1), box-shadow .5s ease; }
-.hero-img:hover { transform: scale(1.02); box-shadow: 0 25px 50px -12px rgba(0,0,0,.25); }
+/* --- 07: Hero Card Contrast Fix --- */
+.hero-img .relative.bg-gradient-to-br {
+  background: linear-gradient(135deg, #0A2D7A, #051842); /* Dark blue fallback for light mode */
+}
+.dark .hero-img .relative.bg-gradient-to-br {
+  background: linear-gradient(135deg, #111827, #030712); /* Darker for dark mode */
+}
+/* Ensure logo/text stay visible */
+#aboutLogo { filter: brightness(0) invert(1); }
+#aboutCardTagline { color: #ffffff !important; }
+.text-white { color: #ffffff !important; }
+.opacity-70 { opacity: 0.8 !important; }
+
+/* --- Anima-style Enterprise SaaS Animations & Glow --- */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(1deg); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+.hero-img {
+  animation: float 6s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Glowing background gradient blobs like Anima */
+.anima-glow {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(74, 117, 194, 0.15) 0%, rgba(26, 54, 93, 0) 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  animation: pulseGlow 8s ease-in-out infinite;
+}
+
+/* Modern Card Hover with Depth */
+.bento-item {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, border-color, box-shadow;
+}
+.bento-item:hover {
+  transform: translateY(-6px);
+  border-color: var(--brand);
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.25);
+}
+.dark .bento-item:hover {
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.7);
+}
+
+/* Smooth reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* --- 09: Infinite Logo Carousel --- */
+.logo-carousel {
+  display: flex;
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+.logo-track {
+  display: flex;
+  gap: 4rem;
+  animation: scroll 30s linear infinite;
+}
+@keyframes scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.logo-item {
+  width: 150px;
+  height: 60px;
+  object-fit: contain;
+  filter: grayscale(1) opacity(0.6);
+  transition: all 0.3s;
+}
+.logo-item:hover {
+  filter: grayscale(0) opacity(1);
+}
