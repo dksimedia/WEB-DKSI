@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #ffffff;
+  --bg-soft: #f8faf9;
+  --bg-card: #ffffff;
+  --text: #1a1a1a;
+  --text-soft: #4a4a4a;
+  --text-muted: #737373;
+  --border: #e5e5e5;
+  --brand: #1a365d;
+  --brand-soft: oklch(from #1a365d l c h / 0.12);
+  --brand-glow: oklch(from #1a365d l c h / 0.35);
+  --bg-hero: #f8faf9;
+  --bg-hero-top: rgba(255, 255, 255, 0.6);
+  --bg-hero-mid: rgba(255, 255, 255, 0.8);
+
+  --font-head: "Orbitron", sans-serif;
+  --font-body: "Manrope", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+
+  color-scheme: light dark;
+  scrollbar-color: var(--brand) var(--bg-soft);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #070707;
+    --bg-soft: #0c0c0c;
+    --bg-card: #121212;
+    --text: #e0e0e0;
+    --text-soft: #999999;
+    --text-muted: #4a4a4a;
+    --border: #1f1f1f;
+    --brand: #4a75c2;
+    --brand-soft: oklch(from #4a75c2 l c h / 0.18);
+    --brand-glow: oklch(from #4a75c2 l c h / 0.4);
+    --bg-hero: #070707;
+    --bg-hero-top: rgba(7, 7, 7, 0.7);
+    --bg-hero-mid: rgba(7, 7, 7, 0.9);
+  }
+}
+
+* {
+  @apply border-gray-200 dark:border-gray-800;
+}
+
+html {
+  @apply scroll-smooth;
+}
+
+body {
+  @apply bg-white dark:bg-gray-950;
+  @apply text-gray-900 dark:text-gray-100;
+  font-family: var(--font-body);
+  line-height: 1.6;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-head);
+  font-weight: 600;
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 900;
+}
+
+.glass-btn {
+  @apply backdrop-blur-lg bg-white/10 dark:bg-gray-900/30 border border-white/20 dark:border-gray-700/50;
+  @apply transition-all duration-300;
+  @apply hover:bg-white/20 dark:hover:bg-gray-900/50 hover:scale-105;
+}
+
+.form-input {
+  @apply w-full px-4 py-3 rounded-xl;
+  @apply border border-gray-200 dark:border-gray-700;
+  @apply bg-white dark:bg-gray-900;
+  @apply text-gray-900 dark:text-gray-100;
+  @apply placeholder:text-gray-500 dark:placeholder:text-gray-400;
+  @apply transition-colors duration-200;
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950;
+}
+
+.filter-btn {
+  @apply px-6 py-2 rounded-full font-medium;
+  @apply transition-all duration-300 capitalize;
+}
+
+.bento-card {
+  @apply p-8 rounded-3xl;
+  @apply bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800;
+  @apply border border-gray-100 dark:border-gray-700;
+  @apply transition-all duration-300;
+  @apply hover:shadow-xl hover:shadow-blue-500/10;
+}
+
+.container {
+  @apply max-w-[1280px] mx-auto;
+}
