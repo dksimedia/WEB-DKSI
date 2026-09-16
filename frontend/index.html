@@ -465,6 +465,39 @@ document.querySelectorAll('.bento-item').forEach(item => {
 </script>
 
 <!-- SECTION 10: WHY DKSI -->
+<section id="portfolio" class="py-20 bg-[var(--bg-soft)] border-y border-[var(--border)]">
+<div class="max-w-[1280px] mx-auto px-6 lg:px-8">
+<div class="flex flex-wrap items-end justify-between gap-6 mb-12">
+<div><div class="label mb-2">PORTFOLIO</div><h2 class="text-4xl font-extrabold text-[var(--text)]">Project Terpilih</h2></div>
+<div class="flex gap-2 p-1 bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-auto" id="pfFilters">
+<button data-filter="all" class="filter-btn active">SEMUA</button>
+<button data-filter="edu" class="filter-btn">EDU</button>
+<button data-filter="infra" class="filter-btn">INFRA</button>
+<button data-filter="smart" class="filter-btn">SMART</button>
+</div>
+</div>
+<div id="portfolioGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+</div>
+</section>
+
+<section class="relative py-20 lg:py-28 overflow-hidden">
+  <div class="absolute inset-0 bg-gradient-to-br from-royal via-[#0f3a9a] to-[#082057]"></div>
+  <div class="absolute inset-0 opacity-20" style="background-image:linear-gradient(var(--text) 1px,transparent 1px),linear-gradient(90deg,var(--text) 1px,transparent 1px);background-size:48px 48px"></div>
+  <div class="absolute -top-32 right-0 w-[520px] h-[520px] rounded-full bg-cyan/30 blur-3xl"></div>
+  <div class="absolute -bottom-32 -left-20 w-[420px] h-[420px] rounded-full bg-royal/40 blur-3xl"></div>
+  <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
+  <div class="relative max-w-[1280px] mx-auto px-6 lg:px-8 text-center">
+    <p class="text-[10px] font-mono tracking-[0.18em] text-cyan uppercase mb-3">PT DUA KAWAN SEJAHTERA INDONESIA</p>
+    <h2 class="text-4xl sm:text-5xl font-extrabold text-white mb-6">Siap Membangun Infrastruktur Digital Anda?</h2>
+    <p class="text-lg text-white/80 max-w-2xl mx-auto mb-10">Konsultasikan kebutuhan ICT Anda dengan ahli kami. Dapatkan solusi terintegrasi yang tepat untuk instansi atau bisnis Anda.</p>
+    <div class="flex flex-wrap items-center justify-center gap-4">
+      <a href="#contact" class="bg-white text-royal px-10 py-4 rounded-full text-xs font-extrabold tracking-widest uppercase hover:scale-105 transition shadow-2xl">Konsultasi Sekarang</a>
+      <a href="tel:+622112345678" class="bg-white/10 backdrop-blur-sm border border-white/20 text-white px-8 py-4 rounded-full text-xs font-extrabold tracking-widest uppercase hover:bg-white/20 transition">+62 811-1234-5678</a>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 14: CONTACT -->
 <section id="why" class="py-20 lg:py-28 bg-[var(--bg-soft)] border-y border-[var(--border)]">
 <div class="max-w-[1280px] mx-auto px-6 lg:px-8">
 <div class="text-center max-w-3xl mx-auto mb-16">
@@ -518,39 +551,6 @@ document.querySelectorAll('.bento-item').forEach(item => {
 </section>
 
 <!-- SECTION 13: PORTFOLIO -->
-<section id="portfolio" class="py-20 bg-[var(--bg-soft)] border-y border-[var(--border)]">
-<div class="max-w-[1280px] mx-auto px-6 lg:px-8">
-<div class="flex flex-wrap items-end justify-between gap-6 mb-12">
-<div><div class="label mb-2">PORTFOLIO</div><h2 class="text-4xl font-extrabold text-[var(--text)]">Project Terpilih</h2></div>
-<div class="flex gap-2 p-1 bg-[var(--bg-card)] rounded-xl border border-[var(--border)] overflow-auto" id="pfFilters">
-<button data-filter="all" class="filter-btn active">SEMUA</button>
-<button data-filter="edu" class="filter-btn">EDU</button>
-<button data-filter="infra" class="filter-btn">INFRA</button>
-<button data-filter="smart" class="filter-btn">SMART</button>
-</div>
-</div>
-<div id="portfolioGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
-</div>
-</section>
-
-<section class="relative py-20 lg:py-28 overflow-hidden">
-  <div class="absolute inset-0 bg-gradient-to-br from-royal via-[#0f3a9a] to-[#082057]"></div>
-  <div class="absolute inset-0 opacity-20" style="background-image:linear-gradient(var(--text) 1px,transparent 1px),linear-gradient(90deg,var(--text) 1px,transparent 1px);background-size:48px 48px"></div>
-  <div class="absolute -top-32 right-0 w-[520px] h-[520px] rounded-full bg-cyan/30 blur-3xl"></div>
-  <div class="absolute -bottom-32 -left-20 w-[420px] h-[420px] rounded-full bg-royal/40 blur-3xl"></div>
-  <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
-  <div class="relative max-w-[1280px] mx-auto px-6 lg:px-8 text-center">
-    <p class="text-[10px] font-mono tracking-[0.18em] text-cyan uppercase mb-3">PT DUA KAWAN SEJAHTERA INDONESIA</p>
-    <h2 class="text-4xl sm:text-5xl font-extrabold text-white mb-6">Siap Membangun Infrastruktur Digital Anda?</h2>
-    <p class="text-lg text-white/80 max-w-2xl mx-auto mb-10">Konsultasikan kebutuhan ICT Anda dengan ahli kami. Dapatkan solusi terintegrasi yang tepat untuk instansi atau bisnis Anda.</p>
-    <div class="flex flex-wrap items-center justify-center gap-4">
-      <a href="#contact" class="bg-white text-royal px-10 py-4 rounded-full text-xs font-extrabold tracking-widest uppercase hover:scale-105 transition shadow-2xl">Konsultasi Sekarang</a>
-      <a href="tel:+622112345678" class="bg-white/10 backdrop-blur-sm border border-white/20 text-white px-8 py-4 rounded-full text-xs font-extrabold tracking-widest uppercase hover:bg-white/20 transition">+62 811-1234-5678</a>
-    </div>
-  </div>
-</section>
-
-<!-- SECTION 14: CONTACT -->
 <section id="contact" class="py-20 lg:py-28 bg-[var(--bg)]">
 <div class="max-w-[1280px] mx-auto px-6 lg:px-8">
 <div class="grid lg:grid-cols-12 gap-16">
