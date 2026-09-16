@@ -60,12 +60,11 @@
      =========================================== -->
 <section id="home" class="relative min-h-[92vh] flex items-center overflow-hidden bg-[var(--bg)]">
 <!-- Tech Mesh Background -->
-<div class="absolute inset-0 pointer-events-none overflow-hidden">
-  <div class="absolute -top-[20%] -left-[10%] w-[600px] h-[600px] rounded-full bg-royal/10 dark:bg-cyan/10 blur-[120px] animate-pulse" style="animation-duration: 8s;"></div>
-  <div class="absolute top-[40%] -right-[10%] w-[500px] h-[500px] rounded-full bg-cyan/10 dark:bg-royal/15 blur-[100px] animate-pulse" style="animation-duration: 10s;"></div>
-  <!-- Interactive Canvas -->
-  <canvas id="heroCanvas" class="absolute inset-0 w-full h-full opacity-40 dark:opacity-60"></canvas>
+<div class="absolute inset-0 overflow-hidden pointer-events-none">
+  <div class="absolute -top-[20%] -left-[10%] w-[600px] h-[600px] rounded-full bg-royal/10 dark:bg-cyan/10 blur-[120px] animate-pulse pointer-events-none" style="animation-duration: 8s;"></div>
+  <div class="absolute top-[40%] -right-[10%] w-[500px] h-[500px] rounded-full bg-cyan/10 dark:bg-royal/15 blur-[100px] animate-pulse pointer-events-none" style="animation-duration: 10s;"></div>
 </div>
+<canvas id="heroCanvas" class="absolute inset-0 w-full h-full opacity-40 dark:opacity-60" style="pointer-events:auto;"></canvas>
 <script>
 (function() {
   const canvas = document.getElementById('heroCanvas');
@@ -81,14 +80,16 @@
     width = canvas.width = canvas.offsetWidth;
     height = canvas.height = canvas.offsetHeight;
   });
-  canvas.addEventListener('mousemove', e => {
-    mouse.x = e.clientX - canvas.getBoundingClientRect().left;
-    mouse.y = e.clientY - canvas.getBoundingClientRect().top;
-  });
-  canvas.addEventListener('mouseleave', () => {
-    mouse.x = null;
-    mouse.y = null;
-  });
+  const heroSection = document.getElementById('home');
+  const updateMouse = e => {
+    const r = canvas.getBoundingClientRect();
+    mouse.x = e.clientX - r.left;
+    mouse.y = e.clientY - r.top;
+  };
+  canvas.addEventListener('mousemove', updateMouse);
+  heroSection?.addEventListener('mousemove', updateMouse);
+  canvas.addEventListener('mouseleave', () => { mouse.x = null; mouse.y = null; });
+  heroSection?.addEventListener('mouseleave', () => { mouse.x = null; mouse.y = null; });
   class Particle {
     constructor() {
       this.x = Math.random() * width;
