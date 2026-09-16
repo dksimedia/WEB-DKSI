@@ -497,7 +497,7 @@ if (!window.DKSI_DATA) {
     ],
     portfolios: {
       av:     { title: 'Audio Visual & Smart Room',  client: 'Kementerian Pendidikan & Kebudayaan', loc: 'Jakarta', desc: 'Sistem AV terintegrasi & smart room paperless.', img: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80', cat: 'smart', status: 'published' },
-      office: { title: 'Smart Office System',        client: 'Kementerian Ketenagakerjaan',          loc: 'Jakarta Selatan', desc: 'Paperless Conference & office automation.',       img: 'https://images.unsplash.com/photo-1497366811353-2533774fa78d?auto=format&fit=crop&w=800&q=80', cat: 'smart', status: 'published' },
+      office: { title: 'Smart Office System',        client: 'Kementerian Ketenagakerjaan',          loc: 'Jakarta Selatan', desc: 'Paperless Conference & office automation.',       img: 'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=800&q=80', cat: 'smart', status: 'published' },
       micro:  { title: 'Microteaching Lab',          client: 'Universitas Negeri',                   loc: 'Bandung', desc: 'Lab simulasi mengajar multi-kamera.',               img: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80', cat: 'edu',   status: 'published' },
       infra:  { title: 'Enterprise Data Center',     client: 'Kementerian Hukum & HAM',              loc: 'Jakarta', desc: 'Server high-availability & backup terpusat.',       img: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80', cat: 'infra', status: 'published' },
       net:    { title: 'Backbone Networking',        client: 'BUMN & Instansi Pemerintah',           loc: 'Multi Cabang', desc: 'Fiber backbone & router enterprise.',            img: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80', cat: 'infra', status: 'published' },
@@ -691,7 +691,7 @@ function renderPortfolio(cat = 'all') {
   }
   pfGrid.innerHTML = filtered.map(([k, p]) =>
     `<div class="bg-[var(--bg-card)] border border-[var(--border)] rounded-[32px] overflow-hidden group hover:border-[var(--brand)] transition-all shadow-sm hover:shadow-xl flex flex-col justify-between">`
-  + `<div><div class="overflow-hidden h-[180px]"><img loading="lazy" decoding="async" src="${p.img}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt=""></div>`
+  + `<div><div class="overflow-hidden h-[180px]"><img loading="lazy" decoding="async" src="${p.img}" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80'" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt=""></div>`
   + `<div class="p-8"><span class="text-[10px] font-mono tracking-widest text-[var(--brand)] uppercase font-bold">${p.client} \u2022 ${p.loc}</span>`
   + `<h3 class="text-lg font-extrabold text-[var(--text)] mt-1 mb-2">${p.title}</h3>`
   + `<p class="text-xs text-[var(--text-soft)] leading-relaxed">${p.desc}</p></div></div>`
@@ -720,7 +720,7 @@ function openModal(key) {
   const content = $('#mContent');
   if (!content) return;
   content.innerHTML =
-    `<img loading="lazy" decoding="async" src="${p.img}" class="w-full h-[260px] object-cover rounded-2xl mb-6 shadow-md">`
+    `<img loading="lazy" decoding="async" src="${p.img}" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80'" class="w-full h-[260px] object-cover rounded-2xl mb-6 shadow-md">`
   + `<span class="text-xs font-mono text-[var(--brand)] font-bold uppercase">${p.client} \u2022 ${p.loc}</span>`
   + `<h3 class="text-2xl font-extrabold text-[var(--text)] mt-1 mb-3">${p.title}</h3>`
   + `<p class="text-sm text-[var(--text-soft)] leading-relaxed mb-6">${p.desc}</p>`
