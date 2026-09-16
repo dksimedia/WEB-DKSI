@@ -138,16 +138,18 @@ if (menuBtn && mobileNav) {
 (function initScrollSpy() {
   const links = [...document.querySelectorAll('#navbar .nav-link, #mobileNav a')];
   if (!links.length) return;
-  const sectionIds = ['home', 'about', 'services', 'sol-infra', 'portfolio', 'why', 'contact'];
+  const sectionIds = ['home', 'about', 'services', 'solutions', 'sol-infra', 'sol-edu', 'sol-ai', 'portfolio', 'why', 'contact'];
   let sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
   sections.sort((a, b) => a.offsetTop - b.offsetTop);
   if (!sections.length) return;
   const navH = () => document.getElementById('navbar')?.offsetHeight || 72;
   function setActive(activeId) {
+    let navId = activeId;
+    if (['sol-infra','sol-edu','sol-ai'].includes(activeId)) navId = 'solutions';
     links.forEach(a => {
       a.classList.remove('active');
       const href = a.getAttribute('href')?.slice(1);
-      if (href === activeId) a.classList.add('active');
+      if (href === navId) a.classList.add('active');
     });
   }
   let ticking = false;
@@ -160,6 +162,7 @@ if (menuBtn && mobileNav) {
       const y = window.scrollY + navH() + 24;
       let cur = sections[0].id;
       for (const s of sections) { if (s.offsetTop <= y) cur = s.id; else break; }
+      if (['sol-infra','sol-edu','sol-ai'].includes(cur)) cur = 'solutions';
       setActive(cur);
     });
   }
