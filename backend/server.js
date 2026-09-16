@@ -13,6 +13,7 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const compression = require('compression');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -25,6 +26,7 @@ const CONTACTS_FILE = path.join(__dirname, 'contacts.json');
 // ------------------------------------------------------------------
 // Middleware
 // ------------------------------------------------------------------
+app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -109,8 +111,17 @@ app.get('/api/health', (_req, res) => {
 // ------------------------------------------------------------------
 // Static
 // ------------------------------------------------------------------
-app.use('/admin', express.static(path.join(__dirname, 'admin')));
-app.use(express.static(path.join(__dirname, '..', 'frontend')));
+const STATIC_OPTS = {
+  maxAge: '7d',
+  etag: true,
+  lastModified: true,
+  setHeaders(res, filePath) {
+    if (filePath.endsWith('.html')) res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+    else if (/\.(css|js|png|jpg|jpeg|svg|webp|woff2?)$/.test(filePath)) res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
+  },
+};
+app.use('/admin', express.static(path.join(__dirname, 'admin'), STATIC_OPTS));
+app.use(express.static(path.join(__dirname, '..', 'frontend'), STATIC_OPTS));
 
 // Fallback: root -> admin dashboard (keep frontend at /index.html)
 app.get('/', (_req, res) => res.redirect('/admin/admin.html'));

@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="css/tailwind.min.css">
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/responsive.css">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
 <script>
   (function() {
@@ -23,6 +24,7 @@
     }
   })();
 </script>
+  <link rel="preload" as="image" href="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1100&q=80" fetchpriority="high">
 </head>
 <body class="font-sans antialiased bg-[var(--bg)] text-[var(--text)] transition-colors duration-300">
 
@@ -164,7 +166,7 @@
 </div>
 <div class="relative">
 <div class="relative rounded-[32px] overflow-hidden bg-[var(--bg-card)] border border-[var(--border)] shadow-2xl hero-img">
-<img id="heroImage" src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1100&q=80" class="w-full h-[440px] object-cover object-center" alt="Enterprise ICT" loading="lazy" decoding="async">
+<img id="heroImage" sizes="(max-width: 1024px) 100vw, 50vw" src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1100&q=80" class="w-full h-[440px] object-cover object-center" alt="Enterprise ICT" loading="lazy" decoding="async">
 <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent dark:from-black/60"></div>
 <div id="heroBadges" class="absolute bottom-5 left-5 right-5 grid grid-cols-3 gap-2 z-10">
 <span class="glass-btn">AI</span><span class="glass-btn">IoT</span><span class="glass-btn">SECURITY</span>
@@ -304,7 +306,7 @@
     
     <div class="grid lg:grid-cols-2 gap-8 items-start">
       <div class="relative rounded-3xl overflow-hidden border border-[var(--border)] shadow-2xl">
-        <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80" alt="Server rack" class="w-full aspect-[4/3] object-cover">
+        <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80" alt="Server rack" sizes="(max-width: 768px) 100vw, 33vw" width="600" height="450" class="w-full aspect-[4/3] object-cover">
         <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-8">
            <p class="text-white/90 text-sm font-medium">Pondasi infrastruktur siap audit TKDN & ISO 9001.</p>
         </div>
@@ -372,7 +374,7 @@
         </div>
       </div>
       <div class="order-1 lg:order-2 relative rounded-3xl overflow-hidden border border-[var(--border)] shadow-2xl">
-        <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1200&q=80" alt="Smart campus education" class="w-full aspect-[4/3] object-cover">
+        <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1200&q=80" alt="Smart campus education" sizes="(max-width: 768px) 100vw, 33vw" width="600" height="450" class="w-full aspect-[4/3] object-cover">
         <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-8">
            <p class="text-white/90 text-sm font-medium">Lingkungan kampus modern & interaktif.</p>
         </div>
@@ -390,7 +392,7 @@
     
     <div class="grid lg:grid-cols-2 gap-8 items-start">
       <div class="relative rounded-3xl overflow-hidden border border-[var(--border)] shadow-2xl">
-        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80" alt="Command Center" class="w-full aspect-[4/3] object-cover">
+        <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80" alt="Command Center" sizes="(max-width: 768px) 100vw, 33vw" width="600" height="450" class="w-full aspect-[4/3] object-cover">
         <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-8">
            <p class="text-white/90 text-sm font-medium">Pusat kendali berbasis AI & real-time analytics.</p>
         </div>
@@ -528,33 +530,33 @@ document.querySelectorAll('.bento-item').forEach(item => {
 <div class="logo-carousel" id="trustedCarousel">
   <div class="logo-track" id="logoTrack">
     <div class="flex items-center gap-10 whitespace-nowrap">
-      <img src="assets/clients/kementerian-agama-new-logo.png" alt="KEMENAG" class="logo-item" loading="lazy">
-      <img src="assets/clients/lambang-polri.png" alt="POLRI" class="logo-item" loading="lazy">
-      <img src="assets/clients/2560px-tmii-logo-svg.png" alt="TMII" class="logo-item" loading="lazy">
-      <img src="assets/clients/logo-kementerian-komunikasi-dan-digital-republik-indonesia-komdigi.svg" alt="KOMDIGI" class="logo-item" loading="lazy">
-      <img src="assets/clients/logo-bawaslu.png" alt="BAWASLU" class="logo-item" loading="lazy">
-      <img src="assets/clients/logo-lkpp.png" alt="LKPP" class="logo-item" loading="lazy">
-      <img src="assets/clients/logo-of-the-ministry-of-manpower-of-the-republic-of-indonesia-svg.png" alt="KEMENAKER" class="logo-item" loading="lazy">
-      <img src="assets/clients/logo-unhan.png" alt="UNHAN" class="logo-item" loading="lazy">
-      <img src="assets/clients/pupr.png" alt="PUPR" class="logo-item" loading="lazy">
-      <img src="assets/clients/badan-standardisasi-nasional-seeklogo.png" alt="BSN" class="logo-item" loading="lazy">
-      <img src="assets/clients/rspon.png" alt="RSPON" class="logo-item" loading="lazy">
-      <img src="assets/clients/ristekdikti-logo-f092eadfb2-seeklogo-com.png" alt="BRIN" class="logo-item" loading="lazy">
+      <img src="assets/clients/kementerian-agama-new-logo.png" alt="KEMENAG" width="120" height="60" class="logo-item" loading="lazy" decoding="async">
+      <img src="assets/clients/lambang-polri.png" alt="POLRI" width="120" height="60" class="logo-item" loading="lazy" decoding="async">
+      <img src="assets/clients/2560px-tmii-logo-svg.png" alt="TMII" width="120" height="60" class="logo-item" loading="lazy" decoding="async">
+      <img src="assets/clients/logo-kementerian-komunikasi-dan-digital-republik-indonesia-komdigi.svg" alt="KOMDIGI" width="120" height="60" class="logo-item" loading="lazy" decoding="async">
+      <img src="assets/clients/logo-bawaslu.png" alt="BAWASLU" width="120" height="60" class="logo-item" loading="lazy" decoding="async">
+      <img src="assets/clients/logo-lkpp.png" alt="LKPP" width="120" height="60" class="logo-item" loading="lazy" decoding="async">
+      <img src="assets/clients/logo-of-the-ministry-of-manpower-of-the-republic-of-indonesia-svg.png" alt="KEMENAKER" width="120" height="60" class="logo-item" loading="lazy" decoding="async">
+      <img src="assets/clients/logo-unhan.png" alt="UNHAN" width="120" height="60" class="logo-item" loading="lazy" decoding="async">
+      <img src="assets/clients/pupr.png" alt="PUPR" width="120" height="60" class="logo-item" loading="lazy" decoding="async">
+      <img src="assets/clients/badan-standardisasi-nasional-seeklogo.png" alt="BSN" width="120" height="60" class="logo-item" loading="lazy" decoding="async">
+      <img src="assets/clients/rspon.png" alt="RSPON" width="120" height="60" class="logo-item" loading="lazy" decoding="async">
+      <img src="assets/clients/ristekdikti-logo-f092eadfb2-seeklogo-com.png" alt="BRIN" width="120" height="60" class="logo-item" loading="lazy" decoding="async">
     </div>
     <!-- Duplicate for infinite loop -->
     <div class="flex items-center gap-10 whitespace-nowrap" aria-hidden="true">
-      <img src="assets/clients/kementerian-agama-new-logo.png" alt="KEMENAG" class="logo-item" loading="lazy">
-      <img src="assets/clients/lambang-polri.png" alt="POLRI" class="logo-item" loading="lazy">
-      <img src="assets/clients/2560px-tmii-logo-svg.png" alt="TMII" class="logo-item" loading="lazy">
-      <img src="assets/clients/logo-kementerian-komunikasi-dan-digital-republik-indonesia-komdigi.svg" alt="KOMDIGI" class="logo-item" loading="lazy">
-      <img src="assets/clients/logo-bawaslu.png" alt="BAWASLU" class="logo-item" loading="lazy">
-      <img src="assets/clients/logo-lkpp.png" alt="LKPP" class="logo-item" loading="lazy">
-      <img src="assets/clients/logo-of-the-ministry-of-manpower-of-the-republic-of-indonesia-svg.png" alt="KEMENAKER" class="logo-item" loading="lazy">
-      <img src="assets/clients/logo-unhan.png" alt="UNHAN" class="logo-item" loading="lazy">
-      <img src="assets/clients/pupr.png" alt="PUPR" class="logo-item" loading="lazy">
-      <img src="assets/clients/badan-standardisasi-nasional-seeklogo.png" alt="BSN" class="logo-item" loading="lazy">
-      <img src="assets/clients/rspon.png" alt="RSPON" class="logo-item" loading="lazy">
-      <img src="assets/clients/ristekdikti-logo-f092eadfb2-seeklogo-com.png" alt="BRIN" class="logo-item" loading="lazy">
+      <img src="assets/clients/kementerian-agama-new-logo.png" alt="KEMENAG" width="120" height="60" class="logo-item" loading="lazy" decoding="async">
+      <img src="assets/clients/lambang-polri.png" alt="POLRI" width="120" height="60" class="logo-item" loading="lazy" decoding="async">
+      <img src="assets/clients/2560px-tmii-logo-svg.png" alt="TMII" width="120" height="60" class="logo-item" loading="lazy" decoding="async">
+      <img src="assets/clients/logo-kementerian-komunikasi-dan-digital-republik-indonesia-komdigi.svg" alt="KOMDIGI" width="120" height="60" class="logo-item" loading="lazy" decoding="async">
+      <img src="assets/clients/logo-bawaslu.png" alt="BAWASLU" width="120" height="60" class="logo-item" loading="lazy" decoding="async">
+      <img src="assets/clients/logo-lkpp.png" alt="LKPP" width="120" height="60" class="logo-item" loading="lazy" decoding="async">
+      <img src="assets/clients/logo-of-the-ministry-of-manpower-of-the-republic-of-indonesia-svg.png" alt="KEMENAKER" width="120" height="60" class="logo-item" loading="lazy" decoding="async">
+      <img src="assets/clients/logo-unhan.png" alt="UNHAN" width="120" height="60" class="logo-item" loading="lazy" decoding="async">
+      <img src="assets/clients/pupr.png" alt="PUPR" width="120" height="60" class="logo-item" loading="lazy" decoding="async">
+      <img src="assets/clients/badan-standardisasi-nasional-seeklogo.png" alt="BSN" width="120" height="60" class="logo-item" loading="lazy" decoding="async">
+      <img src="assets/clients/rspon.png" alt="RSPON" width="120" height="60" class="logo-item" loading="lazy" decoding="async">
+      <img src="assets/clients/ristekdikti-logo-f092eadfb2-seeklogo-com.png" alt="BRIN" width="120" height="60" class="logo-item" loading="lazy" decoding="async">
     </div>
   </div>
 </div>
