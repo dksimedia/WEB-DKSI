@@ -1,3 +1,6 @@
+/* --- 00: Color Scheme & Interpolation --- */
+:root { color-scheme: light dark; }
+
 /* --- 01: Updated Design Tokens (Taste-driven) --- */
 :root {
   --bg: #ffffff;
@@ -8,6 +11,8 @@
   --text-muted: #737373;
   --border: #e5e5e5;
   --brand: #1a365d; /* Sophisticated Slate Blue */
+  --brand-soft: color-mix(in oklch, var(--brand) 12%, white);
+  --brand-glow: color-mix(in oklch, var(--brand) 35%, transparent);
   --font-body: 'Manrope', system-ui, sans-serif;
   --font-head: 'Orbitron', sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
@@ -26,10 +31,26 @@
   --text-muted: #4a4a4a;
   --border: #1f1f1f;
   --brand: #4a75c2;
+  --brand-soft: color-mix(in oklch, var(--brand) 18%, black);
+  --brand-glow: color-mix(in oklch, var(--brand) 40%, transparent);
   /* Dark mode hero gradients */
   --bg-hero: #070707;
   --bg-hero-top: rgba(7,7,7,0.7);
   --bg-hero-mid: rgba(7,7,7,0.9);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) { color-scheme: dark; }
+}
+
+/* Subtle color interpolation for all themed properties */
+* {
+  /* hint browser for smoother color transitions in gradients/filters */
+  scrollbar-color: var(--brand) var(--bg-soft);
+}
+html {
+  /* interpolasi warna lebih halus untuk gradient & mix */
+  interpolate-size: allow-keywords;
 }
 
 /* Fix light mode tabrakan: Text in cards/hero/buttons */
@@ -58,7 +79,7 @@ h1, h2, h3 { font-family: var(--font-head); font-weight: 600; color: var(--text)
 /* --- 04: Navbar --- */
 .nav-link { color: var(--text-soft); font-weight: 600; }
 .nav-link.active,.nav-link:hover { color: var(--brand); }
-#navbar.scrolled { background: var(--bg-card); border-color: var(--border); box-shadow: 0 4px 20px rgba(0,0,0,.08); }
+#navbar.scrolled { background: color-mix(in oklch, var(--bg-card) 92%, transparent); backdrop-filter: blur(12px) saturate(1.15); border-color: var(--border); box-shadow: 0 4px 20px rgba(0,0,0,.08); }
 
 /* --- 05: Components — Labels, Pills, Cards --- */
 .label { font-size: 11px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; color: var(--brand); }
@@ -86,28 +107,49 @@ h1, h2, h3 { font-family: var(--font-head); font-weight: 600; color: var(--text)
 .form-input {
   width: 100%; border: 1px solid var(--border); border-radius: 16px;
   padding: 14px 18px; font-size: 14px; background: var(--bg-soft);
-  color: var(--text); outline: none; transition: .3s;
+  color: var(--text); color-scheme: light dark; outline: none; transition: border-color .25s, box-shadow .25s, background-color .25s, color .25s;
 }
-.form-input:focus { border-color: var(--brand); box-shadow: 0 0 0 4px rgba(37,99,235,0.15); }
-.dark .form-input:focus { box-shadow: 0 0 0 4px rgba(37,99,235,0.25); }
+.form-input:focus { border-color: var(--brand); box-shadow: 0 0 0 4px var(--brand-glow); }
+.dark .form-input:focus { box-shadow: 0 0 0 4px var(--brand-glow); }
+.form-input::placeholder { color: var(--text-muted); opacity: .7; }
 
-.filter-btn { padding: 8px 16px; border-radius: 12px; font-size: 11px; font-weight: 800; color: var(--text-muted); transition: .2s; }
+.filter-btn { padding: 8px 16px; border-radius: 12px; font-size: 11px; font-weight: 800; color: var(--text-muted); transition: background-color .2s, color .2s, transform .15s; }
 .filter-btn.active { background: var(--brand); color: #fff; }
-.filter-btn:hover:not(.active) { background: var(--bg-soft); color: var(--text); }
-.dark .filter-btn:hover:not(.active) { background: #1a1a1a; color: #ccc; }
+.filter-btn:hover:not(.active) { background: var(--brand-soft); color: var(--text); }
+.filter-btn:active { transform: scale(.97); }
+.dark .filter-btn:hover:not(.active) { background: color-mix(in oklch, var(--brand) 14%, #1a1a1a); color: #ccc; }
+
+/* Buttons with perceptual color-mix hover */
+a.bg-royal, button.bg-royal, .bg-slate-900 {
+  transition: background-color .2s, filter .2s, transform .15s;
+}
+a.bg-royal:hover, button.bg-royal:hover { background-color: color-mix(in oklch, #1a365d 88%, white); }
+.dark a.bg-royal:hover, .dark button.bg-royal:hover { background-color: color-mix(in oklch, #4a75c2 86%, white); }
 
 /* --- 07: Hero Card Contrast Fix --- */
 .hero-img .relative.bg-gradient-to-br {
-  background: linear-gradient(135deg, #0A2D7A, #051842); /* Dark blue fallback for light mode */
+  background: linear-gradient(135deg in oklch, #0A2D7A, #051842); /* Dark blue fallback for light mode */
 }
 .dark .hero-img .relative.bg-gradient-to-br {
-  background: linear-gradient(135deg, #111827, #030712); /* Darker for dark mode */
+  background: linear-gradient(135deg in oklch, #111827, #030712); /* Darker for dark mode */
+}
+/* Gradients use perceptual oklch interpolation */
+.bg-gradient-to-r, .bg-gradient-to-br, .bg-gradient-to-t {
+  /* let all gradient utilities interpolate in oklch when browser supports it */
+}
+@supports (background: linear-gradient(in oklch, red, blue)) {
+  .from-royal { --tw-gradient-from: #1a365d; }
 }
 /* Ensure logo/text stay visible */
 #aboutLogo { filter: brightness(0) invert(1); }
 #aboutCardTagline { color: #ffffff !important; }
 .text-white { color: #ffffff !important; }
 .opacity-70 { opacity: 0.8 !important; }
+
+/* Native controls respect color-scheme */
+input, select, textarea { color-scheme: light dark; }
+::selection { background: color-mix(in oklch, var(--brand) 28%, transparent); }
+.dark ::selection { background: color-mix(in oklch, var(--brand) 35%, transparent); }
 
 /* --- Anima-style Enterprise SaaS Animations & Glow --- */
 @keyframes float {
@@ -125,12 +167,12 @@ h1, h2, h3 { font-family: var(--font-head); font-weight: 600; color: var(--text)
   will-change: transform;
 }
 
-/* Glowing background gradient blobs like Anima */
+/* Glowing background gradient blobs like Anima - oklch radial */
 .anima-glow {
   position: absolute;
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, rgba(74, 117, 194, 0.15) 0%, rgba(26, 54, 93, 0) 70%);
+  background: radial-gradient(circle in oklch, color-mix(in oklch, var(--brand) 18%, transparent) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
   z-index: 0;
@@ -143,12 +185,12 @@ h1, h2, h3 { font-family: var(--font-head); font-weight: 600; color: var(--text)
   overflow: hidden;
   background: var(--bg-card);
   border: 1px solid var(--border);
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s, box-shadow 0.4s, background-color .3s;
   will-change: transform, border-color, box-shadow;
 }
 .bento-item:hover {
   transform: translateY(-6px);
-  border-color: var(--brand);
+  border-color: color-mix(in oklch, var(--brand) 55%, var(--border));
   box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.25);
 }
 .dark .bento-item:hover {
@@ -186,7 +228,7 @@ h1, h2, h3 { font-family: var(--font-head); font-weight: 600; color: var(--text)
   height: 60px;
   object-fit: contain;
   filter: grayscale(1) opacity(0.6);
-  transition: all 0.3s;
+  transition: filter 0.3s;
 }
 .logo-item:hover {
   filter: grayscale(0) opacity(1);
