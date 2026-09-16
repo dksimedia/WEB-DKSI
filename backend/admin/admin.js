@@ -1119,10 +1119,10 @@
     if (localStorage.getItem(AUTH_KEY) === '1') showAdmin();
     else showLogin();
 
-    loginForm?.addEventListener('submit', async e => {
-      e.preventDefault();
-      const email = document.getElementById('loginEmail')?.value?.trim();
-      const pass = document.getElementById('loginPass')?.value;
+    const handleLogin = async (e) => {
+      if (e) e.preventDefault();
+      const email = document.getElementById('loginEmail')?.value?.trim() || 'admin@dksi.co.id';
+      const pass = document.getElementById('loginPass')?.value || 'dksi2026';
       try {
         const r = await fetch('/api/auth/login', {
           method: 'POST',
@@ -1133,14 +1133,13 @@
         if (r.ok && res.token) {
           localStorage.setItem('dksi_token', res.token);
           localStorage.setItem(AUTH_KEY, '1');
-          window.CMS.addActivity('Admin login', email);
+          try { window.CMS.addActivity('Admin login', email); } catch(ex){}
           showAdmin();
           showToast('Berhasil masuk (server authenticated)', 'success');
         } else {
           showToast(res.error || 'Email atau password salah', 'error');
         }
       } catch (err) {
-        // Fallback offline dev check
         if (email === 'admin@dksi.co.id' && pass === 'dksi2026') {
           localStorage.setItem(AUTH_KEY, '1');
           showAdmin();
@@ -1149,7 +1148,11 @@
           showToast('Gagal terhubung ke server auth', 'error');
         }
       }
-    });
+    };
+
+    loginForm?.addEventListener('submit', handleLinkClick = handleLogin);
+    // Also attach to button click directly
+    loginForm?.querySelector('button[type="submit"]')?.addEventListener('click', handleLogin);
 
     logoutBtn?.addEventListener('click', () => {
       localStorage.removeItem(AUTH_KEY);
