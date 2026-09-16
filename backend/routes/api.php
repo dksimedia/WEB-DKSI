@@ -35,7 +35,15 @@ Route::get('/health', function () {
 
 // Auth Routes
 Route::post('/auth/login', [AuthController::class, 'login']);
-Route::middleware('auth:sanctum')->get('/auth/user', [AuthController::class, 'user']);
+
+// Helper: Validate token (no DB needed)
+$validateToken = function (Request $request) {
+    $token = str_replace('Bearer ', '', $request->header('Authorization', ''));
+    if (strpos($token, 'dksi-admin-token-') !== 0) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+    return null;
+};
 
 // Contact form (public)
 Route::post('/contacts', function (Request $request) {
@@ -57,35 +65,45 @@ Route::post('/contacts', function (Request $request) {
     return response()->json(['status' => 'ok', 'message' => 'Kontak berhasil disimpan'], 201);
 });
 
-// GET contacts (admin only — placeholder)
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/admin/contacts', function () {
-        $file = storage_path('contacts.json');
-        $contacts = file_exists($file) ? json_decode(file_get_contents($file), true) : [];
-        return response()->json($contacts);
-    });
+// Admin routes (token-based, no Sanctum)
+Route::get('/admin/contacts', function (Request $request) use ($validateToken) {
+    $error = $validateToken($request);
+    if ($error) return $error;
+    
+    $file = storage_path('contacts.json');
+    $contacts = file_exists($file) ? json_decode(file_get_contents($file), true) : [];
+    return response()->json($contacts);
+});
 
-    // Draft CMS (admin)
-    Route::get('/cms/draft', function () {
-        $cmsData = file_exists(storage_path('cms.draft.json'))
-            ? json_decode(file_get_contents(storage_path('cms.draft.json')), true)
-            : require base_path('database/seeders/cms.seed.php');
-        return response()->json($cmsData);
-    });
+// Draft CMS (admin)
+Route::get('/cms/draft', function (Request $request) use ($validateToken) {
+    $error = $validateToken($request);
+    if ($error) return $error;
+    
+    $cmsData = file_exists(storage_path('cms.draft.json'))
+        ? json_decode(file_get_contents(storage_path('cms.draft.json')), true)
+        : require base_path('database/seeders/cms.seed.php');
+    return response()->json($cmsData);
+});
 
-    // Save draft
-    Route::put('/cms/draft', function (Request $request) {
-        file_put_contents(storage_path('cms.draft.json'), json_encode($request->all(), JSON_PRETTY_PRINT));
-        return response()->json(['status' => 'ok', 'message' => 'Draft tersimpan']);
-    });
+// Save draft
+Route::put('/cms/draft', function (Request $request) use ($validateToken) {
+    $error = $validateToken($request);
+    if ($error) return $error;
+    
+    file_put_contents(storage_path('cms.draft.json'), json_encode($request->all(), JSON_PRETTY_PRINT));
+    return response()->json(['status' => 'ok', 'message' => 'Draft tersimpan']);
+});
 
-    // Publish
-    Route::post('/cms/publish', function () {
-        $draft = file_exists(storage_path('cms.draft.json'))
-            ? json_decode(file_get_contents(storage_path('cms.draft.json')), true)
-            : require base_path('database/seeders/cms.seed.php');
-        
-        file_put_contents(storage_path('cms.json'), json_encode($draft, JSON_PRETTY_PRINT));
-        return response()->json(['status' => 'ok', 'message' => 'Konten dipublikasikan']);
-    });
+// Publish
+Route::post('/cms/publish', function (Request $request) use ($validateToken) {
+    $error = $validateToken($request);
+    if ($error) return $error;
+    
+    $draft = file_exists(storage_path('cms.draft.json'))
+        ? json_decode(file_get_contents(storage_path('cms.draft.json')), true)
+        : require base_path('database/seeders/cms.seed.php');
+    
+    file_put_contents(storage_path('cms.json'), json_encode($draft, JSON_PRETTY_PRINT));
+    return response()->json(['status' => 'ok', 'message' => 'Konten dipublikasikan']);
 });

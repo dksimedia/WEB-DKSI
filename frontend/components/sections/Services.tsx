@@ -19,7 +19,7 @@ export default function ServicesSection({ data }: ServiceProps) {
     <section id="services" className="py-20 lg:py-28">
       <div className="container mx-auto px-6 lg:px-8">
         <h2 className="text-4xl lg:text-5xl font-bold text-center mb-16 tracking-tight">
-          Our Services
+          Layanan Kami
         </h2>
         
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">

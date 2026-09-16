@@ -19,7 +19,7 @@ export default function PortfolioSection({ data }: PortfolioProps) {
   return (
     <section id="portfolio" className="py-20 lg:py-28">
       <div className="container mx-auto px-6 lg:px-8">
-        <h2 className="text-4xl lg:text-5xl font-bold text-center mb-12 tracking-tight">Our Portfolio</h2>
+        <h2 className="text-4xl lg:text-5xl font-bold text-center mb-12 tracking-tight">Portfolio Kami</h2>
         
         <div className="flex justify-center gap-4 mb-12">
           {data.filterOrder.map((cat) => (

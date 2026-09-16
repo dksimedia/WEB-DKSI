@@ -11,9 +11,9 @@ interface AboutProps {
 
 export default function AboutSection({ data }: AboutProps) {
   const sectors = [
-    { title: "Education", desc: data.sectorEducation || "Smart learning solutions" },
-    { title: "Government", desc: data.sectorGovernment || "Secure public services" },
-    { title: "Enterprise", desc: data.sectorEnterprise || "Scalable business solutions" },
+    { title: "Pendidikan", desc: data.sectorEducation || "Solusi pembelajaran digital" },
+    { title: "Pemerintahan", desc: data.sectorGovernment || "Layanan publik aman & terpercaya" },
+    { title: "Perusahaan", desc: data.sectorEnterprise || "Solusi bisnis yang adaptif" },
   ];
 
   return (

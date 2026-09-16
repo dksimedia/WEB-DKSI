@@ -1,15 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-export default function AdminPage() {
+export default function AdminLoginPage() {
   const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [email, setEmail] = useState('admin@dksi.co.id');
   const [password, setPassword] = useState('');
-  const [token, setToken] = useState('');
-  const [cmsData, setCmsData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -17,8 +14,8 @@ export default function AdminPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+    setLoading(true);
 
     try {
       const res = await fetch(`${API_URL}/auth/login`, {
@@ -28,128 +25,102 @@ export default function AdminPage() {
       });
 
       const data = await res.json();
-      if (data.status === 'success') {
-        setToken(data.token);
-        setIsLoggedIn(true);
+      
+      if (data.status === 'success' && data.token) {
         localStorage.setItem('dksi_admin_token', data.token);
-        await fetchCMS(data.token);
+        router.push('/admin/dashboard');
       } else {
-        setError(data.message || 'Login gagal');
+        setError(data.message || 'Login gagal. Email/password salah.');
       }
     } catch (err) {
-      setError('Koneksi error: ' + (err instanceof Error ? err.message : 'Unknown error'));
+      setError('Koneksi error. Pastikan backend berjalan.');
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchCMS = async (t: string) => {
-    try {
-      const res = await fetch(`${API_URL}/cms`, {
-        headers: { 'Authorization': `Bearer ${t}` }
-      });
-      const data = await res.json();
-      setCmsData(data);
-    } catch (err) {
-      console.error('CMS fetch error:', err);
-    }
-  };
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Logo & Title */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-white mb-2">DKSI</h1>
+          <p className="text-blue-300 text-lg">Admin Panel</p>
+          <p className="text-gray-400 text-sm mt-2">Kelola konten website Anda</p>
+        </div>
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setToken('');
-    localStorage.removeItem('dksi_admin_token');
-  };
-
-  useEffect(() => {
-    const savedToken = localStorage.getItem('dksi_admin_token');
-    if (savedToken) {
-      setToken(savedToken);
-      setIsLoggedIn(true);
-      fetchCMS(savedToken);
-    }
-  }, []);
-
-  if (!isLoggedIn) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center p-4">
-        <form onSubmit={handleLogin} className="bg-white rounded-lg shadow-2xl p-8 w-full max-w-md">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">DKSI Admin</h1>
-          <p className="text-slate-600 mb-6">Kelola konten website</p>
-
+        {/* Login Card */}
+        <form
+          onSubmit={handleLogin}
+          className="bg-white/10 backdrop-blur-md border border-blue-500/30 rounded-xl p-8 shadow-2xl"
+        >
+          {/* Error Message */}
           {error && (
-            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-              {error}
+            <div className="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-lg">
+              <p className="text-red-200 text-sm">⚠️ {error}</p>
             </div>
           )}
 
-          <div className="mb-4">
-            <label className="block text-slate-700 font-medium mb-2">Email</label>
+          {/* Email Input */}
+          <div className="mb-6">
+            <label className="block text-white font-medium mb-3">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500"
+              placeholder="admin@dksi.co.id"
+              className="w-full px-4 py-3 bg-white/10 border border-blue-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
               disabled={loading}
             />
           </div>
 
-          <div className="mb-6">
-            <label className="block text-slate-700 font-medium mb-2">Password</label>
+          {/* Password Input */}
+          <div className="mb-8">
+            <label className="block text-white font-medium mb-3">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500"
-              placeholder="admin123"
+              placeholder="Masukkan password"
+              className="w-full px-4 py-3 bg-white/10 border border-blue-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
               disabled={loading}
             />
+            <p className="text-gray-400 text-xs mt-2">Hubungi admin untuk reset password</p>
           </div>
 
+          {/* Login Button */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
+            className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 text-white font-bold rounded-lg transition duration-300"
           >
-            {loading ? 'Menghubungkan...' : 'Login'}
+            {loading ? '🔄 Sedang login...' : '🔓 Masuk'}
           </button>
+
+          {/* Demo Text */}
+          <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+            <p className="text-blue-300 text-xs">
+              <strong>Demo:</strong><br/>
+              Email: admin@dksi.co.id<br/>
+              Password: admin123
+            </p>
+          </div>
         </form>
-      </div>
-    );
-  }
 
-  return (
-    <div className="min-h-screen bg-slate-50">
-      <nav className="bg-white shadow-sm border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-slate-900">DKSI CMS</h2>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-          >
-            Logout
-          </button>
-        </div>
-      </nav>
-
-      <div className="max-w-7xl mx-auto p-6">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-xl font-bold text-slate-900 mb-4">Konten Website</h3>
-          
-          {cmsData ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
-              {Object.entries(cmsData).map(([key, value]: any) => (
-                <div key={key} className="p-3 bg-slate-50 rounded border border-slate-200">
-                  <p className="font-medium text-slate-700 text-sm">{key}</p>
-                  <p className="text-slate-600 text-xs mt-1 truncate">
-                    {typeof value === 'object' ? JSON.stringify(value).slice(0, 100) : String(value).slice(0, 100)}
-                  </p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-slate-600">Loading CMS data...</p>
-          )}
+        {/* Features Info */}
+        <div className="mt-8 grid grid-cols-3 gap-4 text-center">
+          <div className="text-gray-300">
+            <p className="text-2xl mb-2">✏️</p>
+            <p className="text-xs">Edit Konten</p>
+          </div>
+          <div className="text-gray-300">
+            <p className="text-2xl mb-2">💾</p>
+            <p className="text-xs">Simpan Otomatis</p>
+          </div>
+          <div className="text-gray-300">
+            <p className="text-2xl mb-2">🌐</p>
+            <p className="text-xs">Live Update</p>
+          </div>
         </div>
       </div>
     </div>
