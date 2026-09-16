@@ -11,6 +11,31 @@
   const navItems = () => document.querySelectorAll('.nav-item[data-view]');
   const views = () => document.querySelectorAll('.view');
 
+  function showOnboarding() {
+    if (localStorage.getItem('onboarding_done')) return;
+    const modal = document.getElementById('onboardingModal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    function go(step){
+      modal.querySelectorAll('.onb-step').forEach(s=>s.classList.add('hidden'));
+      const t = modal.querySelector('#onbStep'+step);
+      if(t) t.classList.remove('hidden');
+    }
+    go(1);
+    modal.querySelectorAll('[data-next]').forEach(btn=>{
+      btn.addEventListener('click', ()=> go(btn.getAttribute('data-next')));
+    });
+    modal.querySelector('.btn-close')?.addEventListener('click', () => {
+      localStorage.setItem('onboarding_done','true');
+      modal.classList.add('hidden'); modal.classList.remove('flex');
+    });
+    modal.querySelector('.btn-skip')?.addEventListener('click', () => {
+      localStorage.setItem('onboarding_done','true');
+      modal.classList.add('hidden'); modal.classList.remove('flex');
+    });
+  }
+
   function setView(name) {
     const allNav = navItems();
     allNav.forEach(a => a.classList.remove('active'));
@@ -179,6 +204,26 @@
     ed.querySelectorAll('.toggle-switch').forEach(el => {
       el.addEventListener('click', () => el.classList.toggle('on'));
     });
+
+    // live preview debounce
+    let _prevT;
+    ed.querySelectorAll('[data-field]').forEach(function(el){
+      el.addEventListener('input', function(){
+        clearTimeout(_prevT);
+        _prevT = setTimeout(function(){
+          const panel = document.querySelector('.preview-panel');
+          if(panel){
+            // simple: update preview text mirrors data-field value if matching element exists
+            const field = el.getAttribute('data-field');
+            const mirror = panel.querySelector('[data-preview="'+field+'"]');
+            if(mirror) mirror.textContent = el.value;
+            // if no mirror, flash border to indicate live
+            panel.style.outline = '2px solid #25D6FF';
+            setTimeout(function(){ panel.style.outline=''; }, 400);
+          }
+        }, 250);
+      });
+    });
   }
 
   function collectFields_UNUSED() {
@@ -224,26 +269,26 @@
     window.CMS.addActivity('Saved draft', editorName);
     window.CMS.saveDraft();
     window.CMS.revisionsPush(window.CMS.get());
-    showToast('Draft saved successfully — data live in localStorage', 'success');
+    showToast('Draft tersimpan — data aktif di localStorage', 'success');
   }
 
   async function doPublish(editorName) {
-    const ok = await confirmDialog('Publish this content?', 'This version will become visible on the live website.', false);
+    const ok = await confirmDialog('Tayangkan konten ini?', 'Versi ini akan tampil di website live.', false);
     if (!ok) return;
     const data = window.CMS.get();
     window.CMS.publish(data);
     window.CMS.addActivity('Published content', editorName);
     window.CMS.revisionsPush(data);
-    showToast('Published successfully!', 'success');
+    showToast('Berhasil ditayangkan!', 'success');
     refreshDashboard();
   }
 
   async function doReset() {
-    const ok = await confirmDialog('Reset to defaults?', 'All custom edits will be permanently removed and Company Profile defaults restored. This action cannot be undone.', true);
+    const ok = await confirmDialog('Reset ke default?', 'Semua perubahan kustom akan dihapus permanen dan data Company Profile dipulihkan. Tindakan ini tidak dapat dibatalkan.', true);
     if (!ok) return;
     window.CMS.reset();
     window.CMS.addActivity('Reset to default', 'System reset');
-    showToast('Reverted to Company Profile defaults', 'success');
+    showToast('Dikembalikan ke default Company Profile', 'success');
     renderEditor(document.querySelector('.nav-item.active')?.getAttribute('data-view') || 'dashboard');
     refreshDashboard();
   }
@@ -253,7 +298,7 @@
     data.services.push({ tag: String(data.services.length + 1).padStart(2, '0'), title: 'New Service', sub: 'Service subtitle', desc: 'Description here.', points: ['Feature 1', 'Feature 2'], visible: true });
     window.CMS.save(data);
     window.CMS.addActivity('Added service', 'New Service');
-    showToast('Service added', 'success');
+    showToast('Layanan ditambahkan', 'success');
     renderEditor('services');
   }
 
@@ -263,7 +308,7 @@
     data.portfolio.items[key] = { title: 'New Project', client: 'Client Name', loc: 'Location', shortDesc: 'Short description', desc: 'Detailed description of project.', img: 'https://images.unsplash.com/photo-1556761175-5973aa6160b3?auto=format&fit=crop&w=800&q=80', cat: 'smart', featured: false, status: 'draft' };
     window.CMS.save(data);
     window.CMS.addActivity('Added portfolio', 'New Project');
-    showToast('Portfolio added (Draft)', 'success');
+    showToast('Portofolio ditambahkan (Draft)', 'success');
     renderEditor('portfolio');
   }
 
@@ -272,7 +317,7 @@
     data.solInfra.push({ icon: 'ri-service-line', title: 'New Solution', desc: 'Description placeholder.', visible: true });
     window.CMS.save(data);
     window.CMS.addActivity('Added solution', 'New Solution');
-    showToast('Solution added', 'success');
+    showToast('Solusi ditambahkan', 'success');
     renderEditor('solutions');
   }
 
@@ -281,7 +326,7 @@
     data.why.push({ icon: 'ri-brain-line', title: 'New Reason', desc: 'Why customers choose DKSI.' });
     window.CMS.save(data);
     window.CMS.addActivity('Added why card', 'New Reason');
-    showToast('Why card added', 'success');
+    showToast('Kartu Why ditambahkan', 'success');
     renderEditor('why');
   }
 
@@ -290,7 +335,7 @@
     data.compliance.push({ icon: 'ri-shield-check-line', title: 'New Certification', subtitle: 'Subtitle', desc: 'Description.', points: ['Point 1', 'Point 2'] });
     window.CMS.save(data);
     window.CMS.addActivity('Added certification', 'New Certification');
-    showToast('Certification added', 'success');
+    showToast('Sertifikasi ditambahkan', 'success');
     renderEditor('compliance');
   }
 
@@ -299,7 +344,7 @@
     data.trusted.push({ name: 'NEW CLIENT', subtitle: 'Client subtitle' });
     window.CMS.save(data);
     window.CMS.addActivity('Added client', 'NEW CLIENT');
-    showToast('Client added', 'success');
+    showToast('Klien ditambahkan', 'success');
     renderEditor('trusted');
   }
 
@@ -309,31 +354,85 @@
     data.process.steps.push({ num, title: 'New Step', desc: 'Step brief.', detail: 'Detailed description.' });
     window.CMS.save(data);
     window.CMS.addActivity('Added process step', 'Step ' + num);
-    showToast('Process step added', 'success');
+    showToast('Langkah proses ditambahkan', 'success');
     renderEditor('process');
   }
 
   function editorHeader(title, subtitle) {
+    const meta = window.CMS.get().meta || {};
+    const isPublished = (meta.lastPublished && meta.lastPublished > (meta.lastDraft || 0));
     return `
       <div class="editor-header">
         <div>
           <h2 class="editor-title">${title}</h2>
-          <p class="editor-subtitle">${subtitle}</p>
+          <p class="editor-subtitle">${subtitle} <span class="badge ${isPublished ? 'bg-green-500' : 'bg-amber-500'} ml-2 text-white px-2 py-0.5 rounded text-[10px]">${isPublished ? 'Tayang' : 'Draft'}</span></p>
         </div>
         <div class="editor-actions">
-          <button class="btn-ghost" data-action="saveDraft"><i class="ri-save-line"></i> Save Draft</button>
+          <button class="btn-ghost" data-action="saveDraft"><i class="ri-save-line"></i> Simpan Draft</button>
           <button class="btn-secondary" data-action="preview"><i class="ri-eye-line"></i> Preview</button>
-          <button class="btn-primary" data-action="publish"><i class="ri-upload-cloud-line"></i> Publish</button>
+          <button class="btn-primary" data-action="publish"><i class="ri-upload-cloud-line"></i> Tayangkan Sekarang</button>
         </div>
       </div>`;
   }
 
   function inputField(label, placeholderOrValue, dataField, type = 'text', hint = '') {
+    const isIcon = dataField.includes('.icon');
+    const isMedia = /Image|heroImage|\bimg\b/i.test(dataField);
+    if(isIcon){
+      return `<div class="field"><label class="field-label">${label}</label><div class="flex gap-2"><input data-field="${dataField}" type="${type}" class="field-input flex-1" placeholder="${placeholderOrValue}" value="${escapeHtml(placeholderOrValue)}" /><button type="button" class="btn-secondary flex-shrink-0" onclick="window.admin.openIconPicker('[data-field=&quot;${dataField}&quot;]')"><i class="ri-icons-line"></i> Icon</button></div>${hint ? `<p class="field-hint">${hint}</p>` : ''}</div>`;
+    }
+    if(isMedia){
+      return `<div class="field"><label class="field-label">${label}</label><div class="flex gap-2"><input data-field="${dataField}" type="${type}" class="field-input flex-1" placeholder="${placeholderOrValue}" value="${escapeHtml(placeholderOrValue)}" /><button type="button" class="btn-secondary flex-shrink-0" onclick="window.admin.openMediaPicker('[data-field=&quot;${dataField}&quot;]')"><i class="ri-image-line"></i> Pilih dari Galeri</button></div>${hint ? `<p class="field-hint">${hint}</p>` : ''}</div>`;
+    }
     return `<div class="field"><label class="field-label">${label}</label><input data-field="${dataField}" type="${type}" class="field-input" placeholder="${placeholderOrValue}" value="${escapeHtml(placeholderOrValue)}" />${hint ? `<p class="field-hint">${hint}</p>` : ''}</div>`;
   }
 
   function textareaField(label, value, dataField, rows = 4, hint = '') {
     return `<div class="field"><label class="field-label">${label}</label><textarea data-field="${dataField}" class="field-textarea" rows="${rows}">${escapeHtml(value)}</textarea>${hint ? `<p class="field-hint">${hint}</p>` : ''}</div>`;
+  }
+
+  function openIconPicker(targetInputSelector) {
+    const modal = document.getElementById('iconPickerModal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    const grid = modal.querySelector('.icon-grid') || modal.querySelector('.grid');
+    const icons = ['ri-service-line', 'ri-server-line', 'ri-shield-check-line', 'ri-brain-line', 'ri-cpu-line', 'ri-database-line', 'ri-global-line', 'ri-settings-line', 'ri-tools-line', 'ri-shield-line', 'ri-user-line', 'ri-building-line'];
+    if (grid) {
+      grid.innerHTML = icons.map(function(ic){ return '<div class="p-3 bg-slate-800 hover:bg-slate-700 cursor-pointer rounded text-center text-white" data-ic="'+ic+'"><i class="'+ic+' text-xl"></i><p class="text-[9px] mt-1 truncate">'+ic+'</p></div>'; }).join('');
+      grid.querySelectorAll('[data-ic]').forEach(function(el){
+        el.addEventListener('click', function(){
+          const inp = document.querySelector(targetInputSelector);
+          if(inp){ inp.value = el.getAttribute('data-ic'); inp.dispatchEvent(new Event('input', {bubbles:true})); }
+          modal.classList.add('hidden'); modal.classList.remove('flex');
+        });
+      });
+    }
+    const cb = modal.querySelector('.btn-close'); if(cb) cb.onclick = function(){ modal.classList.add('hidden'); modal.classList.remove('flex'); };
+  }
+
+  function openMediaPicker(targetInputSelector) {
+    const modal = document.getElementById('mediaPickerModal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    const media = window.CMS.getMedia() || [];
+    const grid = modal.querySelector('.media-grid') || modal.querySelector('.grid');
+    if (grid) {
+      if(media.length){
+        grid.innerHTML = media.map(function(m){ return '<div class="bg-slate-800 rounded cursor-pointer overflow-hidden p-2 hover:bg-slate-700" data-url="'+m.url+'"><img src="'+m.url+'" class="h-16 w-full object-cover rounded"><p class="text-[10px] truncate mt-1 text-white">'+m.name+'</p></div>'; }).join('');
+        grid.querySelectorAll('[data-url]').forEach(function(el){
+          el.addEventListener('click', function(){
+            const inp = document.querySelector(targetInputSelector);
+            if(inp){ inp.value = el.getAttribute('data-url'); inp.dispatchEvent(new Event('input', {bubbles:true})); }
+            modal.classList.add('hidden'); modal.classList.remove('flex');
+          });
+        });
+      } else {
+        grid.innerHTML = '<p class="text-xs text-slate-400 col-span-full">Belum ada media. Upload di Media Library.</p>';
+      }
+    }
+    const cb2 = modal.querySelector('.btn-close'); if(cb2) cb2.onclick = function(){ modal.classList.add('hidden'); modal.classList.remove('flex'); };
   }
 
   function escapeHtml(str) {
@@ -798,7 +897,7 @@
 
   function renderLeadershipEditor(/*data*/) {
     return `${editorHeader('Leadership', 'Personnel management (structure ready, add team members here).')}
-      <div class="cms-card"><div class="p-6"><div class="empty-state"><i class="ri-team-line"></i><h3>No leadership data yet</h3><p>Add Director, Commissioner, and operational heads.</p><button class="btn-primary" onclick="showToast('Add leadership — implement form UI next','info')"><i class="ri-add-line"></i> Add Member</button></div></div></div>`;
+      <div class="cms-card"><div class="p-6"><div class="empty-state"><i class="ri-team-line"></i><h3>No leadership data yet</h3><p>Add Director, Commissioner, and operational heads.</p><button class="btn-primary" onclick="showToast('Tambah leadership — implementasi form selanjutnya','info')"><i class="ri-add-line"></i> Add Member</button></div></div></div>`;
   }
 
   function renderSeoEditor(data) {
@@ -874,7 +973,7 @@
                 <div class="p-3">
                   <p class="text-xs font-bold text-white truncate">${escapeHtml(m.name)}</p>
                   <p class="text-[10px] text-slate-400 truncate">${escapeHtml(m.alt || m.url.slice(0, 28))}</p>
-                  <button class="btn-ghost w-full mt-2 text-[10px]" onclick="navigator.clipboard.writeText('${escapeHtml(m.url)}');showToast('URL copied','success')">Copy URL</button>
+                  <button class="btn-ghost w-full mt-2 text-[10px]" onclick="navigator.clipboard.writeText('${escapeHtml(m.url)}');showToast('URL disalin','success')">Copy URL</button>
                 </div>
               </div>`).join('') : `<div class="empty-state col-span-full"><i class="ri-image-2-line"></i><h3>No media yet</h3><p>Upload hero, portfolio, and client images here.</p></div>`}
           </div>
@@ -988,6 +1087,7 @@
       loginScreen.style.display = 'none';
       adminApp.classList.remove('hidden');
       refreshDashboard();
+      showOnboarding();
       // deferred - window.admin may not exist yet on auto-login
       setTimeout(() => { if (window.admin?.loadContactsFromServer) window.admin?.loadContactsFromServer(); }, 0);
     }
@@ -1010,9 +1110,9 @@
         localStorage.setItem(AUTH_KEY, '1');
         window.CMS.addActivity('Admin login', email);
         showAdmin();
-        showToast('Signed in — welcome back', 'success');
+        showToast('Berhasil masuk — selamat datang kembali', 'success');
       } else {
-        showToast('Invalid email or password', 'error');
+        showToast('Email atau password salah', 'error');
       }
     });
 
@@ -1020,12 +1120,13 @@
       localStorage.removeItem(AUTH_KEY);
       window.CMS.addActivity('Admin logout', 'Session ended');
       showLogin();
-      showToast('Signed out', 'info');
+      showToast('Berhasil keluar', 'info');
     });
   }
 
-  window.admin = {
-    showToast, confirmDialog,
+  admin = {
+    openIconPicker, openMediaPicker,
+    showToast, confirmDialog, openIconPicker, openMediaPicker, openIconPicker, openMediaPicker,
 
     exportData() {
       const blob = new Blob([JSON.stringify(window.CMS.get(), null, 2)], { type: 'application/json' });
@@ -1035,7 +1136,7 @@
       a.download = 'dksi-cms-export-' + new Date().toISOString().slice(0, 10) + '.json';
       a.click();
       URL.revokeObjectURL(url);
-      showToast('Exported JSON', 'success');
+      showToast('JSON diekspor', 'success');
     },
 
     importData() {
@@ -1052,10 +1153,10 @@
             window.CMS.save(data);
             window.CMS.addActivity('Imported data', file.name);
             window.CMS.revisionsPush(data);
-            showToast('Import successful — reload', 'success');
+            showToast('Impor berhasil — reload', 'success');
             setTimeout(() => location.reload(), 500);
           } catch (err) {
-            showToast('Invalid JSON', 'error');
+            showToast('JSON tidak valid', 'error');
           }
         };
         reader.readAsText(file);
@@ -1068,7 +1169,7 @@
     uploadLogo(input, field) {
       const file = input.files[0];
       if (!file) return;
-      if (!file.type.startsWith('image/')) { showToast('Only images allowed', 'error'); return; }
+      if (!file.type.startsWith('image/')) { showToast('Hanya gambar diperbolehkan', 'error'); return; }
       const reader = new FileReader();
       reader.onload = () => {
         const url = reader.result;
@@ -1076,9 +1177,9 @@
         cur.branding = cur.branding || {};
         cur.branding[field] = url;
         window.CMS.save(cur);
-        window.CMS.addActivity('Uploaded logo (' + field + ')', file.name);
+        window.CMS.addActivity('Terupload logo (' + field + ')', file.name);
         window.CMS.revisionsPush(cur);
-        showToast('Logo updated — publish to reflect on website', 'success');
+        showToast('Logo diperbarui — tayangkan untuk tampil di website', 'success');
         renderEditor('branding');
       };
       reader.readAsDataURL(file);
@@ -1087,12 +1188,12 @@
     handleMediaUpload(input) {
       const file = input.files[0];
       if (!file) return;
-      if (!file.type.startsWith('image/')) { showToast('Only images allowed', 'error'); return; }
+      if (!file.type.startsWith('image/')) { showToast('Hanya gambar diperbolehkan', 'error'); return; }
       const reader = new FileReader();
       reader.onload = () => {
         window.CMS.addMedia({ url: reader.result, name: file.name, alt: file.name, size: file.size, category: 'general' });
-        window.CMS.addActivity('Uploaded media', file.name);
-        showToast('Uploaded — ' + file.name, 'success');
+        window.CMS.addActivity('Terupload media', file.name);
+        showToast('Terupload — ' + file.name, 'success');
         renderEditor('media');
       };
       reader.readAsDataURL(file);
@@ -1101,7 +1202,7 @@
     uploadSolutionImage(input, catId, idx) {
       const file = input.files[0];
       if (!file) return;
-      if (!file.type.startsWith('image/')) { showToast('Only images allowed', 'error'); return; }
+      if (!file.type.startsWith('image/')) { showToast('Hanya gambar diperbolehkan', 'error'); return; }
       const reader = new FileReader();
       reader.onload = () => {
         const cur = window.CMS.get();
@@ -1109,9 +1210,9 @@
         cur[catId][idx] = cur[catId][idx] || {};
         cur[catId][idx].img = reader.result;
         window.CMS.save(cur);
-        window.CMS.addActivity('Uploaded solution image', catId + '#' + idx);
+        window.CMS.addActivity('Terupload solution image', catId + '#' + idx);
         window.CMS.revisionsPush(cur);
-        showToast('Image uploaded for solution — Save Draft → Publish', 'success');
+        showToast('Gambar solusi terupload — Simpan Draft → Publish', 'success');
         renderEditor('solutions');
       };
       reader.readAsDataURL(file);
@@ -1123,19 +1224,19 @@
       cur[catId].push({ id: catId + '-' + Date.now(), icon: 'ri-service-line', title: 'New Solution', shortDesc: 'Short description.', desc: 'Detailed description here.', img: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80', features: ['Feature 1', 'Feature 2'], benefits: ['Benefit 1'], status: 'draft' });
       window.CMS.save(cur);
       window.CMS.addActivity('Added solution', catId + ' — New Solution');
-      showToast('Solution added (Draft)', 'success');
+      showToast('Solusi ditambahkan (Draft)', 'success');
       renderEditor('solutions');
     },
 
     deleteSolutionItem(catId, idx) {
       const cur = window.CMS.get();
       const item = cur[catId]?.[idx];
-      confirmDialog('Delete this solution?', item?.title ? '"' + item.title + '" will be permanently removed.' : 'This solution will be deleted.', true).then(ok => {
+      confirmDialog('Hapus solusi ini?', item?.title ? '"' + item.title + '" akan dihapus permanen.' : 'Solusi ini akan dihapus.', true).then(ok => {
         if (!ok) return;
         cur[catId].splice(idx, 1);
         window.CMS.save(cur);
         window.CMS.addActivity('Deleted solution', catId + '#' + idx);
-        showToast('Solution deleted', 'success');
+        showToast('Solusi dihapus', 'success');
         renderEditor('solutions');
       });
     },
@@ -1147,16 +1248,16 @@
       const iconEl = document.getElementById('newCatIcon');
       const id = (idEl?.value || '').trim();
       const name = (nameEl?.value || '').trim();
-      if (!id || !name) { showToast('Please fill Category ID and Name', 'error'); return; }
-      if (!/^sol[A-Za-z]+$/.test(id)) { showToast('Category ID must start with sol (e.g. solCloud)', 'error'); return; }
+      if (!id || !name) { showToast('Isi ID dan Nama Kategori', 'error'); return; }
+      if (!/^sol[A-Za-z]+$/.test(id)) { showToast('ID Kategori harus diawali sol (contoh solCloud)', 'error'); return; }
       const cur = window.CMS.get();
-      if (cur[id]) { showToast('Category ID already exists', 'error'); return; }
+      if (cur[id]) { showToast('ID Kategori sudah ada', 'error'); return; }
       cur[id] = [];
       cur.solCategories = cur.solCategories || [];
       cur.solCategories.push({ id, name, desc: descEl?.value || '', icon: iconEl?.value || 'ri-service-line', color: 'royal' });
       window.CMS.save(cur);
       window.CMS.addActivity('Added category', name);
-      showToast('Category created — add solutions now', 'success');
+      showToast('Kategori dibuat — tambah solusi sekarang', 'success');
       renderEditor('solutions');
     },
 
@@ -1164,11 +1265,11 @@
       const list = window.CMS.revisionsList();
       const rev = list.find(r => String(r.id) === String(id));
       if (!rev) return;
-      confirmDialog('Restore this version?', 'Current content will be replaced by this snapshot. A new revision will be created first.', false).then(ok => {
+      confirmDialog('Pulihkan versi ini?', 'Konten saat ini akan diganti snapshot ini. Revisi baru akan dibuat dulu.', false).then(ok => {
         if (!ok) return;
         window.CMS.revisionsPush(window.CMS.get());
         window.CMS.save(rev.data);
-        showToast('Version restored', 'success');
+        showToast('Versi dipulihkan', 'success');
         renderEditor(document.querySelector('.nav-item.active')?.getAttribute('data-view') || 'revisions');
       });
     },
@@ -1189,19 +1290,19 @@
       data.portfolio.items[key] = item;
       window.CMS.save(data);
       window.CMS.addActivity('Edited portfolio', item.title);
-      showToast('Portfolio updated', 'success');
+      showToast('Portofolio diperbarui', 'success');
       renderEditor('portfolio');
     },
 
     deletePortfolio(key) {
       const item = window.CMS.get().portfolio.items[key];
-      confirmDialog('Delete this project?', '\"' + escapeHtml(item.title) + '\" will be permanently removed.', true).then(ok => {
+      confirmDialog('Hapus proyek ini?', '\"' + escapeHtml(item.title) + '\" akan dihapus permanen.', true).then(ok => {
         if (!ok) return;
         const d = window.CMS.get();
         delete d.portfolio.items[key];
         window.CMS.save(d);
         window.CMS.addActivity('Deleted portfolio', item.title);
-        showToast('Project deleted', 'success');
+        showToast('Proyek dihapus', 'success');
         renderEditor('portfolio');
       });
     }

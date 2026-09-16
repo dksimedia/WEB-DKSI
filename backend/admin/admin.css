@@ -656,3 +656,204 @@
   text-transform: uppercase;
   letter-spacing: .06em;
 }
+
+/* ============================================
+   10: NEW COMPONENTS
+   ============================================ */
+
+/* a) Status Badge */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 99px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.status-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.status-badge.draft { background: rgba(245, 158, 11, .15); color: #fbbf24; }
+.status-badge.draft::before { background: #fbbf24; }
+.status-badge.published { background: rgba(16, 185, 129, .15); color: #34d399; }
+.status-badge.published::before { background: #34d399; }
+
+/* b) Onboarding Modal */
+.onboarding-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, .8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+.onboarding-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 24px;
+  padding: 2rem;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+}
+.onboarding-dots {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+.onboarding-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #334155;
+}
+.onboarding-dot.active { background: var(--cms-accent); }
+
+/* c) Icon Picker */
+.icon-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+}
+.icon-item {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  cursor: pointer;
+  transition: all .2s;
+}
+.icon-item:hover { transform: scale(1.1); border-color: var(--cms-accent); }
+.icon-item.selected { border: 2px solid var(--cms-accent); }
+
+/* d) Media Picker */
+.media-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.media-item {
+  aspect-ratio: 1;
+  background: #0f172a;
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.media-item.selected::after {
+  content: "✓";
+  position: absolute;
+  inset: 0;
+  background: rgba(37, 214, 255, .3);
+  display: grid;
+  place-items: center;
+  font-weight: bold;
+}
+
+/* e) Field Hint — text-xs slate-400 mt-1 */
+.field-hint {
+  font-size: 12px;
+  line-height: 1.4;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+/* f) Help Tip — ? circle dengan tooltip hover */
+.help-tip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid #475569;
+  background: #1e293b;
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: help;
+  margin-left: 6px;
+  position: relative;
+  vertical-align: middle;
+  transition: all .15s;
+}
+.help-tip::before { content: "?"; }
+.help-tip::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0f172a;
+  color: #f1f5f9;
+  border: 1px solid #334155;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  padding: 6px 10px;
+  border-radius: 8px;
+  white-space: nowrap;
+  max-width: 220px;
+  white-space: normal;
+  width: max-content;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s;
+  z-index: 100;
+  box-shadow: var(--cms-shadow-lg);
+}
+.help-tip:hover { border-color: var(--cms-accent); color: var(--cms-accent); background: rgba(37,214,255,.08); }
+.help-tip:hover::after { opacity: 1; }
+
+/* g) Publish Button — gradient emerald besar */
+.btn-publish {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);
+  color: #fff;
+  padding: 14px 32px;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  border-radius: 12px;
+  border: 0;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(16,185,129,.35);
+  transition: all .15s;
+}
+.btn-publish:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(16,185,129,.45); filter: brightness(1.05); }
+.btn-publish:active { transform: translateY(0); }
+
+/* h) Editor Actions Fix — tombol besar jelas */
+.editor-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.editor-actions .btn-primary,
+.editor-actions .btn-secondary,
+.editor-actions .btn-danger,
+.editor-actions .btn-ghost,
+.editor-actions .btn-publish {
+  padding: 12px 24px;
+  font-size: 13px;
+  min-height: 44px;
+}
+.editor-actions .btn-publish { padding: 14px 32px; font-size: 14px; }
