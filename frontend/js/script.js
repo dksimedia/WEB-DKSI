@@ -122,6 +122,44 @@ if (menuBtn && mobileNav) {
   );
 }
 
+// 2b2. Scroll spy — nav active follow section in viewport (DOM-order sorted)
+(function initScrollSpy() {
+  const links = [...document.querySelectorAll('#navbar .nav-link, #mobileNav a')];
+  if (!links.length) return;
+  const sectionIds = ['home', 'about', 'services', 'sol-infra', 'why', 'portfolio', 'contact'];
+  let sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
+  sections.sort((a, b) => a.offsetTop - b.offsetTop);
+  if (!sections.length) return;
+  const navH = () => document.getElementById('navbar')?.offsetHeight || 72;
+  function setActive(activeId) {
+    links.forEach(a => {
+      a.classList.remove('active');
+      const href = a.getAttribute('href')?.slice(1);
+      if (href === activeId) a.classList.add('active');
+    });
+  }
+  let ticking = false;
+  function onScroll() {
+    if (ticking) return; ticking = true;
+    requestAnimationFrame(() => {
+      ticking = false;
+      if (window.scrollY < 80) { setActive('home'); return; }
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 80) { setActive('contact'); return; }
+      const y = window.scrollY + navH() + 24;
+      let cur = sections[0].id;
+      for (const s of sections) { if (s.offsetTop <= y) cur = s.id; else break; }
+      setActive(cur);
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', () => { sections.sort((a, b) => a.offsetTop - b.offsetTop); onScroll(); }, { passive: true });
+  links.forEach(a => a.addEventListener('click', () => {
+    const id = a.getAttribute('href')?.slice(1);
+    if (id) setActive(id);
+  }));
+  onScroll();
+})();
+
 // 2c. Dropdown a11y — SOLUTIONS / PRODUCTS
 // Supports: hover (CSS group-hover/group-focus-within) + click + keyboard
 // Keys: Enter/Space toggle, ArrowDown open, ArrowUp/Down navigate, Esc close
