@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,6 +32,10 @@ Route::get('/health', function () {
         'timestamp' => now()->toIso8601String(),
     ]);
 });
+
+// Auth Routes
+Route::post('/auth/login', [AuthController::class, 'login']);
+Route::middleware('auth:sanctum')->get('/auth/user', [AuthController::class, 'user']);
 
 // Contact form (public)
 Route::post('/contacts', function (Request $request) {
