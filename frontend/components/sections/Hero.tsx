@@ -1,217 +1,165 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
-import { cn } from "@/lib/utils";
+import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { cn } from '@/lib/utils';
+import { CMSData } from '@/lib/cms';
 
-interface HeroProps {
-  data: {
-    eyebrow?: string;
-    headline: string;
-    headlineAccent?: string;
-    headlineSuffix?: string;
-    description: string;
-    primaryCtaText: string;
-    primaryCtaLink: string;
-    secondaryCtaText?: string;
-    secondaryCtaLink?: string;
-    heroImage?: string;
-    heroBadges?: Array<{ text: string; color?: string }>;
-  };
-}
-
-export default function HeroSection({ data }: HeroProps) {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [isClient, setIsClient] = useState(false);
+export default function HeroSection({ data }: { data: CMSData['homepage'] }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const [mouse, setMouse] = useState<{ x: number | null, y: number | null }>({ x: null, y: null });
 
   useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  useEffect(() => {
-    if (!isClient || !canvasRef.current) return;
-
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let particles: Particle[] = [];
-    let animationFrameId: number;
+    let width = canvas.width = canvas.offsetWidth;
+    let height = canvas.height = canvas.offsetHeight;
+    const particles: any[] = [];
+    const particleCount = 80;
+    const maxDistance = 150;
 
     const handleResize = () => {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
-      initParticles();
+      width = canvas.width = canvas.offsetWidth;
+      height = canvas.height = canvas.offsetHeight;
     };
 
-    interface Particle {
-      x: number;
-      y: number;
-      vx: number;
-      vy: number;
-      radius: number;
-      alpha: number;
+    window.addEventListener('resize', handleResize);
+
+    class Particle {
+      x: number; y: number; vx: number; vy: number; radius: number;
+      constructor() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.vx = (Math.random() - 0.5) * 0.5;
+        this.vy = (Math.random() - 0.5) * 0.5;
+        this.radius = Math.random() * 2 + 1;
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        if (this.x < 0 || this.x > width) this.vx *= -1;
+        if (this.y < 0 || this.y > height) this.vy *= -1;
+
+        if (mouse.x !== null && mouse.y !== null) {
+          const dx = mouse.x - this.x;
+          const dy = mouse.y - this.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < maxDistance) {
+            const angle = Math.atan2(dy, dx);
+            this.vx = Math.cos(angle) * 1.5;
+            this.vy = Math.sin(angle) * 1.5;
+          }
+        }
+      }
+      draw() {
+        ctx!.beginPath();
+        ctx!.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx!.fillStyle = 'rgba(74, 117, 194, 0.6)';
+        ctx!.fill();
+      }
     }
 
-    const initParticles = () => {
-      particles = [];
-      const particleCount = 80;
-      for (let i = 0; i < particleCount; i++) {
-        particles.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          vx: (Math.random() - 0.5) * 0.5,
-          vy: (Math.random() - 0.5) * 0.5,
-          radius: Math.random() * 2 + 1,
-          alpha: Math.random() * 0.5 + 0.5,
-        });
+    for (let i = 0; i < particleCount; i++) particles.push(new Particle());
+
+    let animationFrame: number;
+    const animate = () => {
+      ctx.clearRect(0, 0, width, height);
+      for (const p of particles) {
+        p.update();
+        p.draw();
       }
-    };
-
-    const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      particles.forEach((p, i) => {
-        p.x += p.vx;
-        p.y += p.vy;
-
-        // Mouse interaction
-        const dx = mousePos.x - p.x;
-        const dy = mousePos.y - p.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance < 150) {
-          const force = (150 - distance) / 150;
-          p.vx -= (dx / distance) * force * 0.02;
-          p.vy -= (dy / distance) * force * 0.02;
-        }
-
-        // Boundary check
-        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-
-        // Draw particle
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(26, 54, 93, ${p.alpha})`;
-        ctx.fill();
-
-        // Draw connections
+      for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
-          const p2 = particles[j];
-          const dx2 = p.x - p2.x;
-          const dy2 = p.y - p2.y;
-          const dist2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
-
-          if (dist2 < 150) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < maxDistance) {
             ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(26, 54, 93, ${0.3 * (1 - dist2 / 150)})`;
+            ctx.strokeStyle = `rgba(74, 117, 194, ${0.2 * (1 - dist / maxDistance)})`;
+            ctx.lineWidth = 0.5;
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
             ctx.stroke();
           }
         }
-      });
-
-      animationFrameId = requestAnimationFrame(draw);
+      }
+      animationFrame = requestAnimationFrame(animate);
     };
 
-    window.addEventListener("resize", handleResize);
-    handleResize();
-    draw();
-
+    animate();
     return () => {
-      window.removeEventListener("resize", handleResize);
-      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(animationFrame);
     };
-  }, [isClient, mousePos]);
+  }, [mouse]);
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    const rect = canvasRef.current?.getBoundingClientRect();
-    if (rect) {
-      setMousePos({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      });
-    }
+    if (!canvasRef.current) return;
+    const r = canvasRef.current.getBoundingClientRect();
+    setMouse({
+      x: e.clientX - r.left,
+      y: e.clientY - r.top
+    });
   };
 
-  if (!isClient) return null;
+  const handleMouseLeave = () => setMouse({ x: null, y: null });
 
   return (
-    <section id="home" className="relative min-h-[92vh] pt-28 pb-12 overflow-hidden">
-      {/* Canvas particle background */}
-      <canvas
-        ref={canvasRef}
-        onMouseMove={handleMouseMove}
-        className="absolute inset-0 w-full h-full pointer-events-none z-0"
-      />
+    <section 
+      id="home" 
+      ref={sectionRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="relative min-h-[92vh] flex items-center overflow-hidden bg-[var(--bg)]"
+    >
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-[20%] -left-[10%] w-[600px] h-[600px] rounded-full bg-blue-600/10 dark:bg-blue-400/10 blur-[120px] animate-pulse-glow" />
+        <div className="absolute top-[40%] -right-[10%] w-[500px] h-[500px] rounded-full bg-cyan-600/10 dark:bg-cyan-400/15 blur-[100px] animate-pulse-glow" style={{ animationDuration: '10s' }} />
+      </div>
       
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 z-0 bg-gradient-to-b from-[rgba(255,255,255,0.6)] to-[rgba(255,255,255,1)] dark:from-[rgba(7,7,7,0.7)] dark:to-[rgba(7,7,7,1)]" />
+      <canvas 
+        ref={canvasRef} 
+        className="absolute inset-0 w-full h-full opacity-40 dark:opacity-60" 
+      />
 
-      <div className="relative z-10 container mx-auto px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Text content */}
-          <div className="space-y-8 text-center lg:text-left">
-            {data.eyebrow && (
-              <span className="inline-block px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-bold tracking-wider uppercase">
-                {data.eyebrow}
-              </span>
-            )}
-
-            <h1 className="text-5xl lg:text-7xl font-bold tracking-tight leading-tight">
-              {data.headline}
-              {data.headlineAccent && (
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-400 dark:to-cyan-300">
-                  {data.headlineAccent}
-                </span>
-              )}
-              {data.headlineSuffix}
+      <div className="relative max-w-[1280px] mx-auto px-6 lg:px-8 pt-28 pb-12 w-full z-10">
+        <div className="grid lg:grid-cols-2 gap-10 items-center">
+          <div className="animate-p2m-reveal">
+            <div className="inline-flex items-center gap-2 bg-[var(--bg-card)] border border-[var(--border)] rounded-full px-3 py-1 text-[10px] font-bold tracking-widest text-[var(--brand)] shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse" />
+              <span className="uppercase">{data.eyebrow || 'Solusi ICT Terintegrasi'}</span>
+            </div>
+            
+            <h1 className="mt-6 text-[42px] sm:text-[52px] lg:text-[68px] font-extrabold leading-[0.9] tracking-tight text-[var(--brand)]">
+              <span>{data.headline || 'Dukung'}</span><br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">
+                {data.headlineAccent || 'Bisnis Anda'}
+              </span>{' '}
+              <span>{data.headlineSuffix || 'dengan ICT'}</span>
             </h1>
-
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto lg:mx-0">
-              {data.description}
+            
+            <p className="mt-6 max-w-xl text-[18px] leading-relaxed text-[var(--text-soft)]">
+              {data.description || 'Menghadirkan solusi ICT terintegrasi untuk membantu pendidikan, pemerintahan, dan enterprise menjadi lebih terkoneksi, aman, dan efisien.'}
             </p>
-
-            {/* Badges */}
-            {data.heroBadges && data.heroBadges.length > 0 && (
-              <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
-                {data.heroBadges.map((badge, i) => (
-                  <div
-                    key={i}
-                    className={cn(
-                      "px-4 py-2 rounded-full text-sm font-medium border",
-                      badge.color === "blue" && "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300",
-                      badge.color === "green" && "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300",
-                      badge.color === "purple" && "bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300",
-                      badge.color === "orange" && "bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800 text-orange-700 dark:text-orange-300",
-                      badge.color === "red" && "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300",
-                      badge.color === "cyan" && "bg-cyan-50 dark:bg-cyan-900/20 border-cyan-200 dark:border-cyan-800 text-cyan-700 dark:text-cyan-300",
-                      (!badge.color || ["blue", "green", "purple", "orange", "red", "cyan"].includes(badge.color)) &&
-                        "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300"
-                    )}
-                  >
-                    {badge.text}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* CTA buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Link
-                href={data.primaryCtaLink || "#"}
-                className="inline-flex items-center justify-center px-8 py-4 text-base font-bold text-white transition-all duration-300 bg-blue-600 hover:bg-blue-700 rounded-full shadow-lg shadow-blue-600/30 hover:shadow-blue-600/50 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
-              >
-                {data.primaryCtaText}
-              </Link>
-              {data.secondaryCtaText && data.secondaryCtaLink && (
-                <Link
-                  href={data.secondaryCtaLink}
-                  className="inline-flex items-center justify-center px-8 py-4 text-base font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-full transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+            
+            <div className="mt-8 flex flex-wrap gap-3">
+              {data.primaryCtaText && (
+                <Link 
+                  href={data.primaryCtaLink || '#contact'} 
+                  className="bg-blue-700 dark:bg-cyan-600 text-white dark:text-gray-950 px-8 py-4 rounded-full text-xs font-extrabold tracking-widest hover:brightness-110 transition shadow-lg uppercase inline-flex items-center gap-2"
+                >
+                  {data.primaryCtaText} <i className="ri-arrow-right-line" />
+                </Link>
+              )}
+              {data.secondaryCtaText && (
+                <Link 
+                  href={data.secondaryCtaLink || '#solutions'} 
+                  className="bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text)] px-8 py-4 rounded-full text-xs font-extrabold tracking-widest hover:bg-[var(--bg-soft)] transition uppercase"
                 >
                   {data.secondaryCtaText}
                 </Link>
@@ -219,19 +167,28 @@ export default function HeroSection({ data }: HeroProps) {
             </div>
           </div>
 
-          {/* Hero image */}
-          <div className="relative mx-auto lg:ml-auto max-w-md lg:max-w-full">
-            <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-blue-600/20 dark:shadow-blue-600/10 aspect-[4/3] group">
-              <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/20 to-cyan-500/20 group-hover:opacity-75 transition-opacity duration-500" />
-              
-              <Image
-                src={data.heroImage || "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=600&fit=crop"}
-                alt="Hero illustration"
-                fill
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
+          <div className="relative animate-p2m-reveal" style={{ animationDelay: '200ms' }}>
+            <div className="relative rounded-[32px] overflow-hidden bg-[var(--bg-card)] border border-[var(--border)] shadow-2xl group">
+              <Image 
+                src={data.heroImage || 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1100&q=80'}
+                alt="Enterprise ICT"
+                width={1100}
+                height={440}
+                className="w-full h-[440px] object-cover object-center group-hover:scale-105 transition-transform duration-700"
                 priority
-                sizes="(max-width: 768px) 100vw, 50vw"
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
+              
+              <div className="absolute bottom-5 left-5 right-5 grid grid-cols-3 gap-2 z-10">
+                {(data.heroBadges || ['AI', 'IoT', 'SECURITY', 'NETWORK', 'DATA', 'SMART']).map((badge, i) => {
+                  const text = typeof badge === 'string' ? badge : badge.text;
+                  return (
+                    <span key={i} className="backdrop-blur-md bg-white/10 dark:bg-black/20 border border-white/20 text-white text-[10px] font-bold py-2 px-1 text-center rounded-xl uppercase tracking-tighter">
+                      {text}
+                    </span>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
