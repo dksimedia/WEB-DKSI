@@ -37,6 +37,15 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads'), STATIC_OP
 app.use('/admin', express.static(path.join(__dirname, '../admin'), STATIC_OPTS));
 app.use(express.static(path.join(__dirname, '../../frontend'), STATIC_OPTS));
 
+// Multer / validation error handler — return JSON not HTML
+app.use((err, req, res, next) => {
+  if (!err) return next();
+  if (err.code === 'LIMIT_FILE_SIZE') return res.status(400).json({ error: 'File too large (max 5MB)' });
+  if (err.message === 'File type not allowed') return res.status(400).json({ error: err.message });
+  if (err instanceof Error && err.message) return res.status(400).json({ error: err.message });
+  next(err);
+});
+
 // SPA fallback for admin deep links — but keep /api 404
 app.get('/', (req, res) => res.redirect('/admin/admin.html'));
 app.use((req, res) => {
