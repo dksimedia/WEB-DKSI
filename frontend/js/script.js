@@ -72,6 +72,17 @@ const htmlEl      = document.documentElement;
 const themeToggle = $('#themeToggle');
 const themeIcon   = $('#themeIcon');
 
+let _brandingCache = null;
+function updateLogos() {
+  const isDark = htmlEl.classList.contains('dark');
+  const b = _brandingCache;
+  const light = b?.secondaryLight || 'assets/logo/secondary-light.png';
+  const dark  = b?.secondaryDark  || 'assets/logo/secondary-dark.png';
+  const navLogo = isDark ? dark : light;
+  const siteLogo = $('#siteLogo');  if (siteLogo) siteLogo.src = navLogo;
+  const abLogo   = $('#aboutLogo'); if (abLogo)   abLogo.src   = navLogo;
+}
+
 function updateThemeUI() {
   const isDark = htmlEl.classList.contains('dark');
   htmlEl.setAttribute('data-theme', isDark ? 'dark' : 'light');
@@ -80,6 +91,7 @@ function updateThemeUI() {
       ? 'ri-sun-line text-lg text-amber-400'
       : 'ri-moon-line text-lg';
   }
+  updateLogos();
 }
 
 updateThemeUI();
@@ -278,13 +290,9 @@ function applyHero(cms) {
 
 function applyBranding(cms) {
   if (!cms.branding) return;
-  const isDark = htmlEl.classList.contains('dark');
-  const navLogo   = isDark ? (cms.branding.secondaryDark  || cms.branding.mainLogo) : (cms.branding.secondaryLight || cms.branding.mainLogo);
-  const aboutLogo = isDark ? (cms.branding.secondaryDark  || cms.branding.mainLogo) : (cms.branding.secondaryLight || cms.branding.mainLogo);
+  _brandingCache = cms.branding;
   const footLogo  = cms.branding.mainLogo;
-
-  const siteLogo = $('#siteLogo');   if (siteLogo)  siteLogo.src = navLogo;
-  const abLogo   = $('#aboutLogo');  if (abLogo)    abLogo.src   = aboutLogo;
+  updateLogos();
   const ftLogo   = $('#footerLogo'); if (ftLogo)    ftLogo.src   = footLogo;
 
   if (cms.branding.favicon) {
