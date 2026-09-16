@@ -346,15 +346,63 @@
     return JSON.parse(localStorage.getItem("dksi_revisions_v2") || "[]");
   }
 
+
+  // ================= HYBRID SERVER SYNC (v3) =================
+  // Backend is now source of truth. localStorage remains as offline cache.
+  const API_BASE = '';
+  async function fetchPublishedRemote() {
+    try {
+      const r = await fetch('/api/cms', { headers: { 'Accept': 'application/json' } });
+      if (!r.ok) return null;
+      const data = await r.json();
+      // cache to localStorage as draft snapshot
+      try {
+        localStorage.setItem(PUBLISHED_KEY, JSON.stringify(data));
+        // also keep draft in sync if no draft exists
+        if (!localStorage.getItem(KEY)) localStorage.setItem(KEY, JSON.stringify(data));
+      } catch {}
+      return data;
+    } catch { return null; }
+  }
+  async function fetchDraftRemote(token) {
+    try {
+      const headers = { 'Accept': 'application/json' };
+      const tok = token || localStorage.getItem('dksi_token');
+      if (tok) headers['Authorization'] = 'Bearer ' + tok;
+      const r = await fetch('/api/cms/draft', { headers });
+      if (!r.ok) return null;
+      return await r.json();
+    } catch { return null; }
+  }
+  // Eager fetch on load — hydrate published cache then notify
+  (function serverHydrate(){
+    fetchPublishedRemote().then(data => {
+      if (data) {
+        window.dispatchEvent(new CustomEvent('cms:update', { detail: data }));
+        window.dispatchEvent(new CustomEvent('cms:published', { detail: data }));
+        console.log('[CMS] hydrated from /api/cms');
+      }
+    });
+  })();
+
   window.CMS = {
     KEY,
+    PUBLISHED_KEY,
     DEFAULTS: deepClone(DEFAULTS),
     get, set, setPath, save, load, reset, mergeDefaults,
     addActivity, getActivity,
     getMedia, addMedia,
     contactsAdd, contactsList,
     revisionsPush, revisionsList,
-    deepClone
+    getPublished, publish, saveDraft,
+    deepClone,
+    // new server helpers
+    fetchPublishedRemote,
+    fetchDraftRemote,
+    async syncFromServer() {
+      const data = await fetchPublishedRemote();
+      return data || getPublished();
+    }
   };
 
   if (!localStorage.getItem(KEY)) {
@@ -379,5 +427,5 @@
     }
   });
 
-  console.log("[CMS] cms-data.js loaded — localStorage bridge active");
+  console.log("[CMS] cms-data.js loaded — hybrid (server + localStorage) active");
 })();

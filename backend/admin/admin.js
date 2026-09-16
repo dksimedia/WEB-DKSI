@@ -269,7 +269,14 @@
     window.CMS.addActivity('Saved draft', editorName);
     window.CMS.saveDraft();
     window.CMS.revisionsPush(window.CMS.get());
-    showToast('Draft tersimpan — data aktif di localStorage', 'success');
+    // --- server sync (best-effort, localStorage stays fallback) ---
+    try {
+      const tok = localStorage.getItem('dksi_token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (tok) headers['Authorization'] = 'Bearer ' + tok;
+      await fetch('/api/cms/draft', { method: 'PUT', headers, body: JSON.stringify(window.CMS.get()) });
+    } catch {}
+    showToast('Draft tersimpan — sinkron ke server', 'success');
   }
 
   async function doPublish(editorName) {
@@ -279,7 +286,14 @@
     window.CMS.publish(data);
     window.CMS.addActivity('Published content', editorName);
     window.CMS.revisionsPush(data);
-    showToast('Berhasil ditayangkan!', 'success');
+    try {
+      const tok = localStorage.getItem('dksi_token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (tok) headers['Authorization'] = 'Bearer ' + tok;
+      await fetch('/api/cms/publish', { method: 'POST', headers });
+      await fetch('/api/cms/draft', { method: 'PUT', headers, body: JSON.stringify(window.CMS.get()) });
+    } catch {}
+    showToast('Berhasil ditayangkan! (live)', 'success');
     refreshDashboard();
   }
 
@@ -1105,24 +1119,41 @@
     if (localStorage.getItem(AUTH_KEY) === '1') showAdmin();
     else showLogin();
 
-    loginForm?.addEventListener('submit', e => {
+    loginForm?.addEventListener('submit', async e => {
       e.preventDefault();
       const email = document.getElementById('loginEmail')?.value?.trim();
       const pass = document.getElementById('loginPass')?.value;
-      const ADMIN_EMAIL = 'admin@dksi.co.id';
-      const ADMIN_PASS = 'dksi2026';
-      if (email === ADMIN_EMAIL && pass === ADMIN_PASS) {
-        localStorage.setItem(AUTH_KEY, '1');
-        window.CMS.addActivity('Admin login', email);
-        showAdmin();
-        showToast('Berhasil masuk — selamat datang kembali', 'success');
-      } else {
-        showToast('Email atau password salah', 'error');
+      try {
+        const r = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password: pass })
+        });
+        const res = await r.json();
+        if (r.ok && res.token) {
+          localStorage.setItem('dksi_token', res.token);
+          localStorage.setItem(AUTH_KEY, '1');
+          window.CMS.addActivity('Admin login', email);
+          showAdmin();
+          showToast('Berhasil masuk (server authenticated)', 'success');
+        } else {
+          showToast(res.error || 'Email atau password salah', 'error');
+        }
+      } catch (err) {
+        // Fallback offline dev check
+        if (email === 'admin@dksi.co.id' && pass === 'dksi2026') {
+          localStorage.setItem(AUTH_KEY, '1');
+          showAdmin();
+          showToast('Berhasil masuk (offline fallback)', 'success');
+        } else {
+          showToast('Gagal terhubung ke server auth', 'error');
+        }
       }
     });
 
     logoutBtn?.addEventListener('click', () => {
       localStorage.removeItem(AUTH_KEY);
+      localStorage.removeItem('dksi_token');
       window.CMS.addActivity('Admin logout', 'Session ended');
       showLogin();
       showToast('Berhasil keluar', 'info');
@@ -1329,7 +1360,9 @@
       ,
 
     loadContactsFromServer() {
-      fetch('/api/admin/contacts')
+      const tok = localStorage.getItem('dksi_token');
+      const headers = tok ? { 'Authorization': 'Bearer ' + tok } : {};
+      fetch('/api/admin/contacts', { headers })
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data)) {

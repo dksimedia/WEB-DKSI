@@ -147,7 +147,7 @@
     portfolio: {
       items: {
         "av": { title: "Audio Visual & Smart Room", client: "Kementerian Pendidikan & Kebudayaan", loc: "Jakarta", shortDesc: "Instalasi sistem AV terintegrasi dan smart room untuk ruang paperless.", desc: "Implementasi komprehensif sistem AV terintegrasi mencakup display interaktif, audio conference, dan manajemen ruang pintar.", img: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80", cat: "smart", featured: false, status: "published" },
-        "office": { title: "Smart Office System", client: "Kementerian Ketenagakerjaan", loc: "Jakarta Selatan", desc: "Paperless Conference System dan digital office automation.", img: "https://images.unsplash.com/photo-1497366811353-2533774fa78d?auto=format&fit=crop&w=800&q=80", cat: "smart", featured: true, status: "published" },
+        "office": { title: "Smart Office System", client: "Kementerian Ketenagakerjaan", loc: "Jakarta Selatan", desc: "Paperless Conference System dan digital office automation.", img: "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=800&q=80", cat: "smart", featured: true, status: "published" },
         "micro": { title: "Microteaching Lab", client: "Universitas Negeri", loc: "Bandung", desc: "Lab simulasi mengajar dengan perekaman multi-kamera.", img: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80", cat: "edu", featured: false, status: "published" },
         "infra": { title: "Enterprise Data Center", client: "Kementerian Hukum & HAM", loc: "Jakarta", desc: "Server high-availability dan sistem backup terpusat.", img: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80", cat: "infra", featured: false, status: "published" },
         "net": { title: "Backbone Networking", client: "BUMN & Instansi Pemerintah", loc: "Multi Cabang", desc: "Pemasangan fiber optic backbone dan router enterprise grade.", img: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80", cat: "infra", featured: false, status: "published" },
@@ -346,15 +346,63 @@
     return JSON.parse(localStorage.getItem("dksi_revisions_v2") || "[]");
   }
 
+
+  // ================= HYBRID SERVER SYNC (v3) =================
+  // Backend is now source of truth. localStorage remains as offline cache.
+  const API_BASE = '';
+  async function fetchPublishedRemote() {
+    try {
+      const r = await fetch('/api/cms', { headers: { 'Accept': 'application/json' } });
+      if (!r.ok) return null;
+      const data = await r.json();
+      // cache to localStorage as draft snapshot
+      try {
+        localStorage.setItem(PUBLISHED_KEY, JSON.stringify(data));
+        // also keep draft in sync if no draft exists
+        if (!localStorage.getItem(KEY)) localStorage.setItem(KEY, JSON.stringify(data));
+      } catch {}
+      return data;
+    } catch { return null; }
+  }
+  async function fetchDraftRemote(token) {
+    try {
+      const headers = { 'Accept': 'application/json' };
+      const tok = token || localStorage.getItem('dksi_token');
+      if (tok) headers['Authorization'] = 'Bearer ' + tok;
+      const r = await fetch('/api/cms/draft', { headers });
+      if (!r.ok) return null;
+      return await r.json();
+    } catch { return null; }
+  }
+  // Eager fetch on load — hydrate published cache then notify
+  (function serverHydrate(){
+    fetchPublishedRemote().then(data => {
+      if (data) {
+        window.dispatchEvent(new CustomEvent('cms:update', { detail: data }));
+        window.dispatchEvent(new CustomEvent('cms:published', { detail: data }));
+        console.log('[CMS] hydrated from /api/cms');
+      }
+    });
+  })();
+
   window.CMS = {
     KEY,
+    PUBLISHED_KEY,
     DEFAULTS: deepClone(DEFAULTS),
     get, set, setPath, save, load, reset, mergeDefaults,
     addActivity, getActivity,
     getMedia, addMedia,
     contactsAdd, contactsList,
     revisionsPush, revisionsList,
-    deepClone
+    getPublished, publish, saveDraft,
+    deepClone,
+    // new server helpers
+    fetchPublishedRemote,
+    fetchDraftRemote,
+    async syncFromServer() {
+      const data = await fetchPublishedRemote();
+      return data || getPublished();
+    }
   };
 
   if (!localStorage.getItem(KEY)) {
@@ -379,5 +427,5 @@
     }
   });
 
-  console.log("[CMS] cms-data.js loaded — localStorage bridge active");
+  console.log("[CMS] cms-data.js loaded — hybrid (server + localStorage) active");
 })();
