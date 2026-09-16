@@ -138,7 +138,7 @@ if (menuBtn && mobileNav) {
 (function initScrollSpy() {
   const links = [...document.querySelectorAll('#navbar .nav-link, #mobileNav a')];
   if (!links.length) return;
-  const sectionIds = ['home', 'about', 'services', 'sol-infra', 'why', 'portfolio', 'contact'];
+  const sectionIds = ['home', 'about', 'services', 'sol-infra', 'portfolio', 'why', 'contact'];
   let sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
   sections.sort((a, b) => a.offsetTop - b.offsetTop);
   if (!sections.length) return;
