@@ -341,7 +341,7 @@
 
   function addTrustedItem() {
     const data = window.CMS.get();
-    data.trusted.push({ name: 'NEW CLIENT', subtitle: 'Client subtitle' });
+    data.trusted.push({ name: 'NEW CLIENT', subtitle: 'Client subtitle', logo: '' });
     window.CMS.save(data);
     window.CMS.addActivity('Added client', 'NEW CLIENT');
     showToast('Klien ditambahkan', 'success');
@@ -734,13 +734,18 @@
         <div class="p-6 repeater">
           ${(data.trusted || []).map((c, i) => `
             <div class="repeater-item">
-              <div class="repeater-head">
-                <span class="repeater-title">${escapeHtml(c.name)}</span>
+              <div class="repeater-head flex items-center gap-3">
+                ${c.logo ? `<img src="${escapeHtml(c.logo)}" class="w-10 h-10 object-contain bg-white rounded-lg p-1 border">` : `<span class="w-10 h-10 grid place-items-center bg-slate-800 rounded-lg text-slate-500"><i class="ri-image-line"></i></span>`}
+                <span class="repeater-title flex-1">${escapeHtml(c.name)}</span>
                 <button class="icon-btn danger" onclick="(function(){const d=CMS.get();d.trusted.splice(${i},1);CMS.save(d);location.reload();})()"><i class="ri-delete-bin-line"></i></button>
               </div>
               <div class="field-row">
                 ${inputField('Name', c.name, 'trusted.'+i+'.name')}
                 ${inputField('Subtitle', c.subtitle || '', 'trusted.'+i+'.subtitle')}
+              </div>
+              <div class="field-row mt-3">
+                <div class="field"><label class="field-label">Logo</label><div class="flex gap-2"><input data-field="trusted.${i}.logo" class="field-input flex-1" value="${escapeHtml(c.logo || '')}" placeholder="assets/clients/...png atau pilih dari galeri"><button type="button" class="btn-secondary flex-shrink-0" onclick="window.admin.openMediaPicker('[data-field=\'trusted.${i}.logo\']')"><i class="ri-image-line"></i> Pilih</button></div><p class="field-hint">Upload dulu di Galeri Foto, lalu pilih — atau paste URL. Kosong = tampil teks nama saja.</p></div>
+                <div class="field"><label class="field-label">Upload Logo</label><input type="file" accept="image/*,.svg" class="field-input" onchange="admin.uploadTrustedLogo(this, ${i})"><p class="field-hint">PNG/SVG transparan 400×200 disarankan.</p></div>
               </div>
             </div>`).join('')}
         </div>
@@ -1124,9 +1129,8 @@
     });
   }
 
-  admin = {
-    openIconPicker, openMediaPicker,
-    showToast, confirmDialog, openIconPicker, openMediaPicker, openIconPicker, openMediaPicker,
+  window.admin = {
+    showToast, confirmDialog, openIconPicker, openMediaPicker,
 
     exportData() {
       const blob = new Blob([JSON.stringify(window.CMS.get(), null, 2)], { type: 'application/json' });
@@ -1292,6 +1296,22 @@
       window.CMS.addActivity('Edited portfolio', item.title);
       showToast('Portofolio diperbarui', 'success');
       renderEditor('portfolio');
+    },
+
+    uploadTrustedLogo(input, idx) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const cur = window.CMS.get();
+        cur.trusted[idx] = cur.trusted[idx] || {};
+        cur.trusted[idx].logo = reader.result;
+        window.CMS.save(cur);
+        window.CMS.addActivity('Uploaded client logo', cur.trusted[idx].name || ('#'+idx));
+        showToast('Logo klien disimpan — Tayangkan untuk tampil', 'success');
+        renderEditor('trusted');
+      };
+      reader.readAsDataURL(file);
     },
 
     deletePortfolio(key) {

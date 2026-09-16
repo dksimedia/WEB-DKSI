@@ -131,12 +131,18 @@
       { icon: 'ri-government-line', title: 'TKDN Support', subtitle: 'Komitmen Produk Dalam Negeri', desc: 'Mendukung regulasi TKDN untuk pengadaan pemerintah dan institusi nasional.', points: ['Dokumen TKDN lengkap', 'Sesuai LKPP', 'Vendor resmi prinsipal'] }
     ],
     trusted: [
-      { name: "KEMENDIKBUD", subtitle: "Kementerian P&K" },
-      { name: "KEMENAKER", subtitle: "Kementerian Ketenagakerjaan" },
-      { name: "KEMENKUMHAM", subtitle: "Kementerian Hukum & HAM" },
-      { name: "KEMENDAGRI", subtitle: "Kementerian Dalam Negeri" },
-      { name: "BUMN", subtitle: "BUMN & Enterprise" },
-      { name: "UNIVERSITAS", subtitle: "Universitas Negeri" }
+      { name: "KEMENAG", subtitle: "Kementerian Agama", logo: "assets/clients/kementerian-agama-new-logo.png" },
+      { name: "POLRI", subtitle: "Kepolisian RI", logo: "assets/clients/lambang-polri.png" },
+      { name: "TMII", subtitle: "Taman Mini Indonesia Indah", logo: "assets/clients/2560px-tmii-logo-svg.png" },
+      { name: "KOMDIGI", subtitle: "Kementerian Komdigi", logo: "assets/clients/logo-kementerian-komunikasi-dan-digital-republik-indonesia-komdigi.svg" },
+      { name: "BAWASLU", subtitle: "Badan Pengawas Pemilu", logo: "assets/clients/logo-bawaslu.png" },
+      { name: "LKPP", subtitle: "Lembaga Kebijakan Pengadaan", logo: "assets/clients/logo-lkpp.png" },
+      { name: "KEMENAKER", subtitle: "Kementerian Ketenagakerjaan", logo: "assets/clients/logo-of-the-ministry-of-manpower-of-the-republic-of-indonesia-svg.png" },
+      { name: "UNHAN", subtitle: "Universitas Pertahanan", logo: "assets/clients/logo-unhan.png" },
+      { name: "PUPR", subtitle: "Kementerian PUPR", logo: "assets/clients/pupr.png" },
+      { name: "BSN", subtitle: "Badan Standardisasi Nasional", logo: "assets/clients/badan-standardisasi-nasional-seeklogo.png" },
+      { name: "RSPON", subtitle: "RS Pusat Otak Nasional", logo: "assets/clients/rspon.png" },
+      { name: "BRIN", subtitle: "Ristekdikti", logo: "assets/clients/ristekdikti-logo-f092eadfb2-seeklogo-com.png" }
     ],
     portfolio: {
       items: {

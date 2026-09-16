@@ -350,7 +350,7 @@ function applyCollections(cms) {
   if (cms.solAi)    window.DKSI_DATA.solAiData    = cms.solAi.map(x => ({ icon: x.icon || 'ri-building-line', title: x.title, desc: x.desc }));
   if (cms.why)        window.DKSI_DATA.whyData        = cms.why.map(w => ({ icon: w.icon || 'ri-award-line', title: w.title, desc: w.desc }));
   if (cms.compliance) window.DKSI_DATA.complianceData = cms.compliance.map(c => ({ icon: c.icon || 'ri-shield-check-line', title: c.title, subtitle: c.subtitle || '', desc: c.desc, points: c.points || [] }));
-  if (cms.trusted)    window.DKSI_DATA.trustedData    = cms.trusted.map(t => t.name || t);
+  if (cms.trusted)    window.DKSI_DATA.trustedData    = cms.trusted.map(t => typeof t === 'string' ? { name: t } : t);
   if (cms.portfolio?.items) window.DKSI_DATA.portfolios = cms.portfolio.items;
 }
 
@@ -487,7 +487,14 @@ if (!window.DKSI_DATA) {
       { icon: 'ri-shield-check-line', title: 'ISO 9001:2015', subtitle: 'Quality Management Certified', desc: 'Standar mutu internasional di setiap tahapan proyek.', points: ['Proses terdokumentasi', 'Audit berkala', 'Continuous improvement'] },
       { icon: 'ri-government-line',   title: 'TKDN Support',  subtitle: 'Komitmen Produk Dalam Negeri', desc: 'Mendukung regulasi TKDN untuk pengadaan nasional.', points: ['Dokumen TKDN lengkap', 'Sesuai LKPP', 'Vendor resmi prinsipal'] },
     ],
-    trustedData: ['KEMENDIKBUD', 'KEMENAKER', 'KEMENKUMHAM', 'KEMENDAGRI', 'BUMN', 'UNIVERSITAS'],
+    trustedData: [
+      { name: 'KEMENAG', logo: 'assets/clients/kementerian-agama-new-logo.png' },
+      { name: 'POLRI', logo: 'assets/clients/lambang-polri.png' },
+      { name: 'TMII', logo: 'assets/clients/2560px-tmii-logo-svg.png' },
+      { name: 'KOMDIGI', logo: 'assets/clients/logo-kementerian-komunikasi-dan-digital-republik-indonesia-komdigi.svg' },
+      { name: 'BAWASLU', logo: 'assets/clients/logo-bawaslu.png' },
+      { name: 'LKPP', logo: 'assets/clients/logo-lkpp.png' },
+    ],
     portfolios: {
       av:     { title: 'Audio Visual & Smart Room',  client: 'Kementerian Pendidikan & Kebudayaan', loc: 'Jakarta', desc: 'Sistem AV terintegrasi & smart room paperless.', img: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80', cat: 'smart', status: 'published' },
       office: { title: 'Smart Office System',        client: 'Kementerian Ketenagakerjaan',          loc: 'Jakarta Selatan', desc: 'Paperless Conference & office automation.',       img: 'https://images.unsplash.com/photo-1497366811353-2533774fa78d?auto=format&fit=crop&w=800&q=80', cat: 'smart', status: 'published' },
@@ -650,9 +657,22 @@ function renderGrids() {
   }
   const trustedGrid = $('#trustedGrid');
   if (trustedGrid && data.trustedData) {
-    trustedGrid.innerHTML = data.trustedData.map(name =>
-      `<div class="p-4 rounded-2xl bg-[var(--bg)] border border-[var(--border)] text-center"><span class="text-xs font-black tracking-widest text-[var(--text-muted)]">${name}</span></div>`
-    ).join('');
+    trustedGrid.innerHTML = data.trustedData.map(it => {
+      const name = typeof it === 'string' ? it : it.name;
+      const logo = typeof it === 'object' ? it.logo : '';
+      return logo ? `<div class="p-4 rounded-2xl bg-[var(--bg)] border border-[var(--border)] grid place-items-center"><img src="${logo}" alt="${name}" class="h-10 object-contain grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition" loading="lazy"></div>` : `<div class="p-4 rounded-2xl bg-[var(--bg)] border border-[var(--border)] text-center"><span class="text-xs font-black tracking-widest text-[var(--text-muted)]">${name}</span></div>`;
+    }).join('');
+  }
+  // CMS-driven logo carousel (#trusted)
+  const logoTrack = document.getElementById('logoTrack');
+  if (logoTrack && data.trustedData) {
+    const makeImgs = (arr) => arr.map(it => {
+      const name = typeof it === 'string' ? it : it.name;
+      const logo = typeof it === 'object' ? it.logo : '';
+      return logo ? `<img src="${logo}" alt="${name}" class="logo-item" loading="lazy">` : `<span class="px-6 py-3 border border-[var(--border)] rounded-xl bg-[var(--bg-soft)] text-sm font-black">${name}</span>`;
+    }).join('');
+    const html = `<div class="flex items-center gap-10 whitespace-nowrap">${makeImgs(data.trustedData)}</div><div class="flex items-center gap-10 whitespace-nowrap" aria-hidden="true">${makeImgs(data.trustedData)}</div>`;
+    logoTrack.innerHTML = html;
   }
 }
 
