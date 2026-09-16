@@ -660,7 +660,7 @@ function renderGrids() {
     trustedGrid.innerHTML = data.trustedData.map(it => {
       const name = typeof it === 'string' ? it : it.name;
       const logo = typeof it === 'object' ? it.logo : '';
-      return logo ? `<div class="p-4 rounded-2xl bg-[var(--bg)] border border-[var(--border)] grid place-items-center"><img src="${logo}" alt="${name}" class="h-10 object-contain grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition" loading="lazy"></div>` : `<div class="p-4 rounded-2xl bg-[var(--bg)] border border-[var(--border)] text-center"><span class="text-xs font-black tracking-widest text-[var(--text-muted)]">${name}</span></div>`;
+      return logo ? `<div class="p-3 rounded-2xl bg-white border border-[var(--border)] grid place-items-center h-[64px]"><img src="${logo}" alt="${name}" class="max-h-[44px] max-w-[100px] w-auto h-auto object-contain grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition" loading="lazy"></div>` : `<div class="p-4 rounded-2xl bg-[var(--bg)] border border-[var(--border)] text-center"><span class="text-xs font-black tracking-widest text-[var(--text-muted)]">${name}</span></div>`;
     }).join('');
   }
   // CMS-driven logo carousel (#trusted)
@@ -885,6 +885,28 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     }
   });
 });
+
+// 10. Logo motion — pixel2motion (Trustworthy/Professional 700ms, minimal modern)
+(function(){
+  const logo = document.getElementById('siteLogo');
+  if(!logo) return;
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  function replay(){
+    logo.classList.remove('replay');
+    void logo.offsetWidth; // reflow
+    logo.style.animation = 'none';
+    void logo.offsetWidth;
+    logo.style.animation = '';
+    logo.classList.add('replay');
+    // clear replay flag so CSS :hover still works
+    setTimeout(()=> logo.classList.remove('replay'), 800);
+  }
+  // Click mark replays (also scrolls to #home via wrap)
+  document.getElementById('siteLogoWrap')?.addEventListener('click', ()=> setTimeout(replay, 50));
+  // Expose for QA: ?static=1 already handled by CSS media query, ?t= not needed for this simple reveal
+  window.__p2mReady = true;
+})();
+
 document.addEventListener('mousemove', e => {
   document.querySelectorAll('.bento-item').forEach(item => {
     const rect = item.getBoundingClientRect();

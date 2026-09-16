@@ -224,12 +224,47 @@ input, select, textarea { color-scheme: light dark; }
   to { transform: translateX(-50%); }
 }
 .logo-item {
-  width: 150px;
+  width: 120px;
   height: 60px;
   object-fit: contain;
-  filter: grayscale(1) opacity(0.6);
+  filter: grayscale(1) opacity(0.7);
   transition: filter 0.3s;
+  flex-shrink: 0;
 }
 .logo-item:hover {
   filter: grayscale(0) opacity(1);
+}
+
+/* --- 10: DKSI Logo Motion — pixel2motion (Trustworthy/Professional) --- */
+:root {
+  --p2m-duration: 700ms;
+  --p2m-ease-enter: cubic-bezier(0, 0, 0.2, 1);
+  --p2m-ease-settle: cubic-bezier(0.4, 0, 0.2, 1);
+}
+#siteLogo {
+  transform-origin: left center;
+  animation: p2m-reveal var(--p2m-duration) cubic-bezier(0, 0, 0.2, 1) both;
+  will-change: transform, opacity;
+}
+@keyframes p2m-reveal {
+  0%   { opacity: 0; transform: translateY(4px) scale(0.96); filter: blur(2px); }
+  100% { opacity: 1; transform: translateY(0)   scale(1);    filter: blur(0); }
+}
+#siteLogoWrap:hover #siteLogo {
+  animation: p2m-hover 260ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes p2m-hover {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.04); }
+  100% { transform: scale(1.02); }
+}
+#footerLogo {
+  animation: p2m-reveal 700ms cubic-bezier(0, 0, 0.2, 1) both;
+  animation-delay: 120ms;
+  animation-fill-mode: both;
+}
+/* Replay helper — JS toggles .replay */
+#siteLogo.replay { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  #siteLogo, #footerLogo { animation: none !important; }
 }
