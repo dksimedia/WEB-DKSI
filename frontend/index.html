@@ -34,7 +34,7 @@
 <header id="navbar" class="fixed top-0 inset-x-0 z-50 transition-all duration-300 bg-transparent border-b border-transparent">
 <div class="max-w-[1280px] mx-auto px-6 lg:px-8 h-[72px] flex items-center justify-between">
 <a id="siteLogoWrap" href="#home" class="flex items-center gap-3">
-<img id="siteLogo" src="assets/logo/secondary-light.png" alt="DKSI Logo" class="h-9 lg:h-10 w-auto object-contain transition-all" loading="lazy" decoding="async">
+<img id="siteLogo" src="assets/logo/secondary-light.png" alt="DKSI Logo" class="h-9 lg:h-10 w-auto object-contain transition-all" loading="eager" decoding="async" fetchpriority="high" width="160" height="40">
 </a>
 <nav class="hidden lg:flex items-center gap-1 text-[13px] font-semibold tracking-wide">
 <a href="#home" class="nav-link active px-3 py-2">HOME</a>
@@ -166,7 +166,7 @@
 </div>
 <div class="relative">
 <div class="relative rounded-[32px] overflow-hidden bg-[var(--bg-card)] border border-[var(--border)] shadow-2xl hero-img">
-<img id="heroImage" sizes="(max-width: 1024px) 100vw, 50vw" src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1100&q=80" class="w-full h-[440px] object-cover object-center" alt="Enterprise ICT" loading="lazy" decoding="async">
+<img id="heroImage" sizes="(max-width: 1024px) 100vw, 50vw" src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1100&q=80" class="w-full h-[440px] object-cover object-center" alt="Enterprise ICT" loading="eager" decoding="async" fetchpriority="high" width="1100" height="440">
 <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent dark:from-black/60"></div>
 <div id="heroBadges" class="absolute bottom-5 left-5 right-5 grid grid-cols-3 gap-2 z-10">
 <span class="glass-btn">AI</span><span class="glass-btn">IoT</span><span class="glass-btn">SECURITY</span>
